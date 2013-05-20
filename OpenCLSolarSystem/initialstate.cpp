@@ -317,6 +317,19 @@ bool InitialState::ExportSLF(wxString fileName)
 	message.Printf("Saving %s",fileName.c_str());
 	wxProgressDialog progressBar(message, wxT("Saving"), this->initialNumParticles, NULL, wxPD_AUTO_HIDE );
 	
+	// find the index for the earth
+	int earth =0;
+	wxString name;
+	for(int i=0; i< this->initialNumParticles; i++)
+	{
+		name = wxString(this->physicalProperties[i].Name);
+		if(name.IsSameAs(wxT("Earth")))
+		{
+			earth = i;
+			break;
+		}
+	}
+	
 	wxFileOutputStream fileOutputStream(fileName);
 	wxTextOutputStream exportSLFTextOut(fileOutputStream);
 	wxString line;
@@ -324,11 +337,29 @@ bool InitialState::ExportSLF(wxString fileName)
 	exportSLFTextOut.WriteString(line);
 	for(int i=0; i< this->initialNumParticles; i++)
 	{
+		name = wxString(this->physicalProperties[i].Name);
+		double x = this->initialPositions[i].x;
+		double y = this->initialPositions[i].y;
+		double z = this->initialPositions[i].z;
+		double vx = this->initialVelocities[i].x;
+		double vy = this->initialVelocities[i].y;
+		double vz = this->initialVelocities[i].z;
+		
+		if(name.IsSameAs(wxT("Moon")))
+		{
+			x = x - this->initialPositions[earth].x;
+			y = y - this->initialPositions[earth].y;
+			z = z - this->initialPositions[earth].z;
+			vx = vx - this->initialVelocities[earth].x;
+			vy = vy - this->initialVelocities[earth].y;
+			vz = vz - this->initialVelocities[earth].z;
+		}
+		
 		line.Printf("%.16G %.16G %.16G %.16G# %s\n",this->physicalProperties[i].Mass,this->physicalProperties[i].Radius,this->physicalProperties[i].AbsoluteMagnitude,this->physicalProperties[i].RelativisticParameter,this->physicalProperties[i].Name);
 		exportSLFTextOut.WriteString(line);
-		line.Printf("%.16E %.16E %.16E\n",this->initialPositions[i].x,this->initialPositions[i].y,this->initialPositions[i].z);
+		line.Printf("%.16E %.16E %.16E\n",x,y,z);
 		exportSLFTextOut.WriteString(line);
-		line.Printf("%.16E %.16E %.16E\n",this->initialVelocities[i].x,this->initialVelocities[i].y,this->initialVelocities[i].z);
+		line.Printf("%.16E %.16E %.16E\n",vx,vy,vz);
 		exportSLFTextOut.WriteString(line);
 		
 		if( i % 100 == 0)
