@@ -2005,13 +2005,13 @@ double KeplerSolver(double m,double e)
 		return e0 * sign;
 }
 
-#define GRAVITATIONAL_CONSTANT 6.6725985e-11
+#define GRAVITATIONAL_CONSTANT 6.6725985E-11
 #define SUN_MASS 1.98894729428839E+30
-#define SPEED_OF_LIGHT 299792458
+#define SPEED_OF_LIGHT 299792458.0
 #define OBLIQUITY_OF_THE_ECLIPTIC 0.40909260255238405
 #define COS_OBLIQUITY_OF_THE_ECLIPTIC 0.91748214228886027
 #define SIN_OBLIQUITY_OF_THE_ECLIPTIC 0.39777697090334874
-#define GIGA_METERS 1000000000
+#define GIGA_METERS 1000000000.0
 
 __kernel
 void orbitalToStateVectors( 
@@ -2079,7 +2079,7 @@ int numParticles
 	position.z = zE / GIGA_METERS;
 	position.w = mass / 1.0e+24;
 	
-	double relativisticParam = -9 * GRAVITATIONAL_CONSTANT * SUN_MASS / (SPEED_OF_LIGHT * SPEED_OF_LIGHT * semiMajorAxis);
+	double relativisticParam = -9.0 * GRAVITATIONAL_CONSTANT * SUN_MASS / (SPEED_OF_LIGHT * SPEED_OF_LIGHT * semiMajorAxis);
 	
 	double4 velocity;
 	velocity.x = vx  / 1000.0;
