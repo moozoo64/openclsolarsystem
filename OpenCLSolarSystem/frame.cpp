@@ -16,6 +16,7 @@
 #include "global.hpp"
 #include "frame.hpp"
 
+// UI event Ids
 enum
 {
     ID_TIMER = 1,
@@ -70,6 +71,7 @@ enum
 	ID_SETCENTER10
 };
 
+// mapping of UI event ids to functions
 BEGIN_EVENT_TABLE(Frame, wxFrame)
 	EVT_MENU(wxID_EXIT, Frame::OnExit)
 	EVT_MENU(wxID_ABOUT, Frame::OnAbout)
@@ -174,7 +176,7 @@ bool Frame::InitFrame(bool doubleBuffer, bool smooth, bool lighting, int numPart
 		// Give it an icon
 		this->SetIcon(wxICON(sample));
 	
-		// Add the Menu
+		// Create a menu that lets the user save, load and exit
 		wxMenu *menuFile = new wxMenu;
 		menuFile->Append( wxID_ABOUT, wxT("&About..." ));
 		menuFile->AppendSeparator();
@@ -184,12 +186,15 @@ bool Frame::InitFrame(bool doubleBuffer, bool smooth, bool lighting, int numPart
 		menuFile->Append( ID_IMPORTSLF, wxT("&Import .SLF File" ));
 		menuFile->Append( ID_EXPORTSLF, wxT("&Export .SLF File" ));
 		menuFile->Append( wxID_EXIT, wxT("E&xit" ));
-
+		
+		// Create a menu that lets the user control the running of the simulation
 		wxMenu *menuGo = new wxMenu;
 		menuGo->Append( ID_START, wxT("&Start" ));
 		menuGo->Append( ID_STOP, wxT("S&top" ));
 		menuGo->Append( ID_RESET, wxT("&Reset" ));
 
+		// Create a menu that lets the user choose the menthod used to calculate updated positions and velocities
+		// Only one option can be chosen at any time
 		wxMenu *menuIntegrator = new wxMenu;
 		menuIntegrator->AppendRadioItem( ID_SETADAMS4, wxT("Adams Bashforth Moulton 4" ));
 		menuIntegrator->AppendRadioItem( ID_SETADAMS8, wxT("Adams Bashforth Moulton 8" ));
@@ -197,11 +202,15 @@ bool Frame::InitFrame(bool doubleBuffer, bool smooth, bool lighting, int numPart
 		menuIntegrator->AppendRadioItem( ID_SETADAMS11, wxT("Adams Bashforth Moulton 11" ));
 		menuIntegrator->AppendRadioItem( ID_SETADAMS12, wxT("Adams Bashforth Moulton 12" ));
 		menuIntegrator->AppendRadioItem( ID_SETADAMS16, wxT("Adams Bashforth Moulton 16" ));
-
+		
+		// Create a menu that lets the user choose the gravity acceleration calculation method
+		// Only one option can be chosen at any time
 		wxMenu *menuGravity = new wxMenu;
 		menuGravity->AppendRadioItem( ID_SETNEWTONIAN, wxT("Newtonian"));
 		menuGravity->AppendRadioItem( ID_SETRELATIVISTIC, wxT("With Relativistic corrections"));
 	
+		// Create a menu that lets the user choose the time step size.
+		// Only one option can be chosen at any time
 		wxMenu *menuDeltaT = new wxMenu;
 		menuDeltaT->AppendRadioItem( ID_SETDELTAT15, wxT("15 Mins" ));
 		menuDeltaT->AppendRadioItem( ID_SETDELTATHR, wxT("1 Hour" ));
@@ -212,12 +221,16 @@ bool Frame::InitFrame(bool doubleBuffer, bool smooth, bool lighting, int numPart
 		menuDeltaT->AppendRadioItem( ID_SETDELTATMINUSFOURHR, wxT("-4 Hours" ));
 		menuDeltaT->AppendRadioItem( ID_SETDELTATMINUSDAY, wxT("-1 Day" ));
 		
+		// Create a menu that lets the user choose the number of bodies/particles.
+		// Only one option can be chosen at any time
 		wxMenu *menuNum = new wxMenu;
 		menuNum->AppendRadioItem( ID_SETNUMSMALL, wxT("8192" ));
 		menuNum->AppendRadioItem( ID_SETNUMMEDIUM, wxT("309760" ));
 		menuNum->AppendRadioItem( ID_SETNUMLARGE, wxT("594688" ));
 		menuNum->AppendRadioItem( ID_SETNUMMAX, wxT("Maximum" ));
 		
+		// Create a menu that lets the user choose the number of bodies/particles with gravitional effects 
+		// Only one option can be chosen at any time
 		wxMenu *menuGrav = new wxMenu;
 		menuGrav->AppendRadioItem( ID_SETGRAV16, wxT("16" ));
 		menuGrav->AppendRadioItem( ID_SETGRAV32, wxT("32" ));
@@ -229,6 +242,8 @@ bool Frame::InitFrame(bool doubleBuffer, bool smooth, bool lighting, int numPart
 		menuGrav->AppendRadioItem( ID_SETGRAV512, wxT("512" ));
 		menuGrav->AppendRadioItem( ID_SETGRAVMAX, wxT("Maximum" ));
 		
+		// Create a menu that lets the user choose a body to center the display on.
+		// Only one option can be chosen at any time
 		wxMenu *menuCenterOn = new wxMenu;
 		menuCenterOn->AppendRadioItem( ID_SETCENTER0, wxT("0" ));
 		menuCenterOn->AppendRadioItem( ID_SETCENTER1, wxT("1" ));
@@ -242,9 +257,11 @@ bool Frame::InitFrame(bool doubleBuffer, bool smooth, bool lighting, int numPart
 		menuCenterOn->AppendRadioItem( ID_SETCENTER9, wxT("9" ));
 		menuCenterOn->AppendRadioItem( ID_SETCENTER10, wxT("10" ));
 		
+		// Create a menu that lets the user choose how asteroids are displayed.
 		wxMenu *menuOptions = new wxMenu;
 		menuOptions->AppendCheckItem( ID_BLENDING, wxT("Blending"));
-
+		
+		// Add the menus to the windows menu bar
 		wxMenuBar *menuBar = new wxMenuBar;
 		menuBar->Append( menuFile, wxT("&File" ));
 		menuBar->Append( menuGo, wxT("&Go" ));
@@ -258,38 +275,39 @@ bool Frame::InitFrame(bool doubleBuffer, bool smooth, bool lighting, int numPart
 		this->SetMenuBar( menuBar );
 		wxLogDebug(wxT("Created Menu"));
 
+		// Create the status bar to display messages and the current simulated date and step count
 		this->CreateStatusBar();
 		this->SetStatusText( wxT("Nbody"));
-
 		this->Show(true);
+
+		// Create the OpenGL canvas on which the simulation will be displayed
 		this->glCanvas = new GLCanvas(this, wxID_ANY, wxDefaultPosition,wxDefaultSize, 0, wxT("GLCanvas"));
 		this->glCanvas->blending = true;
-		
-//		this->ResetAll();		
 		this->glCanvas->InitGL(this->numParticles, this->numGrav);
+		
+		// Create an openCL model to run the simulation and initialise it
 		this->clModel = new CLModel();
 		this->clModel->InitCL(this->glCanvas->getVbo(),(char *)desiredPlatform, this->preferCpu, this->numParticles, this->numGrav);
-//		this->ResetAll();
 		this->glCanvas->SetColours(this->initialState->initialColorData);
 		this->clModel->SetInitalState(this->initialState->initialPositions,this->initialState->initialVelocities);
 		this->clModel->julianDate = this->initialState->initialJulianDate;
 		this->clModel->time = 0.0f;
 		this->clModel->InitKernels();
 		this->clModel->UpdateDisplay();
-		//this->timer->Start(100,false);
+		
+		// set the keyboard focus to the simmulation display so that the keyboard functions work
 		this->glCanvas->SetFocus();
 	}
 	catch (int ex)
 	{
 		wxLogError(wxT("Exception %d"),ex);
-		//delete menuFile;
-		//delete menuBar;
 	}
 	wxLogDebug(wxT("Init Frame Succeeded"));
 
 	return true;
 }
 
+// Take the simmulation date, time and step count and display it in the status bar
 void Frame::DisplayDate()
 {
 	double jdn = this->clModel->julianDate + (this->clModel->time)*1/(60*60*24);// (11574.07407f*this->clModel->time); // 0.000001 = 1000 seconds
@@ -300,6 +318,7 @@ void Frame::DisplayDate()
 	this->SetStatusText(message);
 }
 
+// The interval timer triggers the advancement to the next step
 void Frame::OnTimer(wxTimerEvent& event)
 {
 	if(!IsShown()) return;
@@ -478,6 +497,7 @@ void Frame::ExportSlf(wxCommandEvent& event)
 	}
 }
 
+// displays a dialog for the user to chose and .bin file of initial conditions and then loads it
 void Frame::LoadInitialState(wxCommandEvent& event)
 {
 	wxLogDebug(wxT("Frame Stop"));
@@ -498,6 +518,8 @@ void Frame::LoadInitialState(wxCommandEvent& event)
 	}
 }
 
+// copys the currently displayed positions and velocities to the initial state
+// All future resets will set the simulation back to this state
 void Frame::ReadToInitialState(wxCommandEvent& event)
 {
 	wxLogDebug(wxT("Frame Stop"));
@@ -507,6 +529,7 @@ void Frame::ReadToInitialState(wxCommandEvent& event)
 	this->initialState->initialNumParticles = this->numParticles;
 }
 
+// updates the Menu after loading in a new initial.bin or slf file 
 void Frame::UpdateMenuItems()
 {
 	wxMenuBar *menuBar = this->GetMenuBar();
@@ -643,6 +666,7 @@ void Frame::ResetAll()
 	this->UpdateMenuItems();
 }
 
+// set the number of bodies (particles)
 void Frame::SetNum(wxCommandEvent& event)
 {
 	switch(event.GetId())
@@ -666,6 +690,7 @@ void Frame::SetNum(wxCommandEvent& event)
 	this->ResetAll();
 }
 
+// set the number of bodies which have a gravitation effect
 void Frame::SetGrav(wxCommandEvent& event)
 {
 	switch(event.GetId())
@@ -706,13 +731,15 @@ void Frame::SetGrav(wxCommandEvent& event)
 	this->ResetAll();
 }
 
+// Set blending for the asteroids.
+// Makes them semi transparent
 void Frame::Blending(wxCommandEvent& event)
 {
 	this->glCanvas->blending = ! this->glCanvas->blending;
 	this->Refresh(true);
 }
 
-// Sets the Integrator to use
+// Sets the Integrator used to compute new positions and velocities
 void Frame::SetIntegrator(wxCommandEvent& event)
 {
 	switch(event.GetId())
@@ -749,11 +776,14 @@ void Frame::SetIntegrator(wxCommandEvent& event)
 	this->ResetAll();
 }
 
+// sets the Acceleration calculation to use the Newtonian Gravitaton kernel
 void Frame::SetNewtonian(wxCommandEvent& event)
 {
 	this->clModel->accelerationKernelName = new wxString("newtonian");
 	this->ResetAll();
 }
+
+// sets the Acceleration calculation to use the Newtonian Gravitaton with Relativistic corrections kernel
 void Frame::SetRelativistic(wxCommandEvent& event)
 {
 	this->clModel->accelerationKernelName = new wxString("relativistic");

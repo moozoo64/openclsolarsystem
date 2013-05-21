@@ -358,20 +358,24 @@ int CLModel::InitCL(GLuint *vbo,char *desiredPlatformName,bool preferCpu,int num
 	}
 
 	// Create cl_mem objects
+	// Get an openCL buffer to the openGL Vertex Array of points.
+	// We aquire this and then copy the simulation positions to it to update the on screen positions.
 	this->dispPos = clCreateFromGLBuffer(this->context, CL_MEM_WRITE_ONLY, vbo[0], &status);
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clCreateFromGLBuffer failed to create cl_mem object for GL vertex buffer object %s"),this->ErrorMessage(status));
 		return status;
 	}
-
+	
+	// The current positions of the solar system bodies.
 	this->currPos = clCreateBuffer(this->context,CL_MEM_READ_ONLY,this->numParticles * sizeof(cl_double4),0,&status);
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clCreateBuffer failed to create cl_mem object for currPos %s"),this->ErrorMessage(status));
 		return status;
 	}
-
+	
+	// Contains the new positions computed by the integration from current positions.
 	this->newPos = clCreateBuffer(this->context,CL_MEM_WRITE_ONLY,this->numParticles * sizeof(cl_double4),0,&status);
 	if( status != CL_SUCCESS)
 	{
@@ -379,6 +383,10 @@ int CLModel::InitCL(GLuint *vbo,char *desiredPlatformName,bool preferCpu,int num
 		return status;
 	}
 
+	// This buffer contains a copy of the current positions for the bodys for which we are including gravitatoinal effects.
+	// This buffer is small enough to fit into the on chip memory cache of the GPU
+	// It is marked as read only for the kernels and of memory type __constant
+	// My understanding is that after the first numGrav positions are read the should all be cached on chip.
 	this->gravPos = clCreateBuffer(this->context,CL_MEM_READ_ONLY,this->numGrav * sizeof(cl_double4),0,&status);
 	if( status != CL_SUCCESS)
 	{
@@ -386,6 +394,7 @@ int CLModel::InitCL(GLuint *vbo,char *desiredPlatformName,bool preferCpu,int num
 		return status;
 	}
 	
+	// The current velocities of the solar system bodies.
 	this->currVel = clCreateBuffer(this->context,CL_MEM_READ_ONLY,this->numParticles * sizeof(cl_double4),0,&status);
 	if( status != CL_SUCCESS)
 	{
@@ -393,6 +402,7 @@ int CLModel::InitCL(GLuint *vbo,char *desiredPlatformName,bool preferCpu,int num
 		return status;
 	}
 
+	// Contains the new velocities computed by the integration from current velocities.
 	this->newVel = clCreateBuffer(this->context,CL_MEM_WRITE_ONLY,this->numParticles * sizeof(cl_double4),0,&status);
 	if( status != CL_SUCCESS)
 	{
@@ -400,6 +410,7 @@ int CLModel::InitCL(GLuint *vbo,char *desiredPlatformName,bool preferCpu,int num
 		return status;
 	}
 	
+	// contains the gravitational accerations computed from the current positions by the acceleration kernel
 	this->acc = clCreateBuffer(this->context,CL_MEM_READ_WRITE,this->numParticles * sizeof(cl_double4),0,&status);
 	if( status != CL_SUCCESS)
 	{
@@ -407,13 +418,16 @@ int CLModel::InitCL(GLuint *vbo,char *desiredPlatformName,bool preferCpu,int num
 		return status;
 	}
 	
+	// This is used to hold the current position at the start of the Adams Bashforth Intgration for use by the Adams Moulton Inegrator.
+	// i.e. between the AB and AM integrations the current position holds the estimated position. But the AM still needs the position from the start 
 	this->posLast = clCreateBuffer(this->context,CL_MEM_READ_WRITE,this->numParticles * 1 * sizeof(cl_double4),0,&status);
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clCreateBuffer failed to create cl_mem object for posLast %s"),this->ErrorMessage(status));
 		return status;
 	}
-	
+
+	// This is used to hold the current velocities at the start of the Adams Bashforth Intgration for use by the Adams Moulton Integrator. 
 	this->velLast = clCreateBuffer(this->context,CL_MEM_READ_WRITE,this->numParticles * 1 * sizeof(cl_double4),0,&status);
 	if( status != CL_SUCCESS)
 	{
@@ -421,13 +435,17 @@ int CLModel::InitCL(GLuint *vbo,char *desiredPlatformName,bool preferCpu,int num
 		return status;
 	}
 	
+	// 16 element ring buffer used to store the previous steps velocities.
+	// e.g the velocity for the previous step is stored at index (step-1)&0xf
 	this->velHistory = clCreateBuffer(this->context,CL_MEM_READ_WRITE,this->numParticles * 16 * sizeof(cl_double4),0,&status);
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clCreateBuffer failed to create cl_mem object for velHistory %s"),this->ErrorMessage(status));
 		return status;
 	}
-	
+
+	// 16 element ring buffer used to store the previous steps accerlerations.
+	// e.g the accerleration for the previous step is stored at index (step-1)&0xf
 	this->accHistory = clCreateBuffer(this->context,CL_MEM_READ_WRITE,this->numParticles * 16 * sizeof(cl_double4),0,&status);
 	if( status != CL_SUCCESS)
 	{
@@ -435,6 +453,7 @@ int CLModel::InitCL(GLuint *vbo,char *desiredPlatformName,bool preferCpu,int num
 		return status;
 	}
    
+	// load the contents of the kernel file into a in memory string
 	wxString nbodySource;
 	wxFFile nbodyFile("Adams.cl", "r");
 	if(!nbodyFile.IsOpened())
@@ -447,6 +466,7 @@ int CLModel::InitCL(GLuint *vbo,char *desiredPlatformName,bool preferCpu,int num
 	const char * source = (const char *)nbodySource;
 	size_t sourceSize[] = {strlen(source)};
 
+	// setup a openCL program to hold the program
 	this->program = clCreateProgramWithSource(this->context,1,&source,sourceSize,&status);
 	if( status != CL_SUCCESS)
 	{
@@ -454,10 +474,12 @@ int CLModel::InitCL(GLuint *vbo,char *desiredPlatformName,bool preferCpu,int num
 		return status;
 	}
 	
+	// compile the program (kernels)
 	const char * options = "-cl-mad-enable -cl-fast-relaxed-math";// "-cl-mad-enable -cl-fast-relaxed-math -cl-nv-verbose ";
 	status = clBuildProgram(this->program,1,&this->deviceId,options,NULL,NULL);
 	if( status != CL_SUCCESS)
 	{
+		// if it failed to compile then obtain the compile log and display it in an error dialog
 		wxLogError(wxT("clBuildProgram failed %s"),this->ErrorMessage(status));
 		if (status == CL_BUILD_PROGRAM_FAILURE) {
 			// Determine the size of the log
@@ -474,6 +496,7 @@ int CLModel::InitCL(GLuint *vbo,char *desiredPlatformName,bool preferCpu,int num
 		return status;
 	}
 	
+	// if we are debugging then include the compile log
 #ifdef __WXDEBUG__	
 	size_t log_size;
 	status = clGetProgramBuildInfo(this->program, this->deviceId, CL_PROGRAM_BUILD_LOG, 0, NULL, &log_size);
@@ -495,6 +518,7 @@ int CLModel::InitCL(GLuint *vbo,char *desiredPlatformName,bool preferCpu,int num
 	wxLogDebug(log);
 #endif
 	
+	// setup kernels (pointers?) to required compiled kernels
 	this->accKernel = clCreateKernel(this->program,this->accelerationKernelName->c_str(),&status);
 	if( status != CL_SUCCESS)
 	{
@@ -541,6 +565,7 @@ int CLModel::InitCL(GLuint *vbo,char *desiredPlatformName,bool preferCpu,int num
 	return CL_SUCCESS;
 }
 
+// Excutes the kernels to advance the simulation to the next time step
 int CLModel::ExecuteKernel()
 {
 	wxLogDebug(wxT("CLModel:ExecuteKernel Start"));
@@ -587,6 +612,9 @@ int CLModel::ExecuteKernel()
 	}
 	
 	// for the first 16 steps we call the startupKernel. This populates the 16 element ring buffer
+	// It is current very inaccurate and uses a 1st order Adams Bashford Moulton followed by a 2nd order
+	// follows by several 4th orders steps until all 16 elements in the history ring buffer have been set.
+	// It needs to be replaced with a Runge Kutta 7th order with a smaller step size (1/10th?)
 	if (this->step < 16)
 	{	
 		wxLogDebug(wxT("CLModel:Using startupKernel"));
@@ -615,6 +643,12 @@ int CLModel::ExecuteKernel()
 	}
 	else
 	{
+		// The Integration has two stages
+		// The first, Adams Bashford Integration, computes an initial estimate of the next position and velocity
+		// The second,Adams Moulton Integration, takes the estimates, combined with the acceration at estimate position
+		// and compute a more exact position and velocity
+		// The first stage is also called the Predictor stage, the second stage the corrector stage.
+		// Note that it is possible to iterate the corrector stage to increase the accurarcy.
 		if(stage == 1)
 		{
 			// Update arguments for the AdamsBashfordKernel then Execute it
@@ -682,7 +716,7 @@ int CLModel::ExecuteKernel()
 		return status;
 	}
 
-	// Copy new positions to old
+	// Copy new positions to current position
 	status = clEnqueueCopyBuffer(commandQueue,this->newPos,this->currPos,0,0,sizeof(cl_double4) * this->numParticles,0,0,0);
 	if( status != CL_SUCCESS)
 	{
@@ -690,14 +724,14 @@ int CLModel::ExecuteKernel()
 		return status;
 	}
 	
-	// Copy new positions to gravPos
+	// Copy new positions of the bodies with mass to gravPos
 	status = clEnqueueCopyBuffer(commandQueue,this->newPos,this->gravPos,0,0,sizeof(cl_double4) * this->numGrav,0,0,0);
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clEnqueueCopyBuffer newPos to currPos failed %s"),this->ErrorMessage(status));
 		return status;
 	}
-
+    // Copy new velocities to current velocities
 	status = clEnqueueCopyBuffer(commandQueue,this->newVel,this->currVel,0,0,sizeof(cl_double4) * this->numParticles,0,0,0);
 	if( status != CL_SUCCESS)
 	{
@@ -715,6 +749,7 @@ int CLModel::ExecuteKernel()
 	this->stage = this->stage - 1;
 	if(this->stage < 0)
 	{
+		// if we just finished the corrector stage then advance to the next step (time)
 		this->stage = this->numStages;
 		this->time += this->delT;
 		this->step++;
@@ -780,6 +815,7 @@ int CLModel::UpdateDisplay()
 	}
 	 * */
 	
+	// update the copyToDisplayKernel's centerBody argument so it knows which body to offset the posistions against
 	status = clSetKernelArg(this->copyToDisplayKernel,3,sizeof(cl_int),(void*)&this->centerBody);
 	if( status != CL_SUCCESS)
 	{
@@ -822,6 +858,7 @@ int CLModel::UpdateDisplay()
 	return status;
 }
 
+// initialise the kernels so they are ready to be called.
 int CLModel::InitKernels()
 {
 	wxLogDebug(wxT("CLModel:InitKernels Start"));
@@ -893,7 +930,9 @@ int CLModel::InitKernels()
 		wxLogError(wxT("clSetKernelArg failed for currPos %s"),this->ErrorMessage(status));
 		success=status;
 	}
-
+	
+	// the acceleration kernel that includes relativistic corrections need the relativistic parameter stored
+	// in .w. We pass the whole velocity vector in case it can be used in a more complicated relativistic on MOND type kernel
 	if(this->accelerationKernelName->IsSameAs(wxT("relativistic"),false))
 	{
 		status = clSetKernelArg(this->accKernel,paramNumber++,sizeof(cl_mem),(void*)&this->currVel);
@@ -945,6 +984,8 @@ int CLModel::InitKernels()
 		success=status;
 	}
 	
+	// I'm a bit paranoid here. I set the group size to the smallest that will work for all the kernels
+	// perhap each kernel should use the largest group size possible for it. But I don't do that.
 	/* Check group size against group size returned by kernel */
 	status = clGetKernelWorkGroupInfo(this->accKernel, this->deviceId,CL_KERNEL_WORK_GROUP_SIZE,sizeof(size_t),&this->accKernelWorkGroupSize,0);
 	if( status != CL_SUCCESS)
@@ -1025,10 +1066,29 @@ int CLModel::InitKernels()
 	return success=status;;
 }
 
+// the Adams Bashforth and Adams Moulton integration kernels all have the same signature
+/*
+__kernel
+void adamsMoulton11( 
+__global double4* pos, 
+__global double4* vel,
+__global double4* acc, 
+double deltaTime, 
+__global double4* newPos, 
+__global double4* newVel,
+int stage,
+int step,
+int numParticles,
+__global double4* posLast,
+__global double4* velLast,
+__global double4* velHistory,
+__global double4* accHistory)
+*/
 int CLModel::SetAdamsKernelArgs(cl_kernel adamsKernel)
 {
 	cl_int status;
 	int success = CL_SUCCESS;
+	
 	//adamskernel
 	status = clSetKernelArg(adamsKernel,0,sizeof(cl_mem),(void *)&this->currPos);
 	if( status != CL_SUCCESS)
@@ -1123,6 +1183,10 @@ int CLModel::SetAdamsKernelArgs(cl_kernel adamsKernel)
 	
 	return success;
 }
+
+// Release and/or de-allocates all opencl resources.
+// A cleanup and initialise sequence is done every time something major changes.
+// e.g. number of bodies or the kernels changes.
 int CLModel::CleanUpCL()
 {
 	wxLogDebug(wxT("CLModel:CleanUpCL"));
@@ -1328,6 +1392,7 @@ void CLModel::RequestUpdate()
 	this->updateDisplay = true;
 }
 
+// Copies the initial positions and velocities into the opencl buffers
 int CLModel::SetInitalState(cl_double4 *initalPositions, cl_double4 *initalVelocities)
 {
 	cl_int status = CL_SUCCESS;
@@ -1354,6 +1419,8 @@ int CLModel::SetInitalState(cl_double4 *initalPositions, cl_double4 *initalVeloc
 	return status;
 }
 
+// snapshots the current positions and velocities and makes them the initial start conditions.
+// From there they can be saved to disk as either binary or slf format for later
 int CLModel::ReadToInitialState(cl_double4 *initalPositions, cl_double4 *initalVelocities)
 {
 	cl_int status = CL_SUCCESS;
@@ -1373,6 +1440,7 @@ int CLModel::ReadToInitialState(cl_double4 *initalPositions, cl_double4 *initalV
 }
 
 // convert the openCL status code to text
+// Because the error numbers are to hard to remember
 wxString CLModel::ErrorMessage(cl_int status)
 {
 	switch(status)
