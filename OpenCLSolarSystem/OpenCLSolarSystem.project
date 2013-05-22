@@ -41,11 +41,11 @@
     <Configuration Name="Debug" CompilerType="gnu g++" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
       <Compiler Options="-g;-O0;-Wall;$(shell wx-config --cxxflags --unicode=yes --debug=yes)" C_Options="-g;-O0;-Wall;$(shell wx-config --cxxflags --unicode=yes --debug=yes)" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" UseDifferentPCHFlags="no" PCHFlags="">
         <IncludePath Value="/SDK/Khronos/opencl1.2/include"/>
-        <IncludePath Value="/SDK/glew-1.7.0/include"/>
+        <IncludePath Value="/SDK/glew-1.9.0/include"/>
       </Compiler>
       <Linker Options="-mwindows;$(shell wx-config --debug=yes --libs --unicode=yes --libs gl)" Required="yes">
         <LibraryPath Value="/SDK/Khronos/opencl1.2/lib/"/>
-        <LibraryPath Value="/SDK/glew-1.7.0/lib"/>
+        <LibraryPath Value="/SDK/glew-1.9.0/lib"/>
         <Library Value="OpenCL"/>
         <Library Value="glew32"/>
       </Linker>
@@ -87,11 +87,11 @@
     <Configuration Name="Release" CompilerType="gnu g++" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
       <Compiler Options="-O2;-Wall;$(shell wx-config --cxxflags --unicode=yes --debug=no)" C_Options="-O2;-Wall;$(shell wx-config --cxxflags --unicode=yes --debug=no)" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" UseDifferentPCHFlags="no" PCHFlags="">
         <IncludePath Value="/SDK/Khronos/opencl1.2/include"/>
-        <IncludePath Value="/SDK/glew-1.7.0/include"/>
+        <IncludePath Value="/SDK/glew-1.9.0/include"/>
       </Compiler>
       <Linker Options="-mwindows;-s;$(shell wx-config --debug=no --libs --unicode=yes --libs gl)" Required="yes">
         <LibraryPath Value="/SDK/Khronos/opencl1.2/lib/"/>
-        <LibraryPath Value="/SDK/glew-1.7.0/lib"/>
+        <LibraryPath Value="/SDK/glew-1.9.0/lib"/>
         <Library Value="OpenCL"/>
         <Library Value="glew32"/>
       </Linker>

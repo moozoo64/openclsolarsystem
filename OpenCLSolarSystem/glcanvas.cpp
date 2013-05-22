@@ -319,7 +319,6 @@ bool GLCanvas::InitGL(int numParticles, int numGrav)
     wxGLCanvas::SetCurrent(*this->glContext);
 	this->numParticles = numParticles;
 	
-#ifdef _WIN32	
 	GLenum err = glewInit();
 	if (GLEW_OK != err)
 	{
@@ -332,7 +331,6 @@ bool GLCanvas::InitGL(int numParticles, int numGrav)
 		wxLogError(wxT("Problem with GL version\n"));
 		return false;
 	}
-#endif
 	
 	int w, h;
 	this->GetClientSize(&w, &h);

@@ -26,7 +26,7 @@ To see the moon (if it was in the .SLF file), Center on body 3 and then use the 
 Tools and libraries require to compile the source under windows
 ----------------------------------------------------------------
 Codelite (http://codelite.org/) download the "codelite IDE + MinGW suite + wxWidgets SDK " install (C:\SDK\CodeLite\ , MinGW & wxWidgets under the codelite directory )
-The Library (http://glew.sourceforge.net/) glew-1.7.0 (C:\SDK\glew-1.7.0) if you have troubles see http://www.mingw.org/wiki/MSVC_and_MinGW_DLLs
+The Library (http://glew.sourceforge.net/) glew-1.9.0 (C:\SDK\glew-1.9.0) you need to compile this from source using msys and mingw
 The Khronos opencl headers from http://www.khronos.org/registry/cl/ (put opencl.h in C:\SDK\Khronos\opencl1.2 the rest in a subfolder CL)
 The OpenCL.lib from Intel OpenCL SDK (put in C:\SDK\Khronos\opencl1.2\lib)
 
@@ -56,5 +56,7 @@ The inspiration to create this program was from the programs Solex by Aldo Vitag
 The relatvistic correction used is from the paper "NUMERICAL INTEGRATION FOR THE REAL TIME PRODUCTION OF FUNDAMENTAL EPHEMERIDES OVER A WIDE TIME SPAN" by Aldo Vitagliano
 
 astrorb.dat asteroid database can be found at http://www.naic.edu/~nolan/astorb.html and is the work of Dr. Edward Bowell. It was funded principally by NASA grant NAG5-4741, and in part by the Lowell Observatory endowment. 
+
+"The OpenGL Extension Wrangler Library" http://glew.sourceforge.net/ is used by this program.
 
 Other than my own motivation I received no encouragement or support in creating this software.
