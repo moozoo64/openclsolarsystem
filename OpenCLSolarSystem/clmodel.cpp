@@ -151,64 +151,80 @@ int CLModel::InitCL(GLuint *vbo,char *desiredPlatformName,bool preferCpu,int num
 		return status;
 	}
 	
+	// We attempt twice to find a device that supports double precision and cl_khr_gl_sharing
+	// On the first attempt we consider if the user prefered a cpu device.
+	// On the second attempt we try and find any device cpu or not.
 	bool foundDevice = false;
-	for (unsigned j = 0; j < numberOfDevices; ++j)
+	bool ignorePreferCpu = false;
+	for(int i =0; i<2;i++)
 	{
-		cl_uint preferedVectorWidthDouble;
-		status = clGetDeviceInfo(deviceIds[j], CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE, sizeof(preferedVectorWidthDouble), &preferedVectorWidthDouble, NULL);
-		if( status != CL_SUCCESS)
-		{
-			wxLogError(wxT("clGetDeviceInfo failed to get CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE %s"),this->ErrorMessage(status));
-			return status;
-		}
-		// skip device if it does not support double precision
-		if(preferedVectorWidthDouble == 0)
-		{
-			continue;
-		}
-		
-		cl_device_type deviceType;
-		status = clGetDeviceInfo(deviceIds[j], CL_DEVICE_TYPE, sizeof(deviceType), &deviceType, NULL);
-		if( status != CL_SUCCESS)
-		{
-			wxLogError(wxT("clGetDeviceInfo failed to get CL_DEVICE_TYPE %s"),this->ErrorMessage(status));
-			return status;
-		}
-		
-		if(preferCpu && deviceType != CL_DEVICE_TYPE_CPU)
-		{
-			continue;
-		}
-		wxLogDebug(wxT("Found CPU Device as requested"));
-		
-		this->deviceId = deviceIds[j];
-		foundDevice = true;
-		break;
-	}
-	
-	if(!foundDevice)
-	{
-		// ignore preferCpu
 		for (unsigned j = 0; j < numberOfDevices; ++j)
 		{
-			//check if device supports double precision
+			// Check for double precision
 			cl_uint preferedVectorWidthDouble;
 			status = clGetDeviceInfo(deviceIds[j], CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE, sizeof(preferedVectorWidthDouble), &preferedVectorWidthDouble, NULL);
+			if( status != CL_SUCCESS)
+			{
+				wxLogError(wxT("clGetDeviceInfo failed to get CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE %s"),this->ErrorMessage(status));
+				return status;
+			}
+			
+			// skip device if it does not support double precision
+			if(preferedVectorWidthDouble == 0)
+			{
+				wxLogDebug(wxT("skipping device %d it does not support double precision"),j);
+				continue;
+			}
+			
+			// Check for cl_khr_gl_sharing
+			char extensions[4096];
+			status = clGetDeviceInfo(deviceIds[j], CL_DEVICE_EXTENSIONS, sizeof(extensions), extensions, NULL);
+			if( status != CL_SUCCESS)
+			{
+				wxLogError(wxT("clGetDeviceInfo failed to get CL_DEVICE_EXTENSIONS %s"),this->ErrorMessage(status));
+				return status;
+			}
+			
+			wxString deviceExtensions = wxString(extensions);
+			
+			// skip device if it does not support
+			if(!deviceExtensions.Contains(wxT("cl_khr_gl_sharing")) && !deviceExtensions.Contains(wxT("cl_apple_gl_sharing")))
+			{
+				wxLogDebug(wxT("skipping device %d it does not support cl_khr_gl_sharing"),j);
+				continue;
+			}
+			
+			cl_device_type deviceType;
+			status = clGetDeviceInfo(deviceIds[j], CL_DEVICE_TYPE, sizeof(deviceType), &deviceType, NULL);
 			if( status != CL_SUCCESS)
 			{
 				wxLogError(wxT("clGetDeviceInfo failed to get CL_DEVICE_TYPE %s"),this->ErrorMessage(status));
 				return status;
 			}
-			// skip device if it does not support double precision
-			if(preferedVectorWidthDouble == 0)
+			
+			if(!ignorePreferCpu && preferCpu)
 			{
-				continue;
+				if(deviceType != CL_DEVICE_TYPE_CPU)
+				{
+					wxLogDebug(wxT("Skipping device %d while looking for CPU device"),j);
+					continue;
+				}
+				else
+				{
+					wxLogDebug(wxT("Found CPU Device as requested"));
+				}
 			}
 			
 			this->deviceId = deviceIds[j];
 			foundDevice = true;
 			break;
 		}
+		
+		if(foundDevice)
+		{
+			break;
+		}
+		ignorePreferCpu = true;
 	}
 	
 	if(foundDevice)
@@ -253,7 +269,56 @@ int CLModel::InitCL(GLuint *vbo,char *desiredPlatformName,bool preferCpu,int num
 	   CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE,(cl_context_properties)shareGroup,
 	   0};
 #endif
-									
+
+	cl_device_id* interopDeviceIds = NULL;
+	cl_uint numInteropDeviceIds = 0;
+	
+#ifdef __WXDEBUG__
+	clGetGLContextInfoKHR_fn clGetGLContextInfoKHR = (clGetGLContextInfoKHR_fn) clGetExtensionFunctionAddressForPlatform(platform, "clGetGLContextInfoKHR");
+	if(clGetGLContextInfoKHR == NULL)
+	{
+		wxLogError(wxT("clGetExtensionFunctionAddressForPlatform failed to find clGetGLContextInfoKHR %s"),this->ErrorMessage(status));
+		return -1;
+	}
+	
+	size_t deviceSize = 0;
+	status =  clGetGLContextInfoKHR(properties,CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR,0,NULL,&deviceSize);
+	if( status != CL_SUCCESS)
+	{
+		wxLogError(wxT("clGetGLContextInfoKHR CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR failed %s"),this->ErrorMessage(status));
+		return status;
+	}
+	
+	if(deviceSize == 0)
+	{
+		wxLogDebug(wxT("clGetGLContextInfoKHR reports no CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR"));
+	}
+	
+	//size_t interopDeviceSize = 0;
+	status =  clGetGLContextInfoKHR(properties,CL_DEVICES_FOR_GL_CONTEXT_KHR,0,NULL,&numInteropDeviceIds);
+	if( status != CL_SUCCESS)
+	{
+		wxLogError(wxT("clGetGLContextInfoKHR CL_DEVICES_FOR_GL_CONTEXT_KHR failed %s"),this->ErrorMessage(status));
+		return status;
+	}	
+	
+	if(numInteropDeviceIds == 0)
+	{
+		wxLogDebug(wxT("clGetGLContextInfoKHR reports no CL_DEVICES_FOR_GL_CONTEXT_KHR"));
+	}
+	else
+	{
+		wxLogDebug(wxT("clGetGLContextInfoKHR reports %d devices"),numInteropDeviceIds);
+		interopDeviceIds = new cl_device_id[numInteropDeviceIds];
+		status =  clGetGLContextInfoKHR(properties,CL_DEVICES_FOR_GL_CONTEXT_KHR,numInteropDeviceIds,interopDeviceIds,NULL);
+		if( status != CL_SUCCESS)
+		{
+			wxLogError(wxT("clGetGLContextInfoKHR CL_DEVICES_FOR_GL_CONTEXT_KHR failed %s"),this->ErrorMessage(status));
+			return status;
+		}
+	}
+#endif
+							
 	this->context = clCreateContext( properties,numberOfDevices,deviceIds,NULL,NULL,&status);
 	if( status != CL_SUCCESS)
 	{
@@ -300,6 +365,30 @@ int CLModel::InitCL(GLuint *vbo,char *desiredPlatformName,bool preferCpu,int num
 		wxLogError(wxT("desired device is not suitable"));
 		return -1;
 	}
+
+#ifdef __WXDEBUG__
+	bool deviceOnGLInteropList = false;
+	if(interopDeviceIds != NULL)
+	{
+		for (unsigned j = 0; j < numInteropDeviceIds; ++j)
+		{
+			if(this->deviceId == interopDeviceIds[j])
+			{
+				deviceOnGLInteropList = true;
+				break;
+			}
+		}
+	}
+	
+	if(deviceOnGLInteropList)
+	{
+		wxLogDebug(wxT("Device is on GL interop list"));
+	}
+	else
+	{
+		wxLogDebug(wxT("Device is not on GL interop list"));
+	}
+#endif
 
 	this->commandQueue = clCreateCommandQueue(this->context,this->deviceId,0,&status);
 	if( status != CL_SUCCESS)
@@ -559,6 +648,11 @@ int CLModel::InitCL(GLuint *vbo,char *desiredPlatformName,bool preferCpu,int num
 	delete[] contextDeviceIds;
 	delete[] deviceIds;
 	delete[] platforms;
+	if(interopDeviceIds != NULL)
+	{
+		delete[] interopDeviceIds;
+	}
+
 	wxLogDebug(wxT("CLModel:InitCL Done"));
 
 	this->initialisedOk = true;
@@ -1504,6 +1598,7 @@ wxString CLModel::ErrorMessage(cl_int status)
 		case CL_INVALID_COMPILER_OPTIONS: return wxT("CL_INVALID_COMPILER_OPTIONS");                 
 		case CL_INVALID_LINKER_OPTIONS: return wxT("CL_INVALID_LINKER_OPTIONS");                   
 		case CL_INVALID_DEVICE_PARTITION_COUNT: return wxT("CL_INVALID_DEVICE_PARTITION_COUNT");
+		case CL_INVALID_GL_SHAREGROUP_REFERENCE_KHR: return wxT("CL_INVALID_GL_SHAREGROUP_REFERENCE_KHR");
 		default: return wxT("UnKnown Error");
 	}
 }
