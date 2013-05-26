@@ -27,6 +27,7 @@
     <File Name="readme.txt"/>
     <File Name="license.txt"/>
     <File Name="astrorbsolexsmall.slf"/>
+    <File Name="todo.txt"/>
   </VirtualDirectory>
   <Settings Type="Executable">
     <GlobalSettings>
