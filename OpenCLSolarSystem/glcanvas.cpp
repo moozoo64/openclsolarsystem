@@ -23,7 +23,7 @@ static int *makeGLAttrib(bool doubleBuffer)
 	int *gl_attrib = NULL;
 #else
 	static int gl_attrib[20] = { WX_GL_RGBA, WX_GL_MIN_RED, 1, WX_GL_MIN_GREEN, 1,
-	                             WX_GL_MIN_BLUE, 1, WX_GL_DEPTH_SIZE, 1,
+	                             WX_GL_MIN_BLUE, 1, WX_GL_DEPTH_SIZE, 16,
 	                             WX_GL_DOUBLEBUFFER,
 #  if defined(__WXMAC__) || defined(__WXCOCOA__)
 	                             GL_NONE
