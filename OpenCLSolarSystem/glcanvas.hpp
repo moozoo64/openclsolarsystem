@@ -20,7 +20,8 @@
 
 class GLCanvas: public wxGLCanvas
 {
-	private:
+private:
+		bool vboCreated;
 		bool active;
 		int numParticles;
 		GLboolean doubleBuffer;

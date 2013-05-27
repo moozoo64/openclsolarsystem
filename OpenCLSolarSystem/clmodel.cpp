@@ -70,17 +70,14 @@ CLModel::~CLModel()
 	wxLogDebug(wxT("CLModel Destructor"));
 }
 
-int CLModel::InitCL(GLuint *vbo,char *desiredPlatformName,bool preferCpu,int numParticles, int numGrav)
+int CLModel::ChooseAndCreateContext(char *desiredPlatformName,bool preferCpu)
 {
-	wxLogDebug(wxT("CLModel::InitCL"));
+	wxLogDebug(wxT("CLModel::ChooseAndCreateContext"));
 	cl_int status = CL_SUCCESS;
 	cl_uint numPlatforms;
 	cl_platform_id platform = NULL;
-	this->step = 0;
-	this->numGrav = numGrav;
-	this->numParticles = (cl_int)((numParticles / this->groupSize) * this->groupSize);;
-
-	status = clGetPlatformIDs(0, NULL, &numPlatforms);
+	
+		status = clGetPlatformIDs(0, NULL, &numPlatforms);
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clGetPlatformIDs failed to get number of platforms %s"),this->ErrorMessage(status));
@@ -271,9 +268,9 @@ int CLModel::InitCL(GLuint *vbo,char *desiredPlatformName,bool preferCpu,int num
 #endif
 
 	cl_device_id* interopDeviceIds = NULL;
-	cl_uint numInteropDeviceIds = 0;
-	
+
 #ifdef __WXDEBUG__
+	cl_uint numInteropDeviceIds = 0;
 	clGetGLContextInfoKHR_fn clGetGLContextInfoKHR = (clGetGLContextInfoKHR_fn) clGetExtensionFunctionAddressForPlatform(platform, "clGetGLContextInfoKHR");
 	if(clGetGLContextInfoKHR == NULL)
 	{
@@ -445,6 +442,26 @@ int CLModel::InitCL(GLuint *vbo,char *desiredPlatformName,bool preferCpu,int num
 	{
 		this->numGrav = this->maxNumGrav;
 	}
+	
+	delete[] contextDeviceIds;
+	delete[] deviceIds;
+	delete[] platforms;
+	if(interopDeviceIds != NULL)
+	{
+		delete[] interopDeviceIds;
+	}
+	
+	wxLogDebug(wxT("Finished CLModel::ChooseAndCreateContext"));
+	return status;
+}
+
+int CLModel::CreateBufferObjects(GLuint *vbo,int numParticles, int numGrav)
+{
+	wxLogDebug(wxT("CLModel::CreateBufferObjects"));
+	cl_int status = CL_SUCCESS;
+	this->step = 0;
+	this->numGrav = numGrav;
+	this->numParticles = (cl_int)((numParticles / this->groupSize) * this->groupSize);;
 
 	// Create cl_mem objects
 	// Get an openCL buffer to the openGL Vertex Array of points.
@@ -541,7 +558,15 @@ int CLModel::InitCL(GLuint *vbo,char *desiredPlatformName,bool preferCpu,int num
 		wxLogError(wxT("clCreateBuffer failed to create cl_mem object for accHistory %s"),this->ErrorMessage(status));
 		return status;
 	}
-   
+	
+	wxLogDebug(wxT("Finished CLModel::CreateBufferObjects"));
+	return status;
+}
+
+int CLModel::CompileProgramAndCreateKernels()
+{
+	wxLogDebug(wxT("CLModel::CompileProgramAndCreateKernels"));
+	cl_int status = CL_SUCCESS;
 	// load the contents of the kernel file into a in memory string
 	wxString nbodySource;
 	wxFFile nbodyFile("Adams.cl", "r");
@@ -645,22 +670,14 @@ int CLModel::InitCL(GLuint *vbo,char *desiredPlatformName,bool preferCpu,int num
 		return status;
 	}
 
-	delete[] contextDeviceIds;
-	delete[] deviceIds;
-	delete[] platforms;
-	if(interopDeviceIds != NULL)
-	{
-		delete[] interopDeviceIds;
-	}
-
-	wxLogDebug(wxT("CLModel:InitCL Done"));
-
 	this->initialisedOk = true;
-	return CL_SUCCESS;
+	wxLogDebug(wxT("Finished CLModel:CompileProgramAndCreateKernels"));
+
+	return status;
 }
 
 // Excutes the kernels to advance the simulation to the next time step
-int CLModel::ExecuteKernel()
+int CLModel::ExecuteKernels()
 {
 	wxLogDebug(wxT("CLModel:ExecuteKernel Start"));
 	cl_int status = CL_SUCCESS;
@@ -953,9 +970,9 @@ int CLModel::UpdateDisplay()
 }
 
 // initialise the kernels so they are ready to be called.
-int CLModel::InitKernels()
+int CLModel::SetKernelArgumentsAndGroupSize()
 {
-	wxLogDebug(wxT("CLModel:InitKernels Start"));
+	wxLogDebug(wxT("CLModel:SetKernelArgumentsAndGroupSize Start"));
 	if(!this->initialisedOk)
 	{
 		wxLogDebug(wxT("Aborted CLModel failed to Initialise"));
@@ -1156,7 +1173,7 @@ int CLModel::InitKernels()
 		this->groupSize = this->copyToDisplayKernelWorkGroupSize;
 	}
 	
-	wxLogDebug(wxT("CLModel:InitKernels Done"));
+	wxLogDebug(wxT("Finished CLModel:SetKernelArgumentsAndGroupSize"));
 	return success=status;;
 }
 

@@ -21,11 +21,13 @@ class CLModel
 	public:
 		CLModel();
 		~CLModel();
-		int InitCL(GLuint *vbo,char *desiredPlatformName,bool preferCpu, int numParticles, int numGrav);
+		int CompileProgramAndCreateKernels();
+		int ChooseAndCreateContext(char *desiredPlatformName,bool preferCpu);
+		int CreateBufferObjects(GLuint *vbo,int numParticles, int numGrav);
 		int SetInitalState(cl_double4 *initalPositions, cl_double4 *initalVelocities);
 		int ReadToInitialState(cl_double4 *initalPositions, cl_double4 *initalVelocities);
-		int InitKernels();
-		int ExecuteKernel();
+		int SetKernelArgumentsAndGroupSize();
+		int ExecuteKernels();
 		int CleanUpCL();
 		int UpdateDisplay();
 		void RequestUpdate();

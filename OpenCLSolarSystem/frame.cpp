@@ -287,12 +287,14 @@ bool Frame::InitFrame(bool doubleBuffer, bool smooth, bool lighting, int numPart
 		
 		// Create an openCL model to run the simulation and initialise it
 		this->clModel = new CLModel();
-		this->clModel->InitCL(this->glCanvas->getVbo(),(char *)desiredPlatform, this->preferCpu, this->numParticles, this->numGrav);
+		this->clModel->ChooseAndCreateContext((char *)this->desiredPlatform, this->preferCpu);
+		this->clModel->CreateBufferObjects(this->glCanvas->getVbo(), this->numParticles, this->numGrav);
+		this->clModel->CompileProgramAndCreateKernels();
 		this->glCanvas->SetColours(this->initialState->initialColorData);
 		this->clModel->SetInitalState(this->initialState->initialPositions,this->initialState->initialVelocities);
 		this->clModel->julianDate = this->initialState->initialJulianDate;
 		this->clModel->time = 0.0f;
-		this->clModel->InitKernels();
+		this->clModel->SetKernelArgumentsAndGroupSize();
 		this->clModel->UpdateDisplay();
 		
 		// set the keyboard focus to the simmulation display so that the keyboard functions work
@@ -334,9 +336,9 @@ void Frame::OnTimer(wxTimerEvent& event)
 	InOnTimer = true;
 
 	try{
-		this->clModel->ExecuteKernel();
+		this->clModel->ExecuteKernels();
 		this->clModel->RequestUpdate();
-		this->clModel->ExecuteKernel();
+		this->clModel->ExecuteKernels();
 	}catch( int e)
 	{
 		this->timer->Stop();
@@ -425,7 +427,7 @@ void Frame::SetDeltaTime(wxCommandEvent& event)
 			break;
 	}
 	this->clModel->step = 0;
-	this->clModel->InitKernels();
+	this->clModel->SetKernelArgumentsAndGroupSize();
 }
 
 // sets the body to center the display on
@@ -654,13 +656,15 @@ void Frame::ResetAll()
 	this->clModel->CleanUpCL();
 	this->glCanvas->CleanUpGL();
 	this->glCanvas->InitGL(this->numParticles, this->numGrav);
-	this->glCanvas->SetColours(this->initialState->initialColorData);
-	this->clModel->InitCL(this->glCanvas->getVbo(),(char *)this->desiredPlatform, this->preferCpu, this->numParticles, this->numGrav);
+	this->clModel->ChooseAndCreateContext((char *)this->desiredPlatform, this->preferCpu);
+	this->clModel->CreateBufferObjects(this->glCanvas->getVbo(), this->numParticles, this->numGrav);
+	this->clModel->CompileProgramAndCreateKernels();
 	this->clModel->SetInitalState(this->initialState->initialPositions,this->initialState->initialVelocities);
+	this->glCanvas->SetColours(this->initialState->initialColorData);
 	this->clModel->julianDate = this->initialState->initialJulianDate;
 	this->clModel->time = 0.0f;
 	this->DisplayDate();
-	this->clModel->InitKernels();
+	this->clModel->SetKernelArgumentsAndGroupSize();
 	this->clModel->UpdateDisplay();
 	this->Refresh(false);
 	this->UpdateMenuItems();

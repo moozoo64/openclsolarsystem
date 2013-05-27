@@ -74,6 +74,7 @@ GLCanvas::GLCanvas(wxWindow *parent, wxWindowID id,
 	this->zDist = 0.0f;
 	this->vbo[0] = 0;
 	this->vbo[1] = 0;
+	this->vboCreated = false;
 
 	this->active = false;
 	this->doubleBuffer = doubleBuffer?GL_TRUE:GL_FALSE;
@@ -92,8 +93,16 @@ void GLCanvas::OnPaint( wxPaintEvent& WXUNUSED(event) )
 {
 	//wxLogDebug(wxT("GLCanvas::OnPaint Start"));
 	
-	if(!IsShown() || !this->active) return;
-    
+	if(!IsShown() || !this->active)
+	{
+		return;
+	}
+	
+    if(!this->vboCreated)
+	{
+		wxLogError(wxT("OnPaint before vboCreated"));
+	}
+	
     wxGLCanvas::SetCurrent(*this->glContext);
     wxPaintDC(this);
 
@@ -152,6 +161,11 @@ void GLCanvas::OnPaint( wxPaintEvent& WXUNUSED(event) )
 
 void GLCanvas::SetColours(GLubyte *colorData)
 {
+	if(!this->vboCreated)
+	{
+		wxLogError(wxT("SetColours before vboCreated"));
+	}
+	
 	unsigned int colorSize = this->numParticles * 4 * sizeof(GLubyte);
 	wxGLCanvas::SetCurrent(*this->glContext);
 	glBindBuffer(GL_ARRAY_BUFFER, this->vbo[1]);
@@ -162,7 +176,16 @@ void GLCanvas::SetColours(GLubyte *colorData)
 
 void GLCanvas::OnSize(wxSizeEvent& event)
 {
-	if(!IsShown()) return;
+	if(!IsShown())
+	{
+		return;
+	}
+	
+	if(!this->vboCreated)
+	{
+		wxLogError(wxT("OnSize before vboCreated"));
+	}
+	
 	int w, h;
 	this->GetClientSize(&w, &h);
 	this->SetCurrent(*this->glContext);
@@ -192,7 +215,16 @@ void GLCanvas::OnSize(wxSizeEvent& event)
 
 void GLCanvas::OnChar(wxKeyEvent& event)
 {
-	if(!IsShown()) return;
+	if(!IsShown())
+	{
+		return;
+	}
+	
+	if(!this->vboCreated)
+	{
+		wxLogError(wxT("OnChar before vboCreated"));
+	}
+	
 	this->SetCurrent(*this->glContext);
 
 	switch( event.GetKeyCode() )
@@ -268,6 +300,11 @@ void GLCanvas::OnMouseEvent(wxMouseEvent& event)
 	static int dragging = 0;
 	static float last_x, last_y;
 
+	if(!this->vboCreated)
+	{
+		wxLogError(wxT("OnMouseEvent before vboCreated"));
+	}
+	
 	//printf("%f %f %d\n", event.GetX(), event.GetY(), (int)event.LeftIsDown());
 	if(event.LeftIsDown())
 	{
@@ -306,6 +343,45 @@ void GLCanvas::OnEraseBackground( wxEraseEvent& WXUNUSED(event) )
 
 GLuint* GLCanvas::getVbo()
 {
+	if(!this->vboCreated)
+	{
+		wxLogDebug(wxT("GLCanvas::getVbo creating vbo's"));
+		wxGLCanvas::SetCurrent(*this->glContext);
+		unsigned int size = this->numParticles * sizeof(cl_double4);
+		cl_double4 *data = (cl_double4 *)malloc(size);
+		memset(data,0x1,size);
+
+		unsigned int colorSize = this->numParticles * 4 * sizeof(GLubyte);
+		GLubyte *colorData = (GLubyte *) malloc(colorSize);
+
+		wxLogDebug(wxT("Initialising %d particles"),this->numParticles);
+
+		for (int i = 0; i<this->numParticles; i++)
+		{
+			colorData[i*4+0] = 64;
+			colorData[i*4+1] = 64;
+			colorData[i*4+2] = 92;
+			colorData[i*4+3] = 255;
+		}
+
+		glGenBuffers(2, &(this->vbo[0]));
+		glBindBuffer(GL_ARRAY_BUFFER, this->vbo[0]);
+		glBufferData(GL_ARRAY_BUFFER, size, data, GL_DYNAMIC_DRAW);
+
+		glBindBuffer(GL_ARRAY_BUFFER, this->vbo[1]);
+		glBufferData(GL_ARRAY_BUFFER, colorSize, colorData, GL_STATIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+		glFinish();
+
+		memset(data,0x1,size);
+		free(data);
+		memset(colorData,0x1,colorSize);
+		free(colorData);
+		this->vboCreated = true;
+	}
+	
+	wxLogDebug(wxT("GLCanvas::getVbo returning vbo's"));
 	return this->vbo;
 }
 
@@ -357,41 +433,10 @@ bool GLCanvas::InitGL(int numParticles, int numGrav)
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glTranslatef( 0.0, 0.0, -30000.0f );
-	
-	unsigned int size = this->numParticles * sizeof(cl_double4);
-	cl_double4 *data = (cl_double4 *)malloc(size);
-	memset(data,0x1,size);
-
-	unsigned int colorSize = this->numParticles * 4 * sizeof(GLubyte);
-	GLubyte *colorData = (GLubyte *) malloc(colorSize);
-
-	wxLogDebug(wxT("Initialising %d particles"),this->numParticles);
-
-	for (int i = 0; i<this->numParticles; i++)
-	{
-		colorData[i*4+0] = 64;
-		colorData[i*4+1] = 64;
-		colorData[i*4+2] = 92;
-		colorData[i*4+3] = 255;
-	}
-
-	glGenBuffers(2, &(this->vbo[0]));
-	glBindBuffer(GL_ARRAY_BUFFER, this->vbo[0]);
-	glBufferData(GL_ARRAY_BUFFER, size, data, GL_DYNAMIC_DRAW);
-
-	glBindBuffer(GL_ARRAY_BUFFER, this->vbo[1]);
-	glBufferData(GL_ARRAY_BUFFER, colorSize, colorData, GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
 	glFinish();
-
-	memset(data,0x1,size);
-	free(data);
-	memset(colorData,0x1,colorSize);
-	free(colorData);
-	wxLogDebug(wxT("GLCanvas::InitGL Done"));
 	this->active=true;
-
+	this->vboCreated = false;
+	wxLogDebug(wxT("GLCanvas::InitGL Done"));
 	return true;
 }
 
@@ -399,10 +444,9 @@ bool GLCanvas::CleanUpGL()
 {
 	wxLogDebug(wxT("GLCanvas::CleanUpGL"));
 	this->active = false;
-	glBindBuffer(GL_ARRAY_BUFFER, this->vbo[0]);
 	glDeleteBuffers(2, &(this->vbo[0]));
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glFinish();
+	this->vboCreated = false;
 	wxLogDebug(wxT("GLCanvas::CleanUpGL Done"));
 	return true;
 }
