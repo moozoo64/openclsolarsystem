@@ -281,9 +281,9 @@ bool Frame::InitFrame(bool doubleBuffer, bool smooth, bool lighting, int numPart
 		this->Show(true);
 
 		// Create the OpenGL canvas on which the simulation will be displayed
-		this->glCanvas = new GLCanvas(this, wxID_ANY, wxDefaultPosition,wxDefaultSize, 0, wxT("GLCanvas"));
+		this->glCanvas = new GLCanvas(this, wxID_ANY, wxDefaultPosition,wxDefaultSize, 0, wxT("GLCanvas"), doubleBuffer, smooth, lighting);
 		this->glCanvas->blending = true;
-		this->glCanvas->InitGL(this->numParticles, this->numGrav);
+		this->glCanvas->CreateOpenGlContext(this->numParticles, this->numGrav);
 		
 		// Create an openCL model to run the simulation and initialise it
 		this->clModel = new CLModel();
@@ -655,7 +655,7 @@ void Frame::ResetAll()
 	this->timer->Stop();
 	this->clModel->CleanUpCL();
 	this->glCanvas->CleanUpGL();
-	this->glCanvas->InitGL(this->numParticles, this->numGrav);
+	this->glCanvas->CreateOpenGlContext(this->numParticles, this->numGrav);
 	this->clModel->ChooseAndCreateContext((char *)this->desiredPlatform, this->preferCpu);
 	this->clModel->CreateBufferObjects(this->glCanvas->getVbo(), this->numParticles, this->numGrav);
 	this->clModel->CompileProgramAndCreateKernels();
@@ -812,6 +812,6 @@ void Frame::OnClose(wxCloseEvent& event)
 void Frame::OnAbout(wxCommandEvent& WXUNUSED(event))
 {
 	wxString message;
-	message.Printf(wxT("OpenCL/GL Solar System\n (c) 2013 Michael Simmons\nbody count:%d\nWith Mass:%d\nPredictor %s\nCorrector %s\nOpenCL Platform: %s\nOpenCL Device: %s"),this->numParticles, this->numGrav,this->clModel->adamsBashforthKernelName->c_str(),this->clModel->adamsMoultonKernelName->c_str(), this->clModel->platformName->c_str(), this->clModel->deviceName->c_str());
+	message.Printf(wxT("OpenCL/GL Solar System\n (c) 2013 Michael Simmons\nbody count:%d\nWith Mass:%d\nPredictor %s\nCorrector %s\nOpenCL Platform: %s\nOpenCL Device: %s\nWeb: https://sourceforge.net/projects/openclsolarsyst/"),this->numParticles, this->numGrav,this->clModel->adamsBashforthKernelName->c_str(),this->clModel->adamsMoultonKernelName->c_str(), this->clModel->platformName->c_str(), this->clModel->deviceName->c_str());
 	wxMessageBox( message, wxT("About NBody"), wxOK | wxICON_INFORMATION );
 }

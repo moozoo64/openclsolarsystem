@@ -34,6 +34,10 @@ private:
 		GLfloat zDist;
 		GLuint vbo[2];
 		wxGLContext*	glContext;
+		void SetupProjectionAndModelView();
+		bool updateProjectionAndModelView;
+		bool updateShadeModel;
+		bool updateLighting;
 
 public:
 		int numGrav;
@@ -45,7 +49,7 @@ public:
 		        );
 		~GLCanvas();
 
-		bool InitGL(int numParticles, int numGrav);
+		bool CreateOpenGlContext(int numParticles, int numGrav);
 		bool CleanUpGL();
 		void SetColours(GLubyte *colorData);
 		void OnPaint(wxPaintEvent& event);

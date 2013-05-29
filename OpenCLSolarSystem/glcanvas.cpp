@@ -23,7 +23,7 @@ static int *makeGLAttrib(bool doubleBuffer)
 	int *gl_attrib = NULL;
 #else
 	static int gl_attrib[20] = { WX_GL_RGBA, WX_GL_MIN_RED, 1, WX_GL_MIN_GREEN, 1,
-	                             WX_GL_MIN_BLUE, 1, WX_GL_DEPTH_SIZE, 16,
+	                             WX_GL_MIN_BLUE, 1, WX_GL_DEPTH_SIZE, 1,
 	                             WX_GL_DOUBLEBUFFER,
 #  if defined(__WXMAC__) || defined(__WXCOCOA__)
 	                             GL_NONE
@@ -75,7 +75,9 @@ GLCanvas::GLCanvas(wxWindow *parent, wxWindowID id,
 	this->vbo[0] = 0;
 	this->vbo[1] = 0;
 	this->vboCreated = false;
-
+	this->updateProjectionAndModelView = true;
+	this->updateShadeModel = true;
+	this->updateLighting = true;
 	this->active = false;
 	this->doubleBuffer = doubleBuffer?GL_TRUE:GL_FALSE;
 	this->smooth = smooth?GL_TRUE:GL_FALSE;
@@ -104,8 +106,42 @@ void GLCanvas::OnPaint( wxPaintEvent& WXUNUSED(event) )
 	}
 	
     wxGLCanvas::SetCurrent(*this->glContext);
-    wxPaintDC(this);
+	
+	// check if projection and model view need to be set
+	// This will happen on the first OnPaint after creation or a resize
+	if(this->updateProjectionAndModelView)
+	{
+		this->SetupProjectionAndModelView();
+	}
+	
+	if(this->updateShadeModel)
+	{
+		if (this->smooth)
+		{
+			glShadeModel(GL_SMOOTH);
+		}
+		else
+		{
+			glShadeModel(GL_FLAT);
+		}
+		this->updateShadeModel = false;
+	}
+	
+	if(this->updateLighting)
+	{
+		if (this->lighting)
+		{
+			glEnable(GL_LIGHTING);
+		}
+		else
+		{
+			glDisable(GL_LIGHTING);
+		}
+		this->updateLighting = false;
+	}
 
+    wxPaintDC(this);
+		
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	glPushMatrix();
 	glTranslatef( this->xDist, this->yDist, this->zDist);
@@ -174,6 +210,7 @@ void GLCanvas::SetColours(GLubyte *colorData)
 	glFinish();
 }
 
+// Called when the window is resized
 void GLCanvas::OnSize(wxSizeEvent& event)
 {
 	if(!IsShown())
@@ -186,6 +223,13 @@ void GLCanvas::OnSize(wxSizeEvent& event)
 		wxLogError(wxT("OnSize before vboCreated"));
 	}
 	
+	this->updateProjectionAndModelView = true;
+}
+
+// sets up the Projection and Model View
+void GLCanvas::SetupProjectionAndModelView()
+{
+	wxLogDebug(wxT("GLCanvas::SetupProjectionAndModelView"));
 	int w, h;
 	this->GetClientSize(&w, &h);
 	this->SetCurrent(*this->glContext);
@@ -211,8 +255,11 @@ void GLCanvas::OnSize(wxSizeEvent& event)
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glTranslatef( 0.0, 0.0, -30000.0f );
+	
+	this->updateProjectionAndModelView = false;
 }
 
+// Handle Key press events
 void GLCanvas::OnChar(wxKeyEvent& event)
 {
 	if(!IsShown())
@@ -225,8 +272,6 @@ void GLCanvas::OnChar(wxKeyEvent& event)
 		wxLogError(wxT("OnChar before vboCreated"));
 	}
 	
-	this->SetCurrent(*this->glContext);
-
 	switch( event.GetKeyCode() )
 	{
 		case WXK_ESCAPE:
@@ -256,27 +301,13 @@ void GLCanvas::OnChar(wxKeyEvent& event)
 		case 's':
 		case 'S':
 			this->smooth = !this->smooth;
-			if (this->smooth)
-			{
-				glShadeModel(GL_SMOOTH);
-			}
-			else
-			{
-				glShadeModel(GL_FLAT);
-			}
+			this->updateShadeModel = true;
 			break;
 
 		case 'l':
 		case 'L':
 			this->lighting = !this->lighting;
-			if (this->lighting)
-			{
-				glEnable(GL_LIGHTING);
-			}
-			else
-			{
-				glDisable(GL_LIGHTING);
-			}
+			this->updateLighting = true;
 			break;
 
 		case 'z':
@@ -295,6 +326,7 @@ void GLCanvas::OnChar(wxKeyEvent& event)
 	this->Refresh(false);
 }
 
+// Handle Mouse events
 void GLCanvas::OnMouseEvent(wxMouseEvent& event)
 {
 	static int dragging = 0;
@@ -341,12 +373,15 @@ void GLCanvas::OnEraseBackground( wxEraseEvent& WXUNUSED(event) )
 	// Do nothing, to avoid flashing.
 }
 
+// Gets the vbos. If they don't exist yet it creates them.
+// This should be called for the first time after the CL context has been made
 GLuint* GLCanvas::getVbo()
 {
 	if(!this->vboCreated)
 	{
 		wxLogDebug(wxT("GLCanvas::getVbo creating vbo's"));
 		wxGLCanvas::SetCurrent(*this->glContext);
+		
 		unsigned int size = this->numParticles * sizeof(cl_double4);
 		cl_double4 *data = (cl_double4 *)malloc(size);
 		memset(data,0x1,size);
@@ -363,7 +398,7 @@ GLuint* GLCanvas::getVbo()
 			colorData[i*4+2] = 92;
 			colorData[i*4+3] = 255;
 		}
-
+		// Create the vbos and initialise them
 		glGenBuffers(2, &(this->vbo[0]));
 		glBindBuffer(GL_ARRAY_BUFFER, this->vbo[0]);
 		glBufferData(GL_ARRAY_BUFFER, size, data, GL_DYNAMIC_DRAW);
@@ -374,9 +409,7 @@ GLuint* GLCanvas::getVbo()
 
 		glFinish();
 
-		memset(data,0x1,size);
 		free(data);
-		memset(colorData,0x1,colorSize);
 		free(colorData);
 		this->vboCreated = true;
 	}
@@ -385,16 +418,20 @@ GLuint* GLCanvas::getVbo()
 	return this->vbo;
 }
 
-bool GLCanvas::InitGL(int numParticles, int numGrav)
+// Creates the OpenGL Context
+bool GLCanvas::CreateOpenGlContext(int numParticles, int numGrav)
 {
+	wxLogDebug(wxT("GLCanvas::CreateOpenGlContext"));
+
 	this->numParticles = numParticles;
 	this->numGrav = numGrav;
-	wxLogDebug(wxT("GLCanvas::InitGL"));
-	if(!IsShown()) return false;
+
+	if(!IsShown())
+	{
+		return false;
+	} 
     
     wxGLCanvas::SetCurrent(*this->glContext);
-	this->numParticles = numParticles;
-	
 	GLenum err = glewInit();
 	if (GLEW_OK != err)
 	{
@@ -402,41 +439,17 @@ bool GLCanvas::InitGL(int numParticles, int numGrav)
 		return false;
 	}
 	
-	if (! glewIsSupported("GL_VERSION_2_0 " "GL_ARB_pixel_buffer_object"))
+	if (!glewIsSupported("GL_VERSION_2_0 GL_ARB_pixel_buffer_object"))
 	{
 		wxLogError(wxT("Problem with GL version\n"));
 		return false;
 	}
-	
-	int w, h;
-	this->GetClientSize(&w, &h);
-	this->SetCurrent(*this->glContext);
-	glViewport(0, 0, (GLint) w, (GLint) h);
-	
-	float width,height;
-	
-	if (w > h)
-    {
-		width = (float)w/(float)h;
-		height = 1.0;
-    }
-    else
-    {
-        height = (float)h/(float)w;
-        width = 1.0;
-    }
-		
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glFrustum( -width/10.0, width/10.0, -height/10.0, height/10.0, 5.0, 600000.0 );
 
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	glTranslatef( 0.0, 0.0, -30000.0f );
-	glFinish();
 	this->active=true;
 	this->vboCreated = false;
-	wxLogDebug(wxT("GLCanvas::InitGL Done"));
+	this->updateProjectionAndModelView = true;
+	glFinish();
+	wxLogDebug(wxT("GLCanvas::CreateOpenGlContext Done"));
 	return true;
 }
 

@@ -105,6 +105,8 @@ Application::Application()
 	this->numParticles = 2560*8;
 	this->numGrav=16;
 	this->desiredPlatform = (char*)"Advanced Micro Devices, Inc.";
+	
+	// Attach the Console so that opencl printf's will go to it. 
 	AttachConsole((DWORD)-1);
 }
 
@@ -122,7 +124,7 @@ bool Application::OnInit()
 	}
 #endif
 
-	this->frame = new Frame(NULL, wxT("OpenGL/CL Solar System fp64 (c) Michael Simmons 2013"), wxDefaultPosition, wxDefaultSize);
+	this->frame = new Frame(NULL, wxT("OpenGL/CL Solar System fp64"), wxDefaultPosition, wxDefaultSize);
 
 #if defined(__WXDEBUG__ )
 	//If debugging also send log to a windows
