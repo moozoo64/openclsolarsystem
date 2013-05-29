@@ -147,10 +147,6 @@ void GLCanvas::OnPaint( wxPaintEvent& WXUNUSED(event) )
 	glTranslatef( this->xDist, this->yDist, this->zDist);
 	glRotatef( this->yrot, 0.0f, 1.0f, 0.0f );
 	glRotatef( this->xrot, 1.0f, 0.0f, 0.0f );
-	//glTranslatef( 0.0, 0.0, this->zDist );
-
-	//glEnable(GL_POINT_SIZE);
-	//glPointSize(5);
 
 	glBindBuffer(GL_ARRAY_BUFFER, this->vbo[0]);
 	glVertexPointer(3, GL_DOUBLE, sizeof(cl_double4), 0);
@@ -158,25 +154,21 @@ void GLCanvas::OnPaint( wxPaintEvent& WXUNUSED(event) )
 	glColorPointer(4, GL_UNSIGNED_BYTE, 0, 0);
 	
 	glEnable(GL_POINT_SMOOTH);
-	//glHint(GL_POINT_SMOOTH, GL_NICEST);
-	
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		
-	/*if(this->blending){
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	}else{
-		glDisable(GL_BLEND);
-	}*/
-
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_COLOR_ARRAY);
+
+	// Draw the Sun as a large point
 	glPointSize(3);
 	glDrawArrays(GL_POINTS, 0, 1);
+	
+	// Draw the first 16 "planets"
 	glPointSize(2);
 	glDrawArrays(GL_POINTS, 1, 16);
 	
+	// Draw the rest as single pixels
 	if(!this->blending){
 		glDisable(GL_BLEND);
 	}
