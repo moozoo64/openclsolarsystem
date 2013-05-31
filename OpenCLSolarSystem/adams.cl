@@ -13,8 +13,6 @@
 	See the License for the specific language governing permissions and
 	limitations under the License.
 */
-#pragma OPENCL EXTENSION cl_khr_gl_sharing : enable
-#pragma OPENCL EXTENSION cl_khr_fp64 : enable
 
 #define KMTOGM 1.0/1000000
 

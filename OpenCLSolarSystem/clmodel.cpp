@@ -50,6 +50,10 @@ CLModel::CLModel()
 
 	this->updateDisplay = false;
 	this->initialisedOk = false;
+	this->gotKhrFp64 = false;
+	this->gotAmdFp64 =false;
+	this->gotKhrGlSharing = false;
+	this->gotAppleGlSharing = false;
 	this->delT = 15*60;
 	this->espSqr = 0.000001f;
 	this->time =0.0f;
@@ -157,6 +161,42 @@ int CLModel::ChooseAndCreateContext(char *desiredPlatformName,bool preferCpu)
 	{
 		for (unsigned j = 0; j < numberOfDevices; ++j)
 		{
+			// Get Extensions
+			this->gotKhrFp64 = false;
+			this->gotAmdFp64 =false;
+			this->gotKhrGlSharing = false;
+			this->gotAppleGlSharing = false;
+
+			char extensions[4096];
+			status = clGetDeviceInfo(deviceIds[j], CL_DEVICE_EXTENSIONS, sizeof(extensions), extensions, NULL);
+			if( status != CL_SUCCESS)
+			{
+				wxLogError(wxT("clGetDeviceInfo failed to get CL_DEVICE_EXTENSIONS %s"),this->ErrorMessage(status));
+				return status;
+			}
+			
+			wxString deviceExtensions = wxString(extensions);
+		
+			if(deviceExtensions.Contains(wxT("cl_khr_gl_sharing")))
+			{
+				this->gotKhrGlSharing = true;
+			}
+			
+			if(deviceExtensions.Contains(wxT("cl_APPLE_gl_sharing")))
+			{
+				this->gotAppleGlSharing = true;
+			}
+			
+			if(deviceExtensions.Contains(wxT("cl_khr_fp64")))
+			{
+				this->gotKhrFp64 = true;
+			}
+			
+			if(deviceExtensions.Contains(wxT("cl_amd_fp64")))
+			{
+				this->gotAmdFp64 = true;
+			}
+			
 			// Check for double precision
 			cl_uint preferedVectorWidthDouble;
 			status = clGetDeviceInfo(deviceIds[j], CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE, sizeof(preferedVectorWidthDouble), &preferedVectorWidthDouble, NULL);
@@ -173,19 +213,8 @@ int CLModel::ChooseAndCreateContext(char *desiredPlatformName,bool preferCpu)
 				continue;
 			}
 			
-			// Check for cl_khr_gl_sharing
-			char extensions[4096];
-			status = clGetDeviceInfo(deviceIds[j], CL_DEVICE_EXTENSIONS, sizeof(extensions), extensions, NULL);
-			if( status != CL_SUCCESS)
-			{
-				wxLogError(wxT("clGetDeviceInfo failed to get CL_DEVICE_EXTENSIONS %s"),this->ErrorMessage(status));
-				return status;
-			}
-			
-			wxString deviceExtensions = wxString(extensions);
-			
-			// skip device if it does not support
-			if(!deviceExtensions.Contains(wxT("cl_khr_gl_sharing")) && !deviceExtensions.Contains(wxT("cl_apple_gl_sharing")))
+			// skip device if it does not support gl sharing
+			if(!this->gotKhrGlSharing && !this->gotAppleGlSharing)
 			{
 				wxLogDebug(wxT("skipping device %d it does not support cl_khr_gl_sharing"),j);
 				continue;
@@ -569,15 +598,38 @@ int CLModel::CompileProgramAndCreateKernels()
 	cl_int status = CL_SUCCESS;
 	// load the contents of the kernel file into a in memory string
 	wxString nbodySource;
-	wxFFile nbodyFile("Adams.cl", "r");
+	wxFFile nbodyFile("adams.cl", "r");
 	if(!nbodyFile.IsOpened())
 	{
-		wxLogError(wxT("Failed to read Adams.cl"));
+		wxLogError(wxT("Failed to read adams.cl"));
 		return -1;
 	}
-	
+
 	nbodyFile.ReadAll(&nbodySource,wxConvISO8859_1);
-	const char * source = (const char *)nbodySource;
+	
+	wxString programSource;
+	if(this->gotKhrGlSharing && !this->gotAmdFp64)
+	{
+		programSource.Append(wxT("#pragma OPENCL EXTENSION cl_khr_gl_sharing : enable\n"));
+	}
+	
+	if(this->gotAppleGlSharing)
+	{
+		programSource.Append(wxT("#pragma OPENCL EXTENSION cl_APPLE_gl_sharing : enable\n"));
+	}
+	
+	if(this->gotKhrFp64)
+	{
+		programSource.Append(wxT("#pragma OPENCL EXTENSION cl_khr_fp64 : enable\n"));
+	}
+	else if(this->gotAmdFp64)
+	{
+		programSource.Append(wxT("#pragma OPENCL EXTENSION cl_amd_fp64 : enable\n"));
+	}
+	
+	programSource.Append(nbodySource);
+	
+	const char * source = programSource.c_str();
 	size_t sourceSize[] = {strlen(source)};
 
 	// setup a openCL program to hold the program
@@ -589,7 +641,7 @@ int CLModel::CompileProgramAndCreateKernels()
 	}
 	
 	// compile the program (kernels)
-	const char * options = "-cl-mad-enable -cl-fast-relaxed-math";// "-cl-mad-enable -cl-fast-relaxed-math -cl-nv-verbose ";
+	const char * options = "-cl-mad-enable";// -cl-fast-relaxed-math";// "-cl-mad-enable -cl-fast-relaxed-math -cl-nv-verbose ";
 	status = clBuildProgram(this->program,1,&this->deviceId,options,NULL,NULL);
 	if( status != CL_SUCCESS)
 	{

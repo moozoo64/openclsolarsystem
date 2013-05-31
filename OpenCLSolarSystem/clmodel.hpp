@@ -88,6 +88,10 @@ class CLModel
 
 		bool updateDisplay;
 		bool initialisedOk;
+		bool gotKhrFp64;
+		bool gotAmdFp64;
+		bool gotKhrGlSharing;
+		bool gotAppleGlSharing;
 		int SetAdamsKernelArgs(cl_kernel adamsKernel);
 };
 
