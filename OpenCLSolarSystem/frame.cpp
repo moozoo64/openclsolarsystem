@@ -299,6 +299,16 @@ bool Frame::InitFrame(bool doubleBuffer, bool smooth, bool lighting, int numPart
 		
 		// set the keyboard focus to the simmulation display so that the keyboard functions work
 		this->glCanvas->SetFocus();
+		
+		menuBar = this->GetMenuBar();
+		wxMenuItem *menuItem;
+		menuItem = menuBar->FindItem(ID_SETDELTATFOURHR);
+		menuItem->Check(true);
+		menuItem = menuBar->FindItem(ID_SETADAMS11);
+		menuItem->Check(true);
+		menuItem = menuBar->FindItem(ID_SETRELATIVISTIC);
+		menuItem->Check(true);
+		
 	}
 	catch (int ex)
 	{
@@ -614,6 +624,22 @@ void Frame::UpdateMenuItems()
 				break;
 			case 24*60*60:
 				menuItem = menuBar->FindItem(ID_SETDELTATDAY);
+				menuItem->Check(true);
+				break;
+			case -15*60:
+				menuItem = menuBar->FindItem(ID_SETDELTATMINUS15);
+				menuItem->Check(true);
+				break;
+			case -60*60:
+				menuItem = menuBar->FindItem(ID_SETDELTATMINUSHR);
+				menuItem->Check(true);
+				break;
+			case -4*60*60:
+				menuItem = menuBar->FindItem(ID_SETDELTATMINUSFOURHR);
+				menuItem->Check(true);
+				break;
+			case -24*60*60:
+				menuItem = menuBar->FindItem(ID_SETDELTATMINUSDAY);
 				menuItem->Check(true);
 				break;
 		}

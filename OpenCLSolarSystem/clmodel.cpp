@@ -54,7 +54,7 @@ CLModel::CLModel()
 	this->gotAmdFp64 =false;
 	this->gotKhrGlSharing = false;
 	this->gotAppleGlSharing = false;
-	this->delT = 15*60;
+	this->delT = 4*60*60.0f;
 	this->espSqr = 0.000001f;
 	this->time =0.0f;
 	this->julianDate =0.0f;
@@ -62,9 +62,9 @@ CLModel::CLModel()
 	this->centerBody = 0;
 	this->numStages = 1;
 	this->stage = this->numStages;
-	this->adamsBashforthKernelName = new wxString("adamsBashforth4");
-	this->adamsMoultonKernelName = new wxString("adamsMoulton3");
-	this->accelerationKernelName = new wxString("newtonian");
+	this->adamsBashforthKernelName = new wxString("adamsBashforth11");
+	this->adamsMoultonKernelName = new wxString("adamsMoulton10");
+	this->accelerationKernelName = new wxString("relativistic");
 }
 
 CLModel::~CLModel()
