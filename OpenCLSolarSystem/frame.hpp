@@ -49,7 +49,8 @@ class Frame: public wxFrame
 		InitialState *initialState;
 		double stopDateJdn;
 		bool goingToDate;
-		void DisplayDate();
+		wxStopWatch stopWatch;
+		void UpdateStatusBar(wxLongLong timeTaken);
 		void ResetAll();
 		void UpdateMenuItems();
 

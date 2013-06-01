@@ -319,14 +319,21 @@ bool Frame::InitFrame(bool doubleBuffer, bool smooth, bool lighting, int numPart
 	return true;
 }
 
-// Take the simmulation date, time and step count and display it in the status bar
-void Frame::DisplayDate()
+// Take the simulation date, time and step count and display it in the status bar
+void Frame::UpdateStatusBar(wxLongLong timeTaken)
 {
-	double jdn = this->clModel->julianDate + (this->clModel->time)*1/(60*60*24);// (11574.07407f*this->clModel->time); // 0.000001 = 1000 seconds
+	//compute Modified moving average for the frame time see https://en.wikipedia.org/wiki/Moving_average
+	static double movingAverageTimeTaken;
+	movingAverageTimeTaken = (19*movingAverageTimeTaken + timeTaken.ToDouble())/20.0;
+	double frameRate = 1000000.0/movingAverageTimeTaken;
+	
+	// compute the Julian day Number 
+	double jdn = this->clModel->julianDate + (this->clModel->time)*1/(60*60*24);
 	wxDateTime dateTime;
 	dateTime.Set(jdn);
+	
 	wxString message;
-	message.Printf("Julian Day: %f Date: %10s %8s step: %d",jdn,dateTime.FormatISODate().c_str(),dateTime.FormatISOTime().c_str(), this->clModel->step);
+	message.Printf("Julian Day: %f Date: %10s %8s step: %d fps: %.2f",jdn,dateTime.FormatISODate().c_str(),dateTime.FormatISOTime().c_str(), this->clModel->step, frameRate);
 	this->SetStatusText(message);
 }
 
@@ -344,17 +351,19 @@ void Frame::OnTimer(wxTimerEvent& event)
 	}
 
 	InOnTimer = true;
-
+	wxLongLong timeTaken;
 	try{
 		this->clModel->ExecuteKernels();
 		this->clModel->RequestUpdate();
 		this->clModel->ExecuteKernels();
+		timeTaken = this->stopWatch.TimeInMicro();
+		this->stopWatch.Start(0);
 	}catch( int e)
 	{
 		this->timer->Stop();
 	}
 	
-	this->DisplayDate();
+	this->UpdateStatusBar(timeTaken);
 	
 	// check if going a date
 	if(this->goingToDate)
@@ -392,7 +401,7 @@ void Frame::Stop( wxCommandEvent& WXUNUSED(event) )
 {
 	wxLogDebug(wxT("Frame Stop"));
 	this->timer->Stop();
-	this->DisplayDate();
+	this->UpdateStatusBar(0);
 }
 
 void Frame::Reset( wxCommandEvent& WXUNUSED(event) )
@@ -689,7 +698,7 @@ void Frame::ResetAll()
 	this->glCanvas->SetColours(this->initialState->initialColorData);
 	this->clModel->julianDate = this->initialState->initialJulianDate;
 	this->clModel->time = 0.0f;
-	this->DisplayDate();
+	this->UpdateStatusBar(0);
 	this->clModel->SetKernelArgumentsAndGroupSize();
 	this->clModel->UpdateDisplay();
 	this->Refresh(false);
