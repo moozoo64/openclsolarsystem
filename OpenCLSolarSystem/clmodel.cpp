@@ -74,6 +74,11 @@ CLModel::~CLModel()
 	wxLogDebug(wxT("CLModel Destructor"));
 }
 
+void CL_CALLBACK PfnNotify(const char * errInfo, const void * private_info, size_t cb, void * user_data)
+{
+	wxLogError("PfnNotify Error: %s\n", errInfo);
+}
+
 int CLModel::ChooseAndCreateContext(char *desiredPlatformName,bool preferCpu)
 {
 	wxLogDebug(wxT("CLModel::ChooseAndCreateContext"));
@@ -345,7 +350,7 @@ int CLModel::ChooseAndCreateContext(char *desiredPlatformName,bool preferCpu)
 	}
 #endif
 							
-	this->context = clCreateContext( properties,numberOfDevices,deviceIds,NULL,NULL,&status);
+	this->context = clCreateContext( properties,numberOfDevices,deviceIds,&PfnNotify,NULL,&status);
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clCreateContext failed %s"),this->ErrorMessage(status));
