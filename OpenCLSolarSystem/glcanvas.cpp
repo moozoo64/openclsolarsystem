@@ -93,7 +93,7 @@ GLCanvas::~GLCanvas()
 
 void GLCanvas::OnPaint( wxPaintEvent& WXUNUSED(event) )
 {
-	//wxLogDebug(wxT("GLCanvas::OnPaint Start"));
+	wxLogDebug(wxT("GLCanvas::OnPaint Start"));
 	
 	if(!IsShown() || !this->active)
 	{
@@ -149,7 +149,7 @@ void GLCanvas::OnPaint( wxPaintEvent& WXUNUSED(event) )
 	glRotatef( this->xrot, 1.0f, 0.0f, 0.0f );
 
 	glBindBuffer(GL_ARRAY_BUFFER, this->vbo[0]);
-	glVertexPointer(3, GL_DOUBLE, sizeof(cl_double4), 0);
+	glVertexPointer(3, GL_FLOAT, 4*sizeof(GLfloat), 0);
 	glBindBuffer(GL_ARRAY_BUFFER, this->vbo[1]);
 	glColorPointer(4, GL_UNSIGNED_BYTE, 0, 0);
 	
@@ -184,7 +184,8 @@ void GLCanvas::OnPaint( wxPaintEvent& WXUNUSED(event) )
 	glPopMatrix();
 	glFinish();
 	this->SwapBuffers();
-	//wxLogDebug(wxT("GLCanvas::OnPaint Done"));
+	
+	wxLogDebug(wxT("GLCanvas::OnPaint Done"));
 }
 
 void GLCanvas::SetColours(GLubyte *colorData)
@@ -374,8 +375,9 @@ GLuint* GLCanvas::getVbo()
 		wxLogDebug(wxT("GLCanvas::getVbo creating vbo's"));
 		wxGLCanvas::SetCurrent(*this->glContext);
 		
-		unsigned int size = this->numParticles * sizeof(cl_double4);
-		cl_double4 *data = (cl_double4 *)malloc(size);
+		// use float4 for 128 bit alignment
+		unsigned int size = this->numParticles * 4 * sizeof(GLfloat);
+		GLfloat *data = (GLfloat *)malloc(size);
 		memset(data,0x1,size);
 
 		unsigned int colorSize = this->numParticles * 4 * sizeof(GLubyte);
@@ -390,6 +392,7 @@ GLuint* GLCanvas::getVbo()
 			colorData[i*4+2] = 92;
 			colorData[i*4+3] = 255;
 		}
+		
 		// Create the vbos and initialise them
 		glGenBuffers(2, &(this->vbo[0]));
 		glBindBuffer(GL_ARRAY_BUFFER, this->vbo[0]);

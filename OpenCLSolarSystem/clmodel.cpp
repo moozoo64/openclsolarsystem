@@ -610,21 +610,21 @@ int CLModel::CompileProgramAndCreateKernels()
 	wxString programSource;
 	if(this->gotKhrGlSharing && !this->gotAmdFp64)
 	{
-		programSource.Append(wxT("#pragma OPENCL EXTENSION cl_khr_gl_sharing : enable\n"));
+		programSource.Append(wxT("#pragma OPENCL EXTENSION cl_khr_gl_sharing : enable \r\n"));
 	}
 	
 	if(this->gotAppleGlSharing)
 	{
-		programSource.Append(wxT("#pragma OPENCL EXTENSION cl_APPLE_gl_sharing : enable\n"));
+		programSource.Append(wxT("#pragma OPENCL EXTENSION cl_APPLE_gl_sharing : enable \r\n"));
 	}
 	
 	if(this->gotKhrFp64)
 	{
-		programSource.Append(wxT("#pragma OPENCL EXTENSION cl_khr_fp64 : enable\n"));
+		programSource.Append(wxT("#pragma OPENCL EXTENSION cl_khr_fp64 : enable \r\n"));
 	}
 	else if(this->gotAmdFp64)
 	{
-		programSource.Append(wxT("#pragma OPENCL EXTENSION cl_amd_fp64 : enable\n"));
+		programSource.Append(wxT("#pragma OPENCL EXTENSION cl_amd_fp64 : enable \r\n"));
 	}
 	
 	programSource.Append(nbodySource);
@@ -1003,13 +1003,21 @@ int CLModel::UpdateDisplay()
 	clReleaseEvent(eventND[0]);
 	
 	// Release GL buffer
-	status = clEnqueueReleaseGLObjects(this->commandQueue, 1, &this->dispPos, 0, 0, 0);
+	status = clEnqueueReleaseGLObjects(this->commandQueue, 1, &this->dispPos, 0, 0, eventND);
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clEnqueueReleaseGLObjects failed to release dispPos %s"),this->ErrorMessage(status));
 		return status;
 	}
 
+	status = clWaitForEvents(1, eventND);
+	if( status != CL_SUCCESS)
+	{
+		wxLogError(wxT("clWaitForEvents clEnqueueReleaseGLObjects failed %s"),this->ErrorMessage(status));
+		return status;
+	}
+	clReleaseEvent(eventND[0]);
+	
 	status = clFinish(this->commandQueue);
 	if( status != CL_SUCCESS)
 	{

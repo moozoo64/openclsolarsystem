@@ -107,11 +107,20 @@ __kernel
 void copyToDisplay(
 __constant double4* gravPos,
 __global double4* pos,
-__global double4* dispPos,
+__global float4* dispPos,
 int centerBodyIndex) 
 { 
+	double4 dispPosDouble;
+	float4 dispPosFloat;
 	unsigned int gid = get_global_id(0);
-	dispPos[gid] = pos[gid] - gravPos[centerBodyIndex];
+	dispPosDouble = pos[gid] - gravPos[centerBodyIndex];
+	
+	dispPosFloat.x = (float) dispPosDouble.x;
+	dispPosFloat.y = (float) dispPosDouble.y;
+	dispPosFloat.z = (float) dispPosDouble.z;
+	dispPosFloat.w = (float) dispPosDouble.w;
+	
+	dispPos[gid] = dispPosFloat;
 }
 
 #define B2C1 1.500000000000000000
