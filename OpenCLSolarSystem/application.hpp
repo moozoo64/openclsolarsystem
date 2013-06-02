@@ -43,7 +43,6 @@ class Application: public wxApp
 		bool preferCpu;
 
 		Frame *frame;
-		wxFFile *logFile;
 		bool Args(int argc, wxChar **argv);
 };
 

@@ -44,6 +44,7 @@ class Frame: public wxFrame
 		bool clModelOk;
 		char *desiredPlatform;
 		bool preferCpu;
+		bool runOnIdle;
 		int numParticles;
 		int numGrav;
 		InitialState *initialState;
@@ -53,27 +54,31 @@ class Frame: public wxFrame
 		void UpdateStatusBar(wxLongLong timeTaken);
 		void ResetAll();
 		void UpdateMenuItems();
+		void Start();
+		void Stop();
+		void DoStep();
 
 		void OnExit(wxCommandEvent& event);
 		void OnAbout(wxCommandEvent& event);
-		void Start(wxCommandEvent& event);
-		void Stop(wxCommandEvent& event);
-		void Reset(wxCommandEvent& event);
-		void SetIntegrator(wxCommandEvent& event);
-		void SetDeltaTime(wxCommandEvent& event);
-		void SetNum(wxCommandEvent& event);
-		void SetGrav(wxCommandEvent& event);
-		void SetCenter(wxCommandEvent& event);
-		void SetNewtonian(wxCommandEvent& event);
-		void ImportSlf(wxCommandEvent& event);
-		void ExportSlf(wxCommandEvent& event);
-		void SetRelativistic(wxCommandEvent& event);
-		void SaveInitialState(wxCommandEvent& event);
-		void LoadInitialState(wxCommandEvent& event);
-		void ReadToInitialState(wxCommandEvent& event);
-		void Blending(wxCommandEvent& event);
+		void OnStart(wxCommandEvent& event);
+		void OnStop(wxCommandEvent& event);
+		void OnReset(wxCommandEvent& event);
+		void OnSetIntegrator(wxCommandEvent& event);
+		void OnSetDeltaTime(wxCommandEvent& event);
+		void OnSetNum(wxCommandEvent& event);
+		void OnSetGrav(wxCommandEvent& event);
+		void OnSetCenter(wxCommandEvent& event);
+		void OnSetNewtonian(wxCommandEvent& event);
+		void OnImportSlf(wxCommandEvent& event);
+		void OnExportSlf(wxCommandEvent& event);
+		void OnSetRelativistic(wxCommandEvent& event);
+		void OnSaveInitialState(wxCommandEvent& event);
+		void OnLoadInitialState(wxCommandEvent& event);
+		void OnReadToInitialState(wxCommandEvent& event);
+		void OnBlending(wxCommandEvent& event);
 		void OnTimer(wxTimerEvent& event);
 		void OnClose(wxCloseEvent& event);
+		void OnIdle(wxIdleEvent& event);
 
 		DECLARE_EVENT_TABLE()
 };

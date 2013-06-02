@@ -63,7 +63,10 @@ GLCanvas::GLCanvas(wxWindow *parent, wxWindowID id,
 	: wxGLCanvas(parent, id,makeGLAttrib(doubleBuffer), pos, size, style|wxFULL_REPAINT_ON_RESIZE, name, wxNullPalette)
 
 {
-	wxLogDebug(wxT("GLCanvas Create"));
+#ifdef __WXDEBUG__
+	wxLogDebug(wxT("GLCanvas Create threadId: %ld"),wxThread::GetCurrentId());
+#endif
+
 	this->glContext = new wxGLContext(this);
 	
 	this->numParticles = 0;
@@ -93,7 +96,10 @@ GLCanvas::~GLCanvas()
 
 void GLCanvas::OnPaint( wxPaintEvent& WXUNUSED(event) )
 {
-	wxLogDebug(wxT("GLCanvas::OnPaint Start"));
+	
+#ifdef __WXDEBUG__
+	wxLogDebug(wxT("GLCanvas::OnPaint Start threadId: %ld"),wxThread::GetCurrentId());
+#endif
 	
 	if(!IsShown() || !this->active)
 	{
@@ -183,6 +189,7 @@ void GLCanvas::OnPaint( wxPaintEvent& WXUNUSED(event) )
 
 	glPopMatrix();
 	glFinish();
+	wxLogDebug(wxT("GLCanvas::OnPaint glFinish()"));
 	this->SwapBuffers();
 	
 	wxLogDebug(wxT("GLCanvas::OnPaint Done"));
@@ -201,6 +208,7 @@ void GLCanvas::SetColours(GLubyte *colorData)
 	glBufferData(GL_ARRAY_BUFFER, colorSize, colorData, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glFinish();
+	wxLogDebug(wxT("GLCanvas::SetColours glFinish()"));
 }
 
 // Called when the window is resized
@@ -403,6 +411,7 @@ GLuint* GLCanvas::getVbo()
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 		glFinish();
+		wxLogDebug(wxT("GLCanvas::getVbo glFinish()"));
 
 		free(data);
 		free(colorData);
@@ -416,7 +425,10 @@ GLuint* GLCanvas::getVbo()
 // Creates the OpenGL Context
 bool GLCanvas::CreateOpenGlContext(int numParticles, int numGrav)
 {
-	wxLogDebug(wxT("GLCanvas::CreateOpenGlContext"));
+
+#ifdef __WXDEBUG__
+	wxLogDebug(wxT("GLCanvas::CreateOpenGlContext Start threadId: %ld"),wxThread::GetCurrentId());
+#endif
 
 	this->numParticles = numParticles;
 	this->numGrav = numGrav;
@@ -443,7 +455,7 @@ bool GLCanvas::CreateOpenGlContext(int numParticles, int numGrav)
 	this->active=true;
 	this->vboCreated = false;
 	this->updateProjectionAndModelView = true;
-	glFinish();
+	//glFinish();
 	wxLogDebug(wxT("GLCanvas::CreateOpenGlContext Done"));
 	return true;
 }
@@ -454,6 +466,7 @@ bool GLCanvas::CleanUpGL()
 	this->active = false;
 	glDeleteBuffers(2, &(this->vbo[0]));
 	glFinish();
+	wxLogDebug(wxT("GLCanvas::CleanUpGL glFinish()"));
 	this->vboCreated = false;
 	wxLogDebug(wxT("GLCanvas::CleanUpGL Done"));
 	return true;

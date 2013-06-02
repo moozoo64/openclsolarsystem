@@ -97,7 +97,6 @@ IMPLEMENT_APP(Application)
 Application::Application()
 {
 	this->frame = NULL;
-	this->logFile = NULL;
 	this->lighting = false;
 	this->smooth = false;
 	this->doubleBuffer = true;
@@ -113,23 +112,14 @@ Application::Application()
 // `Main program' equivalent, creating windows and returning main app frame
 bool Application::OnInit()
 {
-
-#if defined(__WXDEBUG__ )
-	//If debugging then setup logging to a file
-	this->logFile = new wxFFile();
-	if( logFile->Open(wxT("log.log"),wxT("w+") ))
-	{
-		wxLogStderr *logStderr = new wxLogStderr(logFile->fp());
-		wxLog::SetActiveTarget(logStderr);
-	}
-#endif
-
 	this->frame = new Frame(NULL, wxT("OpenGL/CL Solar System fp64"), wxDefaultPosition, wxDefaultSize);
 
 #if defined(__WXDEBUG__ )
-	//If debugging also send log to a windows
+	//If debugging send log to a windows
 	//This is attached to the Frame so that it closes with it.
-	wxLogWindow *logWindow = new wxLogWindow(this->frame, wxT(" Debug Log"),true,true);
+	wxLogWindow *logWindow = new wxLogWindow(this->frame, wxT("Debug Log"),true,true);
+	wxLog::SetActiveTarget(logWindow);
+	wxLogDebug(wxT("Application::OnInit threadId: %ld"),wxThread::GetCurrentId());
 #endif
 
 	// Process the command line arguments
@@ -142,10 +132,5 @@ bool Application::OnInit()
 
 int Application::OnExit()
 {
-	//this->logFile->Flush();
-	//wxLogDebug(wxT("Application::OnExit Start"));
-	//delete this->logWindow;
-	//delete this->frame;
-	//wxLogDebug(wxT("Application::OnExit Done"));
 	return 0;
 }

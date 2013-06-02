@@ -75,56 +75,57 @@ enum
 BEGIN_EVENT_TABLE(Frame, wxFrame)
 	EVT_MENU(wxID_EXIT, Frame::OnExit)
 	EVT_MENU(wxID_ABOUT, Frame::OnAbout)
-	EVT_MENU(ID_START, Frame::Start)
-	EVT_MENU(ID_STOP, Frame::Stop)
-	EVT_MENU(ID_RESET, Frame::Reset)
-	EVT_MENU(ID_IMPORTSLF, Frame::ImportSlf)
-	EVT_MENU(ID_SETADAMS4, Frame::SetIntegrator)
-	EVT_MENU(ID_SETADAMS8, Frame::SetIntegrator)
-	EVT_MENU(ID_SETADAMS10, Frame::SetIntegrator)
-	EVT_MENU(ID_SETADAMS11, Frame::SetIntegrator)
-	EVT_MENU(ID_SETADAMS12, Frame::SetIntegrator)
-	EVT_MENU(ID_SETADAMS16, Frame::SetIntegrator)
-	EVT_MENU(ID_SETDELTATMINUS15, Frame::SetDeltaTime)
-	EVT_MENU(ID_SETDELTATMINUSHR, Frame::SetDeltaTime)
-	EVT_MENU(ID_SETDELTATMINUSFOURHR, Frame::SetDeltaTime)
-	EVT_MENU(ID_SETDELTATMINUSDAY, Frame::SetDeltaTime)
-	EVT_MENU(ID_SETDELTAT15, Frame::SetDeltaTime)
-	EVT_MENU(ID_SETDELTATHR, Frame::SetDeltaTime)
-	EVT_MENU(ID_SETDELTATFOURHR, Frame::SetDeltaTime)
-	EVT_MENU(ID_SETDELTATDAY, Frame::SetDeltaTime)
-	EVT_MENU(ID_SETNUMSMALL, Frame::SetNum)
-	EVT_MENU(ID_SETNUMMEDIUM, Frame::SetNum)
-	EVT_MENU(ID_SETNUMLARGE, Frame::SetNum)
-	EVT_MENU(ID_SETNUMMAX, Frame::SetNum)
-	EVT_MENU(ID_SETGRAV16, Frame::SetGrav)
-	EVT_MENU(ID_SETGRAV32, Frame::SetGrav)
-	EVT_MENU(ID_SETGRAV64, Frame::SetGrav)
-	EVT_MENU(ID_SETGRAV128, Frame::SetGrav)
-	EVT_MENU(ID_SETGRAV192, Frame::SetGrav)
-	EVT_MENU(ID_SETGRAV256, Frame::SetGrav)
-	EVT_MENU(ID_SETGRAV384, Frame::SetGrav)
-	EVT_MENU(ID_SETGRAV512, Frame::SetGrav)
-	EVT_MENU(ID_SETGRAVMAX, Frame::SetGrav)
-	EVT_MENU(ID_SETCENTER0, Frame::SetCenter)
-	EVT_MENU(ID_SETCENTER1, Frame::SetCenter)
-	EVT_MENU(ID_SETCENTER2, Frame::SetCenter)
-	EVT_MENU(ID_SETCENTER3, Frame::SetCenter)
-	EVT_MENU(ID_SETCENTER4, Frame::SetCenter)
-	EVT_MENU(ID_SETCENTER5, Frame::SetCenter)
-	EVT_MENU(ID_SETCENTER6, Frame::SetCenter)
-	EVT_MENU(ID_SETCENTER7, Frame::SetCenter)
-	EVT_MENU(ID_SETCENTER8, Frame::SetCenter)
-	EVT_MENU(ID_SETCENTER9, Frame::SetCenter)
-	EVT_MENU(ID_SETCENTER10, Frame::SetCenter)
-	EVT_MENU(ID_SETNEWTONIAN, Frame::SetNewtonian)
-	EVT_MENU(ID_SETRELATIVISTIC, Frame::SetRelativistic)
-	EVT_MENU(ID_SAVESTATE, Frame::SaveInitialState)
-	EVT_MENU(ID_LOADSTATE, Frame::LoadInitialState)
-	EVT_MENU(ID_READSTATE, Frame::ReadToInitialState)
-	EVT_MENU(ID_EXPORTSLF, Frame::ExportSlf)
-	EVT_MENU(ID_BLENDING, Frame::Blending)
+	EVT_MENU(ID_START, Frame::OnStart)
+	EVT_MENU(ID_STOP, Frame::OnStop)
+	EVT_MENU(ID_RESET, Frame::OnReset)
+	EVT_MENU(ID_IMPORTSLF, Frame::OnImportSlf)
+	EVT_MENU(ID_SETADAMS4, Frame::OnSetIntegrator)
+	EVT_MENU(ID_SETADAMS8, Frame::OnSetIntegrator)
+	EVT_MENU(ID_SETADAMS10, Frame::OnSetIntegrator)
+	EVT_MENU(ID_SETADAMS11, Frame::OnSetIntegrator)
+	EVT_MENU(ID_SETADAMS12, Frame::OnSetIntegrator)
+	EVT_MENU(ID_SETADAMS16, Frame::OnSetIntegrator)
+	EVT_MENU(ID_SETDELTATMINUS15, Frame::OnSetDeltaTime)
+	EVT_MENU(ID_SETDELTATMINUSHR, Frame::OnSetDeltaTime)
+	EVT_MENU(ID_SETDELTATMINUSFOURHR, Frame::OnSetDeltaTime)
+	EVT_MENU(ID_SETDELTATMINUSDAY, Frame::OnSetDeltaTime)
+	EVT_MENU(ID_SETDELTAT15, Frame::OnSetDeltaTime)
+	EVT_MENU(ID_SETDELTATHR, Frame::OnSetDeltaTime)
+	EVT_MENU(ID_SETDELTATFOURHR, Frame::OnSetDeltaTime)
+	EVT_MENU(ID_SETDELTATDAY, Frame::OnSetDeltaTime)
+	EVT_MENU(ID_SETNUMSMALL, Frame::OnSetNum)
+	EVT_MENU(ID_SETNUMMEDIUM, Frame::OnSetNum)
+	EVT_MENU(ID_SETNUMLARGE, Frame::OnSetNum)
+	EVT_MENU(ID_SETNUMMAX, Frame::OnSetNum)
+	EVT_MENU(ID_SETGRAV16, Frame::OnSetGrav)
+	EVT_MENU(ID_SETGRAV32, Frame::OnSetGrav)
+	EVT_MENU(ID_SETGRAV64, Frame::OnSetGrav)
+	EVT_MENU(ID_SETGRAV128, Frame::OnSetGrav)
+	EVT_MENU(ID_SETGRAV192, Frame::OnSetGrav)
+	EVT_MENU(ID_SETGRAV256, Frame::OnSetGrav)
+	EVT_MENU(ID_SETGRAV384, Frame::OnSetGrav)
+	EVT_MENU(ID_SETGRAV512, Frame::OnSetGrav)
+	EVT_MENU(ID_SETGRAVMAX, Frame::OnSetGrav)
+	EVT_MENU(ID_SETCENTER0, Frame::OnSetCenter)
+	EVT_MENU(ID_SETCENTER1, Frame::OnSetCenter)
+	EVT_MENU(ID_SETCENTER2, Frame::OnSetCenter)
+	EVT_MENU(ID_SETCENTER3, Frame::OnSetCenter)
+	EVT_MENU(ID_SETCENTER4, Frame::OnSetCenter)
+	EVT_MENU(ID_SETCENTER5, Frame::OnSetCenter)
+	EVT_MENU(ID_SETCENTER6, Frame::OnSetCenter)
+	EVT_MENU(ID_SETCENTER7, Frame::OnSetCenter)
+	EVT_MENU(ID_SETCENTER8, Frame::OnSetCenter)
+	EVT_MENU(ID_SETCENTER9, Frame::OnSetCenter)
+	EVT_MENU(ID_SETCENTER10, Frame::OnSetCenter)
+	EVT_MENU(ID_SETNEWTONIAN, Frame::OnSetNewtonian)
+	EVT_MENU(ID_SETRELATIVISTIC, Frame::OnSetRelativistic)
+	EVT_MENU(ID_SAVESTATE, Frame::OnSaveInitialState)
+	EVT_MENU(ID_LOADSTATE, Frame::OnLoadInitialState)
+	EVT_MENU(ID_READSTATE, Frame::OnReadToInitialState)
+	EVT_MENU(ID_EXPORTSLF, Frame::OnExportSlf)
+	EVT_MENU(ID_BLENDING, Frame::OnBlending)
 	EVT_TIMER(ID_TIMER, Frame::OnTimer)
+	EVT_IDLE(Frame::OnIdle)
 	EVT_CLOSE(Frame::OnClose)
 END_EVENT_TABLE()
 
@@ -139,20 +140,31 @@ Frame::Frame(wxFrame *frame, const wxString& title, const wxPoint& pos, const wx
 	this->initialState = new InitialState();
 	this->stopDateJdn = 2456430.5;
 	this->goingToDate = false;
+	this->runOnIdle = false;
 }
 
 Frame::~Frame()
 {
 	wxLogDebug(wxT("Cleaning up Frame"));
-	this->timer->Stop();
+	this->Stop();
 	delete this->clModel;
 	delete this->glCanvas;
 	delete this->timer;
 	delete this->initialState;
+
+#if defined(__WXDEBUG__ )
+	delete wxLog::SetActiveTarget(NULL);
+#endif
+
 }
 
 bool Frame::InitFrame(bool doubleBuffer, bool smooth, bool lighting, int numParticles, int numGrav, bool preferCpu, char *desiredPlatform)
 {
+
+#ifdef __WXDEBUG__
+	wxLogDebug(wxT("Frame::InitFrame threadId: %ld"),wxThread::GetCurrentId());
+#endif
+
 	this->numParticles = numParticles;
 	this->numGrav = numGrav;
 	this->preferCpu = preferCpu;
@@ -320,11 +332,17 @@ bool Frame::InitFrame(bool doubleBuffer, bool smooth, bool lighting, int numPart
 }
 
 // Take the simulation date, time and step count and display it in the status bar
+// Computes a modified moving average for the frame time see https://en.wikipedia.org/wiki/Moving_average
+// timeTaken is the number of microseconds since it was last called or 0 if called while not running
 void Frame::UpdateStatusBar(wxLongLong timeTaken)
 {
-	//compute Modified moving average for the frame time see https://en.wikipedia.org/wiki/Moving_average
 	static double movingAverageTimeTaken;
-	movingAverageTimeTaken = (19*movingAverageTimeTaken + timeTaken.ToDouble())/20.0;
+
+	if(timeTaken != 0)
+	{
+		movingAverageTimeTaken = (19*movingAverageTimeTaken + timeTaken.ToDouble())/20.0;
+	}
+	
 	double frameRate = 1000000.0/movingAverageTimeTaken;
 	
 	// compute the Julian day Number 
@@ -337,33 +355,22 @@ void Frame::UpdateStatusBar(wxLongLong timeTaken)
 	this->SetStatusText(message);
 }
 
-// The interval timer triggers the advancement to the next step
-void Frame::OnTimer(wxTimerEvent& event)
+// Advances the simulation one time step
+void Frame::DoStep()
 {
-	if(!IsShown()) return;
-	static bool InOnTimer = false;
-
-	wxLogDebug(wxT("Timer Fired"));
-	if(InOnTimer)
-	{
-		wxLogDebug(wxT("Already in OnTimer"));
-		return;
-	}
-
-	InOnTimer = true;
-	wxLongLong timeTaken;
 	try{
+		// Adams-Bashforth
 		this->clModel->ExecuteKernels();
 		this->clModel->RequestUpdate();
+		// Adams-Moulton
 		this->clModel->ExecuteKernels();
-		timeTaken = this->stopWatch.TimeInMicro();
-		this->stopWatch.Start(0);
 	}catch( int e)
 	{
-		this->timer->Stop();
+		this->Stop();
 	}
 	
-	this->UpdateStatusBar(timeTaken);
+	this->UpdateStatusBar(this->stopWatch.TimeInMicro());
+	this->stopWatch.Start(0);	
 	
 	// check if going a date
 	if(this->goingToDate)
@@ -373,7 +380,7 @@ void Frame::OnTimer(wxTimerEvent& event)
 		{
 			if(currentJdn >= this->stopDateJdn)
 			{
-				this->timer->Stop();
+				this->Stop();
 				this->goingToDate = false;
 			}
 		}
@@ -381,39 +388,87 @@ void Frame::OnTimer(wxTimerEvent& event)
 		{
 			if(currentJdn <= this->stopDateJdn)
 			{
-				this->timer->Stop();
+				this->Stop();
 				this->goingToDate = false;
 			}
 		}
 	}
+}
 
+// Run when Idle
+void Frame::OnIdle(wxIdleEvent& event)
+{
+	if(runOnIdle)
+	{
+
+#ifdef __WXDEBUG__
+	wxLogDebug(wxT("Frame::OnIdle threadId: %ld"),wxThread::GetCurrentId());
+#endif
+		this->DoStep();
+		this->Refresh(false);
+	}
+	
+	event.RequestMore(true);
+}
+
+// Run on Interval timer. This is used to Run while them menu or about dialog is being displayed 
+void Frame::OnTimer(wxTimerEvent& event)
+{
+	if(!IsShown()) return;
+	static bool InOnTimer = false;
+
+#ifdef __WXDEBUG__
+	wxLogDebug(wxT("Timer Fired threadId: %ld"),wxThread::GetCurrentId());
+#endif
+
+	if(InOnTimer)
+	{
+		wxLogDebug(wxT("Already in OnTimer"));
+		return;
+	}
+
+	InOnTimer = true;
+	this->DoStep();
 	this->Refresh(false);
 	InOnTimer = false;
 }
 
-void Frame::Start( wxCommandEvent& WXUNUSED(event) )
+void Frame::Stop()
 {
-	wxLogDebug(wxT("Frame Start"));
-	this->timer->Start(1,false);
-}
-
-void Frame::Stop( wxCommandEvent& WXUNUSED(event) )
-{
-	wxLogDebug(wxT("Frame Stop"));
+	this->runOnIdle = false;
 	this->timer->Stop();
 	this->UpdateStatusBar(0);
 }
 
-void Frame::Reset( wxCommandEvent& WXUNUSED(event) )
+void Frame::Start()
+{
+	this->runOnIdle = true;
+	this->timer->Start(1,false);
+	this->stopWatch.Start(0);
+}
+
+void Frame::OnStart( wxCommandEvent& WXUNUSED(event) )
+{
+	wxLogDebug(wxT("Frame Start"));
+	this->Start();
+}
+
+void Frame::OnStop( wxCommandEvent& WXUNUSED(event) )
+{
+	wxLogDebug(wxT("Frame Stop"));
+	this->Stop();
+}
+
+void Frame::OnReset( wxCommandEvent& WXUNUSED(event) )
 {
 	this->numParticles = this->numParticles > this->initialState->initialNumParticles ? this->initialState->initialNumParticles : this->numParticles;
 	this->ResetAll();
 }
 
 // sets the time delta between steps
-void Frame::SetDeltaTime(wxCommandEvent& event)
+void Frame::OnSetDeltaTime(wxCommandEvent& event)
 {
-	this->timer->Stop();
+	this->Stop();
 	int id = event.GetId();
 	switch(id)
 	{
@@ -450,7 +505,7 @@ void Frame::SetDeltaTime(wxCommandEvent& event)
 }
 
 // sets the body to center the display on
-void Frame::SetCenter(wxCommandEvent& event)
+void Frame::OnSetCenter(wxCommandEvent& event)
 {
 	int id = event.GetId();
 
@@ -498,7 +553,7 @@ void Frame::SetCenter(wxCommandEvent& event)
 	this->Refresh(true);
 }
 
-void Frame::SaveInitialState(wxCommandEvent& event)
+void Frame::OnSaveInitialState(wxCommandEvent& event)
 {
 	wxLogDebug(wxT("Saving"));
 	wxFileDialog fileDialog(this, wxT("Choose Save file"), wxT(""), wxT(""), wxT("*.bin"), wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
@@ -508,7 +563,7 @@ void Frame::SaveInitialState(wxCommandEvent& event)
 	}
 }
 
-void Frame::ExportSlf(wxCommandEvent& event)
+void Frame::OnExportSlf(wxCommandEvent& event)
 {
 	wxLogDebug(wxT("Exporting to SLF file"));
 	wxFileDialog fileDialog(this, wxT("Choose Save file"), wxT(""), wxT(""), wxT("*.slf"), wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
@@ -519,10 +574,10 @@ void Frame::ExportSlf(wxCommandEvent& event)
 }
 
 // displays a dialog for the user to chose and .bin file of initial conditions and then loads it
-void Frame::LoadInitialState(wxCommandEvent& event)
+void Frame::OnLoadInitialState(wxCommandEvent& event)
 {
-	wxLogDebug(wxT("Frame Stop"));
-	this->timer->Stop();
+	wxLogDebug(wxT("Frame::LoadInitialState"));
+	this->Stop();
 	wxLogDebug(wxT("Loading"));
 	wxFileDialog fileDialog(this, wxT("Choose file"), wxT(""), wxT(""), wxT("*.bin"), wxFD_OPEN || wxFD_FILE_MUST_EXIST);
 	if(fileDialog.ShowModal() == wxID_OK)
@@ -541,10 +596,10 @@ void Frame::LoadInitialState(wxCommandEvent& event)
 
 // copys the currently displayed positions and velocities to the initial state
 // All future resets will set the simulation back to this state
-void Frame::ReadToInitialState(wxCommandEvent& event)
+void Frame::OnReadToInitialState(wxCommandEvent& event)
 {
-	wxLogDebug(wxT("Frame Stop"));
-	this->timer->Stop();
+	wxLogDebug(wxT("Frame::ReadToInitialState"));
+	this->Stop();
 	this->clModel->ReadToInitialState(this->initialState->initialPositions,this->initialState->initialVelocities);
 	this->initialState->initialJulianDate = this->clModel->julianDate + (this->clModel->time)*1/(60*60*24);
 	this->initialState->initialNumParticles = this->numParticles;
@@ -667,7 +722,7 @@ void Frame::UpdateMenuItems()
 	}
 }
 		
-void Frame::ImportSlf( wxCommandEvent& WXUNUSED(event) )
+void Frame::OnImportSlf( wxCommandEvent& WXUNUSED(event) )
 {
 	wxLogDebug(wxT("Importing Solex SFL file"));
 	wxFileDialog fileDialog(this, wxT("Choose Solex SLF file to Import"), wxT(""), wxT(""), wxT("*.SLF"), wxFD_OPEN);
@@ -686,8 +741,12 @@ void Frame::ImportSlf( wxCommandEvent& WXUNUSED(event) )
 
 void Frame::ResetAll()
 {
-	wxLogDebug(wxT("Frame Stop"));
-	this->timer->Stop();
+
+#ifdef __WXDEBUG__
+	wxLogDebug(wxT("Frame::ResetAll threadId: %ld"),wxThread::GetCurrentId());
+#endif
+
+	this->Stop();
 	this->clModel->CleanUpCL();
 	this->glCanvas->CleanUpGL();
 	this->glCanvas->CreateOpenGlContext(this->numParticles, this->numGrav);
@@ -706,7 +765,7 @@ void Frame::ResetAll()
 }
 
 // set the number of bodies (particles)
-void Frame::SetNum(wxCommandEvent& event)
+void Frame::OnSetNum(wxCommandEvent& event)
 {
 	switch(event.GetId())
 	{
@@ -730,7 +789,7 @@ void Frame::SetNum(wxCommandEvent& event)
 }
 
 // set the number of bodies which have a gravitation effect
-void Frame::SetGrav(wxCommandEvent& event)
+void Frame::OnSetGrav(wxCommandEvent& event)
 {
 	switch(event.GetId())
 	{
@@ -772,14 +831,14 @@ void Frame::SetGrav(wxCommandEvent& event)
 
 // Set blending for the asteroids.
 // Makes them semi transparent
-void Frame::Blending(wxCommandEvent& event)
+void Frame::OnBlending(wxCommandEvent& event)
 {
 	this->glCanvas->blending = ! this->glCanvas->blending;
 	this->Refresh(true);
 }
 
 // Sets the Integrator used to compute new positions and velocities
-void Frame::SetIntegrator(wxCommandEvent& event)
+void Frame::OnSetIntegrator(wxCommandEvent& event)
 {
 	switch(event.GetId())
 	{
@@ -816,14 +875,14 @@ void Frame::SetIntegrator(wxCommandEvent& event)
 }
 
 // sets the Acceleration calculation to use the Newtonian Gravitaton kernel
-void Frame::SetNewtonian(wxCommandEvent& event)
+void Frame::OnSetNewtonian(wxCommandEvent& event)
 {
 	this->clModel->accelerationKernelName = new wxString("newtonian");
 	this->ResetAll();
 }
 
 // sets the Acceleration calculation to use the Newtonian Gravitaton with Relativistic corrections kernel
-void Frame::SetRelativistic(wxCommandEvent& event)
+void Frame::OnSetRelativistic(wxCommandEvent& event)
 {
 	this->clModel->accelerationKernelName = new wxString("relativistic");
 	this->ResetAll();
@@ -840,7 +899,7 @@ void Frame::OnExit( wxCommandEvent& WXUNUSED(event) )
 void Frame::OnClose(wxCloseEvent& event)
 {
 	wxLogDebug(wxT("Frame OnClose"));
-	this->timer->Stop();
+	this->Stop();
 	this->Destroy();
 }
 

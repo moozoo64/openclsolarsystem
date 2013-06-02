@@ -81,7 +81,11 @@ void CL_CALLBACK PfnNotify(const char * errInfo, const void * private_info, size
 
 int CLModel::ChooseAndCreateContext(char *desiredPlatformName,bool preferCpu)
 {
-	wxLogDebug(wxT("CLModel::ChooseAndCreateContext"));
+
+#ifdef __WXDEBUG__
+	wxLogDebug(wxT("CLModel::ChooseAndCreateContext threadId: %ld"),wxThread::GetCurrentId());
+#endif
+
 	cl_int status = CL_SUCCESS;
 	cl_uint numPlatforms;
 	cl_platform_id platform = NULL;
@@ -491,7 +495,11 @@ int CLModel::ChooseAndCreateContext(char *desiredPlatformName,bool preferCpu)
 
 int CLModel::CreateBufferObjects(GLuint *vbo,int numParticles, int numGrav)
 {
-	wxLogDebug(wxT("CLModel::CreateBufferObjects"));
+
+#ifdef __WXDEBUG__
+	wxLogDebug(wxT("CLModel::CreateBufferObjects threadId: %ld"),wxThread::GetCurrentId());
+#endif
+
 	cl_int status = CL_SUCCESS;
 	this->step = 0;
 	this->numGrav = numGrav;
@@ -599,7 +607,11 @@ int CLModel::CreateBufferObjects(GLuint *vbo,int numParticles, int numGrav)
 
 int CLModel::CompileProgramAndCreateKernels()
 {
-	wxLogDebug(wxT("CLModel::CompileProgramAndCreateKernels"));
+	
+#ifdef __WXDEBUG__
+	wxLogDebug(wxT("CLModel::CompileProgramAndCreateKernels threadId: %ld"),wxThread::GetCurrentId());
+#endif
+
 	cl_int status = CL_SUCCESS;
 	// load the contents of the kernel file into a in memory string
 	wxString nbodySource;
@@ -736,7 +748,11 @@ int CLModel::CompileProgramAndCreateKernels()
 // Excutes the kernels to advance the simulation to the next time step
 int CLModel::ExecuteKernels()
 {
-	wxLogDebug(wxT("CLModel:ExecuteKernel Start"));
+
+#ifdef __WXDEBUG__
+	wxLogDebug(wxT("CLModel::ExecuteKernel threadId: %ld"),wxThread::GetCurrentId());
+#endif
+
 	cl_int status = CL_SUCCESS;
 
 	if(!this->initialisedOk)
@@ -778,7 +794,9 @@ int CLModel::ExecuteKernels()
 		wxLogError(wxT("clFinish failed %s"),this->ErrorMessage(status));
 		return status;
 	}
-	
+
+	wxLogDebug(wxT("CLModel::ExecuteKernels clFinish()"));
+
 	// for the first 16 steps we call the startupKernel. This populates the 16 element ring buffer
 	// It is current very inaccurate and uses a 1st order Adams Bashford Moulton followed by a 2nd order
 	// follows by several 4th orders steps until all 16 elements in the history ring buffer have been set.
@@ -883,7 +901,9 @@ int CLModel::ExecuteKernels()
 		wxLogError(wxT("clFinish failed %s"),this->ErrorMessage(status));
 		return status;
 	}
-
+	
+	wxLogDebug(wxT("CLModel::ExecuteKernels clFinish()"));
+	
 	// Copy new positions to current position
 	status = clEnqueueCopyBuffer(commandQueue,this->newPos,this->currPos,0,0,sizeof(cl_double4) * this->numParticles,0,0,0);
 	if( status != CL_SUCCESS)
@@ -914,6 +934,8 @@ int CLModel::ExecuteKernels()
 		return status;
 	}
 	
+	wxLogDebug(wxT("CLModel::ExecuteKernels clFinish()"));
+		
 	this->stage = this->stage - 1;
 	if(this->stage < 0)
 	{
@@ -935,7 +957,11 @@ int CLModel::ExecuteKernels()
 // Aquire the GL points buffer and then copy the positions to it
 int CLModel::UpdateDisplay()
 {
-	wxLogDebug(wxT("CLModel:UpdateDisplay Started"));
+
+#ifdef __WXDEBUG__
+	wxLogDebug(wxT("CLModel::UpdateDisplay threadId: %ld"),wxThread::GetCurrentId());
+#endif
+
 	cl_int status = CL_SUCCESS;
 
 	if(!this->initialisedOk)
@@ -956,6 +982,8 @@ int CLModel::UpdateDisplay()
 
 	// Execute acceleration kernel on given device
 	//glFinish();
+
+	wxLogDebug(wxT("CLModel::UpdateDisplay clEnqueueAcquireGLObjects()"));
 
 	cl_event  eventND[1];
 	// Acquire GL buffer
@@ -1029,7 +1057,8 @@ int CLModel::UpdateDisplay()
 		wxLogError(wxT("clFinish failed %s"),this->ErrorMessage(status));
 		return status;
 	}
-
+	
+	wxLogDebug(wxT("CLModel::UpdateDisplay clFinish()"));
 	wxLogDebug(wxT("CLModel:UpdateDisplay Done"));
 	return status;
 }
@@ -1037,7 +1066,11 @@ int CLModel::UpdateDisplay()
 // initialise the kernels so they are ready to be called.
 int CLModel::SetKernelArgumentsAndGroupSize()
 {
-	wxLogDebug(wxT("CLModel:SetKernelArgumentsAndGroupSize Start"));
+
+#ifdef __WXDEBUG__
+	wxLogDebug(wxT("CLModel::SetKernelArgumentsAndGroupSize threadId: %ld"),wxThread::GetCurrentId());
+#endif
+
 	if(!this->initialisedOk)
 	{
 		wxLogDebug(wxT("Aborted CLModel failed to Initialise"));
@@ -1365,7 +1398,11 @@ int CLModel::SetAdamsKernelArgs(cl_kernel adamsKernel)
 // e.g. number of bodies or the kernels changes.
 int CLModel::CleanUpCL()
 {
-	wxLogDebug(wxT("CLModel:CleanUpCL"));
+
+#ifdef __WXDEBUG__
+	wxLogDebug(wxT("CLModel::CleanUpCL threadId: %ld"),wxThread::GetCurrentId());
+#endif
+
 	cl_int status;
 	int success = CL_SUCCESS;
 
@@ -1571,6 +1608,11 @@ void CLModel::RequestUpdate()
 // Copies the initial positions and velocities into the opencl buffers
 int CLModel::SetInitalState(cl_double4 *initalPositions, cl_double4 *initalVelocities)
 {
+
+#ifdef __WXDEBUG__
+	wxLogDebug(wxT("CLModel::SetInitalState threadId: %ld"),wxThread::GetCurrentId());
+#endif
+	
 	cl_int status = CL_SUCCESS;
 	status = clEnqueueWriteBuffer(this->commandQueue,this->currPos,CL_TRUE,0,this->numParticles * sizeof(cl_double4),initalPositions,0,0,0);
 	if( status != CL_SUCCESS)
@@ -1599,6 +1641,11 @@ int CLModel::SetInitalState(cl_double4 *initalPositions, cl_double4 *initalVeloc
 // From there they can be saved to disk as either binary or slf format for later
 int CLModel::ReadToInitialState(cl_double4 *initalPositions, cl_double4 *initalVelocities)
 {
+
+#ifdef __WXDEBUG__
+	wxLogDebug(wxT("CLModel::ReadToInitialState threadId: %ld"),wxThread::GetCurrentId());
+#endif
+
 	cl_int status = CL_SUCCESS;
 	status = clEnqueueReadBuffer(this->commandQueue,this->currPos,CL_TRUE,0,this->numParticles * sizeof(cl_double4),initalPositions,0,0,0);
 	if( status != CL_SUCCESS)
