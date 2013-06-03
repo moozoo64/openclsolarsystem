@@ -14,7 +14,7 @@
 	limitations under the License.
 */
 #include "wx/wxprec.h"
-
+#ifndef WX_PRECOMP
 //#define GLEW_STATIC
 #include <GL/glew.h>
 
@@ -22,7 +22,6 @@
 #pragma hdrstop
 #endif
 
-#ifndef WX_PRECOMP
 #include "wx/wx.h"
 #include "wx/timer.h"
 #include "wx/glcanvas.h"
@@ -36,6 +35,15 @@
 #include <wx/wfstream.h>
 #include <wx/txtstrm.h>
 #include <wx/filedlg.h>
+
+#ifdef _WIN32
+#include <GL/wglew.h>
+#endif
+
+#ifdef __linux__
+#include <GL/glxew.h>
+#endif
+
 #endif
 
 #if !wxUSE_GLCANVAS

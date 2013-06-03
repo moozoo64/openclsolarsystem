@@ -58,6 +58,7 @@ public:
 		void OnChar(wxKeyEvent& event);
 		void OnMouseEvent(wxMouseEvent& event);
 		GLuint* getVbo();
+		bool VSync(bool vsync);
 
 		DECLARE_EVENT_TABLE()
 };

@@ -422,6 +422,68 @@ GLuint* GLCanvas::getVbo()
 	return this->vbo;
 }
 
+bool GLCanvas::VSync(bool vsync)
+{
+	int interval = vsync ? 1 : 0;
+	bool success = false;
+	
+	if(!this->active)
+	{
+		wxLogError(wxT("GLCanvas::VSync before opengl is setup"));
+		return success;
+	}
+	
+#ifdef _WIN32	
+	if(wglewIsSupported("WGL_EXT_swap_control"))
+	{
+		if(!wglSwapIntervalEXT(interval))
+		{
+			wxLogDebug(wxT("Failed to set vsync"));
+		}
+		else
+		{
+			success =true;
+		}
+	}
+	else
+	{
+		wxLogDebug(wxT("WGL_EXT_swap_control not supported"));
+	}
+#endif
+
+#ifdef __linux__
+	if(glxewIsSupported ("GLX_SGI_swap_control"))
+	{
+		if(glXSwapIntervalSGI(vsync) != 0)
+		{
+			wxLogDebug(wxT("Failed to set vsync"));
+		}
+		else
+		{
+			success =true;
+		}
+	}
+	else
+	{
+		wxLogDebug(wxT("GLX_SGI_swap_control not supported"));
+	}
+#endif
+
+#ifdef __APPLE__
+	CGLContextObj glContext = CGLGetCurrentContext();
+	[glContext setValues: &interval forParameter: NSOpenGLCPSwapInterval];
+#endif
+
+#ifdef __WXDEBUG__
+	if(success)
+	{
+		wxLogDebug(wxT("Set vsync %s"), vsync ? "true" : "false");
+	}
+#endif
+
+	return success;
+}
+
 // Creates the OpenGL Context
 bool GLCanvas::CreateOpenGlContext(int numParticles, int numGrav)
 {
@@ -453,6 +515,7 @@ bool GLCanvas::CreateOpenGlContext(int numParticles, int numGrav)
 	}
 
 	this->active=true;
+	this->VSync(false);
 	this->vboCreated = false;
 	this->updateProjectionAndModelView = true;
 	//glFinish();
