@@ -454,7 +454,7 @@ bool GLCanvas::VSync(bool vsync)
 #ifdef __linux__
 	if(glxewIsSupported ("GLX_SGI_swap_control"))
 	{
-		if(glXSwapIntervalSGI(vsync) != 0)
+		if(glXSwapIntervalSGI(interval) != 0)
 		{
 			wxLogDebug(wxT("Failed to set vsync"));
 		}
@@ -470,8 +470,14 @@ bool GLCanvas::VSync(bool vsync)
 #endif
 
 #ifdef __APPLE__
-	CGLContextObj glContext = CGLGetCurrentContext();
-	[glContext setValues: &interval forParameter: NSOpenGLCPSwapInterval];
+	if(CGLSetParameter(CGLGetCurrentContext(), kCGLCPSwapInterval, &interval) !=0)
+	{
+			wxLogDebug(wxT("Failed to set vsync"));
+	}
+	else
+	{
+		success =true;
+	}
 #endif
 
 #ifdef __WXDEBUG__
