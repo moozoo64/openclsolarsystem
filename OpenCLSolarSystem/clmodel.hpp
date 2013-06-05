@@ -22,7 +22,7 @@ class CLModel
 		CLModel();
 		~CLModel();
 		int CompileProgramAndCreateKernels();
-		int ChooseAndCreateContext(char *desiredPlatformName,bool preferCpu);
+		bool FindDeviceAndCreateContext(cl_uint desiredDeviceVendorId, cl_device_type deviceType, char *desiredPlatformName);
 		int CreateBufferObjects(GLuint *vbo,int numParticles, int numGrav);
 		int SetInitalState(cl_double4 *initalPositions, cl_double4 *initalVelocities);
 		int ReadToInitialState(cl_double4 *initalPositions, cl_double4 *initalVelocities);
@@ -45,6 +45,7 @@ class CLModel
 		cl_int maxNumGrav;
 		cl_int step;
 		cl_int centerBody;
+		cl_uint deviceVendorId;
 
 	private:
 		cl_device_id deviceId;
@@ -93,6 +94,7 @@ class CLModel
 		bool gotKhrGlSharing;
 		bool gotAppleGlSharing;
 		int SetAdamsKernelArgs(cl_kernel adamsKernel);
+		bool IsDeviceSuitable(cl_device_id deviceIdToCheck);
 };
 
 #endif // CLMODEL_H

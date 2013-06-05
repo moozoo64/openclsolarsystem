@@ -33,7 +33,7 @@ class Frame: public wxFrame
 	public:
 		Frame(wxFrame *frame, const wxString& title, const wxPoint& pos, const wxSize& size, long style = wxDEFAULT_FRAME_STYLE | wxMAXIMIZE);
 		virtual ~Frame();
-		bool InitFrame(bool doubleBuffer, bool smooth, bool lighting, int numParticles, int numGrav, bool preferCpu, char *desiredPlatform);
+		bool InitFrame(bool doubleBuffer, bool smooth, bool lighting, int numParticles, int numGrav, bool useLastDevice, char *desiredPlatform);
 
 	private:
 #if wxUSE_GLCANVAS
@@ -43,7 +43,7 @@ class Frame: public wxFrame
 		wxTimer *timer;
 		bool clModelOk;
 		char *desiredPlatform;
-		bool preferCpu;
+		bool useLastDevice;
 		bool runOnIdle;
 		int numParticles;
 		int numGrav;
@@ -51,12 +51,14 @@ class Frame: public wxFrame
 		double stopDateJdn;
 		bool goingToDate;
 		wxStopWatch stopWatch;
+		wxConfigBase  *config;
 		void UpdateStatusBar(wxLongLong timeTaken);
 		void ResetAll();
 		void UpdateMenuItems();
 		void Start();
 		void Stop();
 		void DoStep();
+		void ChooseDevice(wxConfigBase  *config);
 
 		void OnExit(wxCommandEvent& event);
 		void OnAbout(wxCommandEvent& event);

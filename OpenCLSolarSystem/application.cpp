@@ -20,6 +20,7 @@ bool Application::Args(int argc, wxChar **argv)
 {
 	this->numParticles = 2560;
 	this->numGrav=16;
+	this->useLastDevice = true;
 			
 	for (int i = 1; i < argc; i++)
 	{
@@ -30,55 +31,21 @@ bool Application::Args(int argc, wxChar **argv)
 		else if (wxStrcmp(argv[i], wxT("-db")) == 0)
 		{
 			this->doubleBuffer = true;
-		}else if (wxStrcmp(argv[i], wxT("-cpu")) == 0)
-		{
-			this->preferCpu = true;
 		}
 		else if (wxStrcmp(argv[i], wxT("-nvidia")) == 0)
 		{
 			desiredPlatform=(char*)"NVIDIA Corporation";
-			this->numParticles = 2560;
-			this->numGrav=16;
+			this->useLastDevice = false;
 		}
 		else if (wxStrcmp(argv[i], wxT("-amd")) == 0)
 		{
 			desiredPlatform=(char*)"Advanced Micro Devices, Inc.";
-			this->numParticles = 2560;
-			this->numGrav=16;
+			this->useLastDevice = false;
 		}
 		else if (wxStrcmp(argv[i], wxT("-intel")) == 0)
 		{
 			desiredPlatform=(char*)"Intel(R) Corporation";
-			this->numParticles = 2560;
-			this->numGrav=16;
-		}
-		else if (wxStrcmp(argv[i], wxT("-nsmall")) == 0)
-		{
-			this->numParticles = 256*32;
-		}
-		else if (wxStrcmp(argv[i], wxT("-nlarge")) == 0)
-		{
-			this->numParticles = 256*1210;
-		}
-		else if (wxStrcmp(argv[i], wxT("-nhuge")) == 0)
-		{
-			this->numParticles = 256*2323;
-		}
-		else if (wxStrcmp(argv[i], wxT("-nsuperhuge")) == 0)
-		{
-			this->numParticles = 256*4000;
-		}
-		else if (wxStrcmp(argv[i], wxT("-ngravlarge")) == 0)
-		{
-			this->numGrav = 32;
-		}
-		else if (wxStrcmp(argv[i], wxT("-ngravhuge")) == 0)
-		{
-			this->numGrav = 64;
-		}
-		else if (wxStrcmp(argv[i], wxT("-ngravsuperhuge")) == 0)
-		{
-			this->numGrav = 128;
+			this->useLastDevice = false;
 		}
 		else
 		{
@@ -100,7 +67,7 @@ Application::Application()
 	this->lighting = false;
 	this->smooth = false;
 	this->doubleBuffer = true;
-	this->preferCpu = false;
+	this->useLastDevice = true;
 	this->numParticles = 2560*8;
 	this->numGrav=16;
 	this->desiredPlatform = (char*)"Advanced Micro Devices, Inc.";
@@ -124,7 +91,11 @@ bool Application::OnInit()
 
 	// Process the command line arguments
 	this->Args(argc, argv);
-	this->frame->InitFrame(this->doubleBuffer, this->smooth, this->lighting,this->numParticles, this->numGrav,this->preferCpu,this->desiredPlatform);
+	if(!this->frame->InitFrame(this->doubleBuffer, this->smooth, this->lighting,this->numParticles, this->numGrav,this->useLastDevice,this->desiredPlatform))
+	{
+		this->frame->Destroy();
+		return false;
+	}
 
 	wxLogDebug(wxT("Application::OnInit Done"));
 	return true;

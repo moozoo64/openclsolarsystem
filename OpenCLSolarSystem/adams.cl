@@ -306,7 +306,7 @@ __global double4* accHistory)
 			
 			index = ((step-1) & 0xF) * numParticles + gid;
 			f = accHistory[index];
-			sum += B2C2 * f;
+			sum += B2C2 * f;                                  //sum = fma(B2C2,f,sum);
 		}
 		else
 		{

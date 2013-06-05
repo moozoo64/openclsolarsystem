@@ -35,6 +35,8 @@
 #include <wx/wfstream.h>
 #include <wx/txtstrm.h>
 #include <wx/filedlg.h>
+#include <wx/config.h>
+
 
 #ifdef _WIN32
 #include <GL/wglew.h>

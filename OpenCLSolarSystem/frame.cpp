@@ -158,20 +158,22 @@ Frame::~Frame()
 
 }
 
-bool Frame::InitFrame(bool doubleBuffer, bool smooth, bool lighting, int numParticles, int numGrav, bool preferCpu, char *desiredPlatform)
+bool Frame::InitFrame(bool doubleBuffer, bool smooth, bool lighting, int numParticles, int numGrav, bool useLastDevice, char *desiredPlatform)
 {
 
 #ifdef __WXDEBUG__
 	wxLogDebug(wxT("Frame::InitFrame threadId: %ld"),wxThread::GetCurrentId());
 #endif
-
+	bool success = false;
 	this->numParticles = numParticles;
 	this->numGrav = numGrav;
-	this->preferCpu = preferCpu;
+	this->useLastDevice = useLastDevice;
 	this->desiredPlatform = desiredPlatform;
 
 	try
 	{
+		this->config = wxConfigBase::Get();
+				
 		this->initialState->initialNumGrav = this->numGrav;
 		if(!this->initialState->LoadInitialState(wxT("initial.bin")))
 		{
@@ -299,7 +301,7 @@ bool Frame::InitFrame(bool doubleBuffer, bool smooth, bool lighting, int numPart
 		
 		// Create an openCL model to run the simulation and initialise it
 		this->clModel = new CLModel();
-		this->clModel->ChooseAndCreateContext((char *)this->desiredPlatform, this->preferCpu);
+		this->ChooseDevice(this->config);
 		this->clModel->CreateBufferObjects(this->glCanvas->getVbo(), this->numParticles, this->numGrav);
 		this->clModel->CompileProgramAndCreateKernels();
 		this->glCanvas->SetColours(this->initialState->initialColorData);
@@ -321,14 +323,16 @@ bool Frame::InitFrame(bool doubleBuffer, bool smooth, bool lighting, int numPart
 		menuItem = menuBar->FindItem(ID_SETRELATIVISTIC);
 		menuItem->Check(true);
 		
+		success = true;
+		wxLogDebug(wxT("Init Frame Succeeded"));
 	}
 	catch (int ex)
 	{
+		success = false;
 		wxLogError(wxT("Exception %d"),ex);
 	}
-	wxLogDebug(wxT("Init Frame Succeeded"));
 
-	return true;
+	return success;
 }
 
 // Take the simulation date, time and step count and display it in the status bar
@@ -353,6 +357,82 @@ void Frame::UpdateStatusBar(wxLongLong timeTaken)
 	wxString message;
 	message.Printf("Julian Day: %f Date: %10s %8s step: %d fps: %.2f",jdn,dateTime.FormatISODate().c_str(),dateTime.FormatISOTime().c_str(), this->clModel->step, frameRate);
 	this->SetStatusText(message);
+}
+
+void Frame::ChooseDevice(wxConfigBase  *config)
+{
+	// See if a device vendor id was set last time we ran
+	// if so use it
+	wxString lastDeviceVendorIdConfigName = wxT("LastDeviceVendorId");
+	int lastDeviceVendorId = 0;
+	if(this->useLastDevice)
+	{
+		if(!config->Read(lastDeviceVendorIdConfigName, &lastDeviceVendorId))
+		{
+				lastDeviceVendorId = 0;
+		}
+	}
+
+	if(lastDeviceVendorId != 0)
+	{
+		wxLogDebug(wxT("looking for Vendor Id 0x%X"),(unsigned int)lastDeviceVendorId);
+		if(this->clModel->FindDeviceAndCreateContext((cl_uint) lastDeviceVendorId, CL_DEVICE_TYPE_ALL , NULL))
+		{
+			lastDeviceVendorId = this->clModel->deviceVendorId;
+		}
+		else
+		{
+			this->clModel->CleanUpCL();
+			lastDeviceVendorId = 0;
+		}
+	}
+	
+	// if no vendor device id was set try looking for a GPU
+	if(lastDeviceVendorId == 0)
+	{
+		if(this->clModel->FindDeviceAndCreateContext( 0, CL_DEVICE_TYPE_GPU , this->desiredPlatform))
+		{
+			lastDeviceVendorId = this->clModel->deviceVendorId;
+		}
+		else
+		{
+			this->clModel->CleanUpCL();
+		}
+	}
+	
+	// if no vendor device id was set try looking for a CPU
+	if(lastDeviceVendorId == 0)
+	{
+		if(this->clModel->FindDeviceAndCreateContext( 0, CL_DEVICE_TYPE_CPU , this->desiredPlatform))
+		{
+			lastDeviceVendorId = this->clModel->deviceVendorId;
+		}
+		else
+		{
+			this->clModel->CleanUpCL();
+		}
+	}
+	
+	// if no vendor device id was set try looking for anything
+	if(lastDeviceVendorId == 0)
+	{
+		if(this->clModel->FindDeviceAndCreateContext( 0, CL_DEVICE_TYPE_ALL , this->desiredPlatform))
+		{
+			lastDeviceVendorId = this->clModel->deviceVendorId;
+		}
+		else
+		{
+			this->clModel->CleanUpCL();
+		}
+	}
+	
+	if(lastDeviceVendorId == 0)
+	{
+		throw -1;
+	}
+	
+	config->Write(lastDeviceVendorIdConfigName, this->clModel->deviceVendorId);
+	wxLogDebug(wxT("Found Vendor Id 0x%X"),(unsigned int)this->clModel->deviceVendorId);
 }
 
 // Advances the simulation one time step
@@ -750,7 +830,7 @@ void Frame::ResetAll()
 	this->clModel->CleanUpCL();
 	this->glCanvas->CleanUpGL();
 	this->glCanvas->CreateOpenGlContext(this->numParticles, this->numGrav);
-	this->clModel->ChooseAndCreateContext((char *)this->desiredPlatform, this->preferCpu);
+	this->ChooseDevice(this->config);
 	this->clModel->CreateBufferObjects(this->glCanvas->getVbo(), this->numParticles, this->numGrav);
 	this->clModel->CompileProgramAndCreateKernels();
 	this->clModel->SetInitalState(this->initialState->initialPositions,this->initialState->initialVelocities);

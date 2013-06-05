@@ -27,6 +27,7 @@ CLModel::CLModel()
 	this->adamsBashforthKernel = NULL;
 	this->adamsMoultonKernel = NULL;
 	this->startupKernel = NULL;
+	this->copyToDisplayKernel = NULL;
 
 	this->maxWorkGroupSize = 0;
 	this->maxDimensions = 0;
@@ -47,6 +48,8 @@ CLModel::CLModel()
 	this->acc= NULL;
 	this->velHistory = NULL;
 	this->accHistory = NULL;
+	this->posLast = NULL;
+	this->velLast = NULL;
 
 	this->updateDisplay = false;
 	this->initialisedOk = false;
@@ -79,418 +82,454 @@ void CL_CALLBACK PfnNotify(const char * errInfo, const void * private_info, size
 	wxLogError("PfnNotify Error: %s\n", errInfo);
 }
 
-int CLModel::ChooseAndCreateContext(char *desiredPlatformName,bool preferCpu)
+bool CLModel::FindDeviceAndCreateContext(cl_uint desiredDeviceVendorId, cl_device_type deviceType, char *desiredPlatformName)
 {
-
 #ifdef __WXDEBUG__
-	wxLogDebug(wxT("CLModel::ChooseAndCreateContext threadId: %ld"),wxThread::GetCurrentId());
+	wxLogDebug(wxT("CLModel::FindDeviceAndCreateContext threadId: %ld"),wxThread::GetCurrentId());
 #endif
-
+	bool success = false;
 	cl_int status = CL_SUCCESS;
 	cl_uint numPlatforms;
 	cl_platform_id platform = NULL;
+	char *thePlatformName = NULL;
+	cl_platform_id *platforms = NULL;
+	cl_device_id *deviceIds = NULL;
+	char *extensions = NULL;
+	char *deviceName = NULL;
+	cl_device_id *contextDeviceIds = NULL;
 	
+	try
+	{
 		status = clGetPlatformIDs(0, NULL, &numPlatforms);
-	if( status != CL_SUCCESS)
-	{
-		wxLogError(wxT("clGetPlatformIDs failed to get number of platforms %s"),this->ErrorMessage(status));
-		return status;
-	}
-
-	if (numPlatforms <= 0)
-	{
-		wxLogError(wxT("number of platforms is %d"),numPlatforms);
-		return CL_DEVICE_NOT_FOUND;
-	}
-
-	wxLogDebug(wxT("Found %d platforms"),numPlatforms);
-
-	cl_platform_id* platforms = new cl_platform_id[numPlatforms];
-
-	status = clGetPlatformIDs(numPlatforms, platforms, NULL);
-	if( status != CL_SUCCESS)
-	{
-		wxLogError(wxT("clGetPlatformIDs failed to get platforms %s"),this->ErrorMessage(status));
-		return status;
-	}
-
-	char platformName[1024];
-	for (unsigned i = 0; i < numPlatforms; ++i)
-	{
-		status = clGetPlatformInfo(platforms[i], CL_PLATFORM_VENDOR, sizeof(platformName), platformName, NULL);
 		if( status != CL_SUCCESS)
 		{
-			wxLogError(wxT("clGetPlatformInfo failed to get CL_PLATFORM_VENDOR %s"),this->ErrorMessage(status));
-			return status;
+			wxLogError(wxT("clGetPlatformIDs failed to get number of platforms %s"),this->ErrorMessage(status));
+			throw status;
 		}
 
-		//wxLogDebug(wxT("  %s"),platformName);
+		if (numPlatforms <= 0)
+		{
+			wxLogError(wxT("number of platforms is %d"),numPlatforms);
+			throw CL_DEVICE_NOT_FOUND;
+		}
 
-		if (!strcmp(platformName, desiredPlatformName))
+		wxLogDebug(wxT("Found %d platforms"),numPlatforms);
+
+		platforms = new cl_platform_id[numPlatforms];
+
+		status = clGetPlatformIDs(numPlatforms, platforms, NULL);
+		if( status != CL_SUCCESS)
+		{
+			wxLogError(wxT("clGetPlatformIDs failed to get platforms %s"),this->ErrorMessage(status));
+			throw status;
+		}
+
+		bool foundDevice = false;		
+		for (unsigned i = 0; i < numPlatforms; ++i)
 		{
 			platform = platforms[i];
-			wxLogDebug(wxT("Found Desired platform"));
-			wxLogDebug(wxT("Using platform %s"),platformName);
-			this->platformName = new wxString(platformName,wxConvUTF8);
-			break;
-		}
-	}
-
-	if(platform == NULL)
-	{
-		wxLogError(wxT("Desired Platform not found"));
-		return CL_DEVICE_NOT_FOUND;
-	}
-
-	cl_uint numberOfDevices = 0;
-	status = clGetDeviceIDs(platform,CL_DEVICE_TYPE_ALL,0,NULL,&numberOfDevices);
-	if( status != CL_SUCCESS)
-	{
-		wxLogError(wxT("clGetDeviceIDs failed to get number of devices %s"),this->ErrorMessage(status));
-		return status;
-	}
-
-	wxLogDebug(wxT("platform has %d devices"),numberOfDevices);
-
-// Now find the device
-	cl_device_id* deviceIds = new cl_device_id[numberOfDevices];
-	status = clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, numberOfDevices, deviceIds, NULL);
-	if( status != CL_SUCCESS)
-	{
-		wxLogError(wxT("clGetDeviceIDs failed to get devices %s"),this->ErrorMessage(status));
-		return status;
-	}
-	
-	// We attempt twice to find a device that supports double precision and cl_khr_gl_sharing
-	// On the first attempt we consider if the user prefered a cpu device.
-	// On the second attempt we try and find any device cpu or not.
-	bool foundDevice = false;
-	bool ignorePreferCpu = false;
-	for(int i =0; i<2;i++)
-	{
-		for (unsigned j = 0; j < numberOfDevices; ++j)
-		{
-			// Get Extensions
-			this->gotKhrFp64 = false;
-			this->gotAmdFp64 =false;
-			this->gotKhrGlSharing = false;
-			this->gotAppleGlSharing = false;
-
-			char extensions[4096];
-			status = clGetDeviceInfo(deviceIds[j], CL_DEVICE_EXTENSIONS, sizeof(extensions), extensions, NULL);
+			
+			size_t platformNameSize;
+			status = clGetPlatformInfo(platform, CL_PLATFORM_VENDOR, 0, NULL, &platformNameSize);
 			if( status != CL_SUCCESS)
 			{
-				wxLogError(wxT("clGetDeviceInfo failed to get CL_DEVICE_EXTENSIONS %s"),this->ErrorMessage(status));
-				return status;
+				wxLogError(wxT("clGetPlatformInfo failed to get CL_PLATFORM_VENDOR size %s"),this->ErrorMessage(status));
+				throw status;
 			}
 			
-			wxString deviceExtensions = wxString(extensions);
-		
-			if(deviceExtensions.Contains(wxT("cl_khr_gl_sharing")))
-			{
-				this->gotKhrGlSharing = true;
-			}
-			
-			if(deviceExtensions.Contains(wxT("cl_APPLE_gl_sharing")))
-			{
-				this->gotAppleGlSharing = true;
-			}
-			
-			if(deviceExtensions.Contains(wxT("cl_khr_fp64")))
-			{
-				this->gotKhrFp64 = true;
-			}
-			
-			if(deviceExtensions.Contains(wxT("cl_amd_fp64")))
-			{
-				this->gotAmdFp64 = true;
-			}
-			
-			// Check for double precision
-			cl_uint preferedVectorWidthDouble;
-			status = clGetDeviceInfo(deviceIds[j], CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE, sizeof(preferedVectorWidthDouble), &preferedVectorWidthDouble, NULL);
+			delete[] thePlatformName;
+			thePlatformName = new char[platformNameSize/sizeof(char)];
+			status = clGetPlatformInfo(platform, CL_PLATFORM_VENDOR, platformNameSize, thePlatformName, NULL);
 			if( status != CL_SUCCESS)
 			{
-				wxLogError(wxT("clGetDeviceInfo failed to get CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE %s"),this->ErrorMessage(status));
-				return status;
+				wxLogError(wxT("clGetPlatformInfo failed to get CL_PLATFORM_VENDOR %s"),this->ErrorMessage(status));
+				throw status;
 			}
 			
-			// skip device if it does not support double precision
-			if(preferedVectorWidthDouble == 0)
+			if (desiredDeviceVendorId == 0 && desiredPlatformName != NULL)
 			{
-				wxLogDebug(wxT("skipping device %d it does not support double precision"),j);
-				continue;
-			}
-			
-			// skip device if it does not support gl sharing
-			if(!this->gotKhrGlSharing && !this->gotAppleGlSharing)
-			{
-				wxLogDebug(wxT("skipping device %d it does not support cl_khr_gl_sharing"),j);
-				continue;
-			}
-			
-			cl_device_type deviceType;
-			status = clGetDeviceInfo(deviceIds[j], CL_DEVICE_TYPE, sizeof(deviceType), &deviceType, NULL);
-			if( status != CL_SUCCESS)
-			{
-				wxLogError(wxT("clGetDeviceInfo failed to get CL_DEVICE_TYPE %s"),this->ErrorMessage(status));
-				return status;
-			}
-			
-			if(!ignorePreferCpu && preferCpu)
-			{
-				if(deviceType != CL_DEVICE_TYPE_CPU)
+				if(strcmp(thePlatformName, desiredPlatformName) != 0)
 				{
-					wxLogDebug(wxT("Skipping device %d while looking for CPU device"),j);
 					continue;
+				}
+			}
+
+			cl_uint numberOfDevices = 0;
+			status = clGetDeviceIDs(platform,deviceType,0,NULL,&numberOfDevices);
+			if( status != CL_SUCCESS)
+			{
+				if(status != CL_DEVICE_NOT_FOUND)
+				{
+					wxLogError(wxT("clGetDeviceIDs failed to get number of devices %s"),this->ErrorMessage(status));
+					throw status;
 				}
 				else
 				{
-					wxLogDebug(wxT("Found CPU Device as requested"));
+					status = CL_SUCCESS;
+					continue;
 				}
 			}
-			
-			this->deviceId = deviceIds[j];
-			foundDevice = true;
-			break;
-		}
-		
-		if(foundDevice)
-		{
-			break;
-		}
-		ignorePreferCpu = true;
-	}
-	
-	if(foundDevice)
-	{
-		char deviceName[1024];
-		status = clGetDeviceInfo(this->deviceId, CL_DEVICE_NAME, sizeof(deviceName), deviceName, NULL);
-		if( status != CL_SUCCESS)
-		{
-			wxLogError(wxT("clGetDeviceInfo failed to get CL_DEVICE_NAME %s"),this->ErrorMessage(status));
-			return status;
-		}
-		this->deviceName = new wxString(deviceName,wxConvUTF8);
-	}
-	else
-	{
-		wxLogError(wxT("Failed to find a suitable OpenCL device"));
-		return -1;
-	}
 
-// see http://www.dyn-lab.com/articles/cl-gl.html
-#ifdef _WIN32
-	cl_context_properties properties[] = {
-	   CL_GL_CONTEXT_KHR, (cl_context_properties) wglGetCurrentContext(),
-	   CL_WGL_HDC_KHR, (cl_context_properties) wglGetCurrentDC(),
-	   CL_CONTEXT_PLATFORM, (cl_context_properties) platform,
-	   0};
-#endif
+			wxLogDebug(wxT("platform has %d devices"),numberOfDevices);
 
-#ifdef __linux__
-	cl_context_properties properties[] = {
-	   CL_GL_CONTEXT_KHR, (cl_context_properties) glXGetCurrentContext(),
-	   CL_GLX_DISPLAY_KHR, (cl_context_properties) glXGetCurrentDisplay(),
-	   CL_CONTEXT_PLATFORM, (cl_context_properties) platform,
-	   0};
-#endif
-
-#ifdef __APPLE__
-	CGLContextObj glContext = CGLGetCurrentContext();
-	CGLShareGroupObj shareGroup = CGLGetShareGroup(glContext);
-
-	cl_context_properties properties[] = {
-	   CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE,(cl_context_properties)shareGroup,
-	   0};
-#endif
-
-	cl_device_id* interopDeviceIds = NULL;
-
-#ifdef __WXDEBUG__
-	cl_uint numInteropDeviceIds = 0;
-	clGetGLContextInfoKHR_fn clGetGLContextInfoKHR = (clGetGLContextInfoKHR_fn) clGetExtensionFunctionAddressForPlatform(platform, "clGetGLContextInfoKHR");
-	if(clGetGLContextInfoKHR == NULL)
-	{
-		wxLogError(wxT("clGetExtensionFunctionAddressForPlatform failed to find clGetGLContextInfoKHR %s"),this->ErrorMessage(status));
-		return -1;
-	}
-	
-	size_t deviceSize = 0;
-	status =  clGetGLContextInfoKHR(properties,CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR,0,NULL,&deviceSize);
-	if( status != CL_SUCCESS)
-	{
-		wxLogError(wxT("clGetGLContextInfoKHR CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR failed %s"),this->ErrorMessage(status));
-		return status;
-	}
-	
-	if(deviceSize == 0)
-	{
-		wxLogDebug(wxT("clGetGLContextInfoKHR reports no CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR"));
-	}
-	
-	//size_t interopDeviceSize = 0;
-	status =  clGetGLContextInfoKHR(properties,CL_DEVICES_FOR_GL_CONTEXT_KHR,0,NULL,&numInteropDeviceIds);
-	if( status != CL_SUCCESS)
-	{
-		wxLogError(wxT("clGetGLContextInfoKHR CL_DEVICES_FOR_GL_CONTEXT_KHR failed %s"),this->ErrorMessage(status));
-		return status;
-	}	
-	
-	if(numInteropDeviceIds == 0)
-	{
-		wxLogDebug(wxT("clGetGLContextInfoKHR reports no CL_DEVICES_FOR_GL_CONTEXT_KHR"));
-	}
-	else
-	{
-		wxLogDebug(wxT("clGetGLContextInfoKHR reports %d devices"),numInteropDeviceIds);
-		interopDeviceIds = new cl_device_id[numInteropDeviceIds];
-		status =  clGetGLContextInfoKHR(properties,CL_DEVICES_FOR_GL_CONTEXT_KHR,numInteropDeviceIds,interopDeviceIds,NULL);
-		if( status != CL_SUCCESS)
-		{
-			wxLogError(wxT("clGetGLContextInfoKHR CL_DEVICES_FOR_GL_CONTEXT_KHR failed %s"),this->ErrorMessage(status));
-			return status;
-		}
-	}
-#endif
-							
-	this->context = clCreateContext( properties,numberOfDevices,deviceIds,&PfnNotify,NULL,&status);
-	if( status != CL_SUCCESS)
-	{
-		wxLogError(wxT("clCreateContext failed %s"),this->ErrorMessage(status));
-		return status;
-	}
-
-	size_t contextDeviceListSize;
-
-	status = clGetContextInfo(this->context,CL_CONTEXT_DEVICES,0,NULL,&contextDeviceListSize);
-	if( status != CL_SUCCESS)
-	{
-		wxLogError(wxT("clGetContextInfo failed to get CL_CONTEXT_DEVICES size %s"),this->ErrorMessage(status));
-		return status;
-	}
-
-	int contextNumberOfDevices = (int)(contextDeviceListSize / sizeof(cl_device_id));
-	cl_device_id* contextDeviceIds = new cl_device_id[contextNumberOfDevices];
-	if(contextDeviceIds == NULL)
-	{
-		wxLogError(wxT("Failed to allocate memory for devices %d"),contextNumberOfDevices);
-		return -1;
-	}
-
-	status = clGetContextInfo(this->context, CL_CONTEXT_DEVICES, contextDeviceListSize,contextDeviceIds,NULL);
-	if( status != CL_SUCCESS)
-	{
-		wxLogError(wxT("clGetContextInfo failed to get CL_CONTEXT_DEVICES %s"),this->ErrorMessage(status));
-		return status;
-	}
-
-	bool deviceOk = false;
-	for (unsigned j = 0; j < numberOfDevices; ++j)
-	{
-		if(this->deviceId == contextDeviceIds[j])
-		{
-			deviceOk = true;
-			break;
-		}
-	}
-
-	if(!deviceOk)
-	{
-		wxLogError(wxT("desired device is not suitable"));
-		return -1;
-	}
-
-#ifdef __WXDEBUG__
-	bool deviceOnGLInteropList = false;
-	if(interopDeviceIds != NULL)
-	{
-		for (unsigned j = 0; j < numInteropDeviceIds; ++j)
-		{
-			if(this->deviceId == interopDeviceIds[j])
+			// Now find the device
+			deviceIds = new cl_device_id[numberOfDevices];
+			status = clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, numberOfDevices, deviceIds, NULL);
+			if( status != CL_SUCCESS)
 			{
-				deviceOnGLInteropList = true;
+				wxLogError(wxT("clGetDeviceIDs failed to get devices %s"),this->ErrorMessage(status));
+				throw status;
+			}
+			
+			for (unsigned j = 0; j < numberOfDevices; ++j)
+			{
+				cl_uint deviceVendorId;
+				status = clGetDeviceInfo(deviceIds[j], CL_DEVICE_VENDOR_ID, sizeof(deviceVendorId), &deviceVendorId, NULL);
+				if( status != CL_SUCCESS)
+				{
+					wxLogError(wxT("clGetDeviceInfo failed to get CL_DEVICE_VENDOR_ID %s"),this->ErrorMessage(status));
+					throw status;
+				}
+					
+				if(desiredDeviceVendorId != 0)
+				{
+					if(deviceVendorId == desiredDeviceVendorId)
+					{
+						this->deviceId = deviceIds[j];
+						this->deviceVendorId = deviceVendorId;
+						foundDevice = true;
+						this->platformName = new wxString(thePlatformName,wxConvUTF8);
+						break;
+					}
+				}
+				else
+				{
+					if(this->IsDeviceSuitable(deviceIds[j]))
+					{
+						this->deviceId = deviceIds[j];
+						this->deviceVendorId = deviceVendorId;
+						foundDevice = true;
+						this->platformName = new wxString(thePlatformName,wxConvUTF8);
+						break;
+					}
+				}
+			}				
+
+			delete[] thePlatformName;
+			thePlatformName = NULL;
+			break;
+			
+			delete[] deviceIds;
+			deviceIds = NULL;
+
+			if(foundDevice)
+			{
 				break;
 			}
 		}
+		
+		delete[] platforms;
+		platforms = NULL;
+		
+		if(!foundDevice)
+		{
+			throw -1;
+		}
+
+		size_t deviceNameSize;
+		status = clGetDeviceInfo(this->deviceId, CL_DEVICE_NAME, 0, NULL, &deviceNameSize);
+		if( status != CL_SUCCESS)
+		{
+			wxLogError(wxT("clGetDeviceInfo failed to get CL_DEVICE_NAME %s"),this->ErrorMessage(status));
+			throw status;
+		}
+		
+		// Get the device name
+		deviceName = new char[deviceNameSize/sizeof(char)];
+		status = clGetDeviceInfo(this->deviceId, CL_DEVICE_NAME, deviceNameSize, deviceName, NULL);
+		if( status != CL_SUCCESS)
+		{
+			wxLogError(wxT("clGetDeviceInfo failed to get CL_DEVICE_NAME %s"),this->ErrorMessage(status));
+			throw status;
+		}
+		
+		this->deviceName = new wxString(deviceName,wxConvUTF8);
+		delete[] deviceName;
+		deviceName = NULL;
+		
+		// Get Extensions
+		this->gotKhrFp64 = false;
+		this->gotAmdFp64 =false;
+		this->gotKhrGlSharing = false;
+		this->gotAppleGlSharing = false;
+
+		size_t extensionsSize;
+		status = clGetDeviceInfo(this->deviceId, CL_DEVICE_EXTENSIONS, 0, NULL, &extensionsSize);
+		if( status != CL_SUCCESS)
+		{
+			wxLogError(wxT("clGetDeviceInfo failed to get CL_DEVICE_EXTENSIONS size %s"),this->ErrorMessage(status));
+			throw status;
+		}
+		
+		extensions = new char[extensionsSize/sizeof(char)];
+		status = clGetDeviceInfo(this->deviceId, CL_DEVICE_EXTENSIONS, extensionsSize, extensions, NULL);
+		if( status != CL_SUCCESS)
+		{
+			wxLogError(wxT("clGetDeviceInfo failed to get CL_DEVICE_EXTENSIONS %s"),this->ErrorMessage(status));
+			throw status;
+		}
+		
+		wxString deviceExtensions = wxString(extensions);
+	
+		if(deviceExtensions.Contains(wxT("cl_khr_gl_sharing")))
+		{
+			this->gotKhrGlSharing = true;
+		}
+		
+		if(deviceExtensions.Contains(wxT("cl_APPLE_gl_sharing")))
+		{
+			this->gotAppleGlSharing = true;
+		}
+		
+		if(deviceExtensions.Contains(wxT("cl_khr_fp64")))
+		{
+			this->gotKhrFp64 = true;
+		}
+		
+		if(deviceExtensions.Contains(wxT("cl_amd_fp64")))
+		{
+			this->gotAmdFp64 = true;
+		}
+		
+		delete[] extensions;
+		extensions = NULL;
+
+	// see http://www.dyn-lab.com/articles/cl-gl.html
+	#ifdef _WIN32
+		cl_context_properties properties[] = {
+		   CL_GL_CONTEXT_KHR, (cl_context_properties) wglGetCurrentContext(),
+		   CL_WGL_HDC_KHR, (cl_context_properties) wglGetCurrentDC(),
+		   CL_CONTEXT_PLATFORM, (cl_context_properties) platform,
+		   0};
+	#endif
+
+	#ifdef __linux__
+		cl_context_properties properties[] = {
+		   CL_GL_CONTEXT_KHR, (cl_context_properties) glXGetCurrentContext(),
+		   CL_GLX_DISPLAY_KHR, (cl_context_properties) glXGetCurrentDisplay(),
+		   CL_CONTEXT_PLATFORM, (cl_context_properties) platform,
+		   0};
+	#endif
+
+	#ifdef __APPLE__
+		CGLContextObj glContext = CGLGetCurrentContext();
+		CGLShareGroupObj shareGroup = CGLGetShareGroup(glContext);
+
+		cl_context_properties properties[] = {
+		   CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE,(cl_context_properties)shareGroup,
+		   0};
+	#endif
+
+		this->context = clCreateContext( properties,1,&(this->deviceId),&PfnNotify,NULL,&status);
+		if( status != CL_SUCCESS)
+		{
+			wxLogError(wxT("clCreateContext failed %s"),this->ErrorMessage(status));
+			throw status;
+		}
+
+		size_t contextDeviceListSize;
+		status = clGetContextInfo(this->context,CL_CONTEXT_DEVICES,0,NULL,&contextDeviceListSize);
+		if( status != CL_SUCCESS)
+		{
+			wxLogError(wxT("clGetContextInfo failed to get CL_CONTEXT_DEVICES size %s"),this->ErrorMessage(status));
+			throw status;
+		}
+
+		unsigned int contextNumberOfDevices = (int)(contextDeviceListSize / sizeof(cl_device_id));
+		contextDeviceIds = new cl_device_id[contextNumberOfDevices];
+		if(contextDeviceIds == NULL)
+		{
+			wxLogError(wxT("Failed to allocate memory for devices %d"),contextNumberOfDevices);
+			throw -1;
+		}
+
+		status = clGetContextInfo(this->context, CL_CONTEXT_DEVICES, contextDeviceListSize,contextDeviceIds,NULL);
+		if( status != CL_SUCCESS)
+		{
+			wxLogError(wxT("clGetContextInfo failed to get CL_CONTEXT_DEVICES %s"),this->ErrorMessage(status));
+			throw status;
+		}
+
+		bool deviceOk = false;
+		for (unsigned j = 0; j < contextNumberOfDevices; ++j)
+		{
+			if(this->deviceId == contextDeviceIds[j])
+			{
+				deviceOk = true;
+				break;
+			}
+		}
+
+		delete[] contextDeviceIds;
+		contextDeviceIds = NULL;
+		
+		if(!deviceOk)
+		{
+			wxLogError(wxT("desired device is not suitable"));
+			throw -1;
+		}
+
+		this->commandQueue = clCreateCommandQueue(this->context,this->deviceId,0,&status);
+		if( status != CL_SUCCESS)
+		{
+			wxLogError(wxT("clCreateCommandQueue failed %s"),this->ErrorMessage(status));
+			throw status;
+		}
+
+		status = clGetDeviceInfo(this->deviceId,CL_DEVICE_MAX_WORK_GROUP_SIZE,sizeof(size_t),(void*)&this->maxWorkGroupSize,NULL);
+		if( status != CL_SUCCESS)
+		{
+			wxLogError(wxT("clGetDeviceInfo failed to get CL_DEVICE_MAX_WORK_GROUP_SIZE %s"),this->ErrorMessage(status));
+			throw status;
+		}
+		
+		if(this->groupSize > this->maxWorkGroupSize)
+		{
+			this->groupSize = this->maxWorkGroupSize;
+		}
+
+		status = clGetDeviceInfo(this->deviceId,CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS,sizeof(cl_uint),(void*)&this->maxDimensions,NULL);
+		if( status != CL_SUCCESS)
+		{
+			wxLogError(wxT("clGetDeviceInfo failed to get CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS %s"),this->ErrorMessage(status));
+			throw status;
+		}
+
+		size_t maxWorkItemSizesSize = maxDimensions * sizeof(size_t);
+		
+		delete[] this->maxWorkItemSizes;
+		this->maxWorkItemSizes = new size_t[maxWorkItemSizesSize];
+
+		status = clGetDeviceInfo(this->deviceId,CL_DEVICE_MAX_WORK_ITEM_SIZES,maxWorkItemSizesSize,(void*)this->maxWorkItemSizes,NULL);
+		if( status != CL_SUCCESS)
+		{
+			wxLogError(wxT("clGetDeviceInfo failed to get CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS %s"),this->ErrorMessage(status));
+			throw status;
+		}
+
+		status = clGetDeviceInfo(this->deviceId,CL_DEVICE_LOCAL_MEM_SIZE,sizeof(cl_ulong),(void *)&this->totalLocalMemory,	NULL);
+		if( status != CL_SUCCESS)
+		{
+			wxLogError(wxT("clGetDeviceInfo failed to get CL_DEVICE_LOCAL_MEM_SIZE %s"),this->ErrorMessage(status));
+			throw status;
+		}
+
+		status = clGetDeviceInfo(this->deviceId,CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE,sizeof(cl_ulong),(void *)&this->maxConstantBufferSize,	NULL);
+		if( status != CL_SUCCESS)
+		{
+			wxLogError(wxT("clGetDeviceInfo failed to get CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE %s"),this->ErrorMessage(status));
+			throw status;
+		}
+		
+		this->maxNumGrav = this->maxConstantBufferSize/sizeof(cl_double4);
+		wxLogDebug(wxT("max grav particles %d"),this->maxNumGrav);
+		if(this->numGrav > this->maxNumGrav)
+		{
+			this->numGrav = this->maxNumGrav;
+		}
+		
+		success = true;
+	}
+	catch (int ex)
+	{
+		delete[] thePlatformName;
+		delete[] platforms;
+		delete[] deviceIds;
+		delete[] extensions;
+		delete[] deviceName;
+		delete[] contextDeviceIds;
+		success = false;
 	}
 	
-	if(deviceOnGLInteropList)
-	{
-		wxLogDebug(wxT("Device is on GL interop list"));
-	}
-	else
-	{
-		wxLogDebug(wxT("Device is not on GL interop list"));
-	}
-#endif
+	wxLogDebug(wxT("Finished CLModel::FindDeviceAndCreateContext"));
+	return success;
+}
 
-	this->commandQueue = clCreateCommandQueue(this->context,this->deviceId,0,&status);
-	if( status != CL_SUCCESS)
+bool CLModel::IsDeviceSuitable(cl_device_id deviceIdToCheck)
+{
+	// Get Extensions
+	bool deviceHasKhrFp64 = false;
+	bool deviceHasAmdFp64 =false;
+	bool deviceHasKhrGlSharing = false;
+	bool deviceHasAppleGlSharing = false;
+	cl_int status = CL_SUCCESS;
+	char *extensions = NULL;
+	bool isSuitable = false;
+	
+	try
 	{
-		wxLogError(wxT("clCreateCommandQueue failed %s"),this->ErrorMessage(status));
-		return status;
-	}
+		size_t extensionsSize;
+		status = clGetDeviceInfo(deviceIdToCheck, CL_DEVICE_EXTENSIONS, 0, NULL, &extensionsSize);
+		if( status != CL_SUCCESS)
+		{
+			wxLogError(wxT("clGetDeviceInfo failed to get CL_DEVICE_EXTENSIONS size %s"),this->ErrorMessage(status));
+			throw status;
+		}
+		
+		extensions = new char[extensionsSize/sizeof(char)];
+		status = clGetDeviceInfo(deviceIdToCheck, CL_DEVICE_EXTENSIONS, extensionsSize, extensions, NULL);
+		if( status != CL_SUCCESS)
+		{
+			wxLogError(wxT("clGetDeviceInfo failed to get CL_DEVICE_EXTENSIONS %s"),this->ErrorMessage(status));
+			throw status;
+		}
+		
+		wxString deviceExtensions = wxString(extensions);
 
-	status = clGetDeviceInfo(this->deviceId,CL_DEVICE_MAX_WORK_GROUP_SIZE,sizeof(size_t),(void*)&this->maxWorkGroupSize,NULL);
-	if( status != CL_SUCCESS)
+		if(deviceExtensions.Contains(wxT("cl_khr_gl_sharing")))
+		{
+			deviceHasKhrGlSharing = true;
+		}
+		
+		if(deviceExtensions.Contains(wxT("cl_APPLE_gl_sharing")))
+		{
+			deviceHasAppleGlSharing = true;
+		}
+		
+		if(deviceExtensions.Contains(wxT("cl_khr_fp64")))
+		{
+			deviceHasKhrFp64 = true;
+		}
+		
+		if(deviceExtensions.Contains(wxT("cl_amd_fp64")))
+		{
+			deviceHasAmdFp64 = true;
+		}
+		
+		delete[] extensions;
+		extensions = NULL;
+		
+		// Check for double precision
+		cl_uint preferedVectorWidthDouble;
+		status = clGetDeviceInfo(deviceIdToCheck, CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE, sizeof(preferedVectorWidthDouble), &preferedVectorWidthDouble, NULL);
+		if( status != CL_SUCCESS)
+		{
+			wxLogError(wxT("clGetDeviceInfo failed to get CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE %s"),this->ErrorMessage(status));
+			throw status;
+		}
+		
+		if((deviceHasKhrGlSharing || deviceHasAppleGlSharing) && preferedVectorWidthDouble != 0)
+		{
+			isSuitable=true;
+		}
+	}
+	catch (int ex)
 	{
-		wxLogError(wxT("clGetDeviceInfo failed to get CL_DEVICE_MAX_WORK_GROUP_SIZE %s"),this->ErrorMessage(status));
-		return status;
+		isSuitable = false;
+		throw ex;
 	}
 	
-	if(this->groupSize > this->maxWorkGroupSize)
-	{
-		this->groupSize = this->maxWorkGroupSize;
-	}
-
-	status = clGetDeviceInfo(this->deviceId,CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS,sizeof(cl_uint),(void*)&this->maxDimensions,NULL);
-	if( status != CL_SUCCESS)
-	{
-		wxLogError(wxT("clGetDeviceInfo failed to get CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS %s"),this->ErrorMessage(status));
-		return status;
-	}
-
-	this->maxWorkItemSizes = (size_t*)malloc(maxDimensions * sizeof(size_t));
-
-	status = clGetDeviceInfo(this->deviceId,CL_DEVICE_MAX_WORK_ITEM_SIZES,sizeof(size_t) * maxDimensions,(void*)this->maxWorkItemSizes,NULL);
-	if( status != CL_SUCCESS)
-	{
-		wxLogError(wxT("clGetDeviceInfo failed to get CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS %s"),this->ErrorMessage(status));
-		return status;
-	}
-
-	status = clGetDeviceInfo(this->deviceId,CL_DEVICE_LOCAL_MEM_SIZE,sizeof(cl_ulong),(void *)&this->totalLocalMemory,	NULL);
-	if( status != CL_SUCCESS)
-	{
-		wxLogError(wxT("clGetDeviceInfo failed to get CL_DEVICE_LOCAL_MEM_SIZE %s"),this->ErrorMessage(status));
-		return status;
-	}
-
-	status = clGetDeviceInfo(this->deviceId,CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE,sizeof(cl_ulong),(void *)&this->maxConstantBufferSize,	NULL);
-	if( status != CL_SUCCESS)
-	{
-		wxLogError(wxT("clGetDeviceInfo failed to get CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE %s"),this->ErrorMessage(status));
-		return status;
-	}
-	
-	this->maxNumGrav = this->maxConstantBufferSize/sizeof(cl_double4);
-	wxLogDebug(wxT("max grav particles %d"),this->maxNumGrav);
-	if(this->numGrav > this->maxNumGrav)
-	{
-		this->numGrav = this->maxNumGrav;
-	}
-	
-	delete[] contextDeviceIds;
-	delete[] deviceIds;
-	delete[] platforms;
-	if(interopDeviceIds != NULL)
-	{
-		delete[] interopDeviceIds;
-	}
-	
-	wxLogDebug(wxT("Finished CLModel::ChooseAndCreateContext"));
-	return status;
+	return isSuitable;
 }
 
 int CLModel::CreateBufferObjects(GLuint *vbo,int numParticles, int numGrav)
@@ -1414,6 +1453,10 @@ int CLModel::CleanUpCL()
 			wxLogError(wxT("clReleaseMemObject currPos failed %s"),this->ErrorMessage(status));
 			success=status;
 		}
+		else
+		{
+			this->currPos = NULL;
+		}
 	}
 
 	if(this->newPos != NULL)
@@ -1423,6 +1466,10 @@ int CLModel::CleanUpCL()
 		{
 			wxLogError(wxT("clReleaseMemObject newPos failed %s"),this->ErrorMessage(status));
 			success=status;
+		}
+		else
+		{
+			this->newPos = NULL;
 		}
 	}
 
@@ -1434,6 +1481,10 @@ int CLModel::CleanUpCL()
 			wxLogError(wxT("clReleaseMemObject currVel failed %s"),this->ErrorMessage(status));
 			success=status;
 		}
+		else
+		{
+			this->currVel = NULL;
+		}
 	}
 
 	if(this->newVel != NULL)
@@ -1443,6 +1494,10 @@ int CLModel::CleanUpCL()
 		{
 			wxLogError(wxT("clReleaseMemObject newVel failed %s"),this->ErrorMessage(status));
 			success=status;
+		}
+		else
+		{
+			this->newVel = NULL;
 		}
 	}
 
@@ -1454,6 +1509,10 @@ int CLModel::CleanUpCL()
 			wxLogError(wxT("clReleaseMemObject gravPos failed %s"),this->ErrorMessage(status));
 			success=status;
 		}
+		else
+		{
+			this->gravPos = NULL;
+		}
 	}
 	
 	if(this->acc != NULL)
@@ -1463,6 +1522,10 @@ int CLModel::CleanUpCL()
 		{
 			wxLogError(wxT("clReleaseMemObject acc failed %s"),this->ErrorMessage(status));
 			success=status;
+		}
+		else
+		{
+			this->acc = NULL;
 		}
 	}
 	
@@ -1474,6 +1537,10 @@ int CLModel::CleanUpCL()
 			wxLogError(wxT("clReleaseMemObject posLast failed %s"),this->ErrorMessage(status));
 			success=status;
 		}
+		else
+		{
+			this->posLast = NULL;
+		}
 	}
 	
 	if(this->velLast != NULL)
@@ -1483,6 +1550,10 @@ int CLModel::CleanUpCL()
 		{
 			wxLogError(wxT("clReleaseMemObject velLast failed %s"),this->ErrorMessage(status));
 			success=status;
+		}
+		else
+		{
+			this->velLast = NULL;
 		}
 	}
 	
@@ -1494,6 +1565,10 @@ int CLModel::CleanUpCL()
 			wxLogError(wxT("clReleaseMemObject velHistory failed %s"),this->ErrorMessage(status));
 			success=status;
 		}
+		else
+		{
+			this->velHistory = NULL;
+		}
 	}
 	
 	if(this->accHistory != NULL)
@@ -1503,6 +1578,10 @@ int CLModel::CleanUpCL()
 		{
 			wxLogError(wxT("clReleaseMemObject accHistory failed %s"),this->ErrorMessage(status));
 			success=status;
+		}
+		else
+		{
+			this->accHistory = NULL;
 		}
 	}
 	
@@ -1514,6 +1593,10 @@ int CLModel::CleanUpCL()
 			wxLogError(wxT("clReleaseMemObject newVel failed %s"),this->ErrorMessage(status));
 			success=status;
 		}
+		else
+		{
+			this->dispPos = NULL;
+		}
 	}
 
 	if(this->accKernel != NULL)
@@ -1523,6 +1606,10 @@ int CLModel::CleanUpCL()
 		{
 			wxLogError(wxT("clReleaseKernel accKernel failed %s"),this->ErrorMessage(status));
 			success=status;
+		}
+		else
+		{
+			this->accKernel = NULL;
 		}
 	}
 	
@@ -1534,6 +1621,10 @@ int CLModel::CleanUpCL()
 			wxLogError(wxT("clReleaseKernel startupKernel failed %s"),this->ErrorMessage(status));
 			success=status;
 		}
+		else
+		{
+			this->startupKernel = NULL;
+		}
 	}
 	
 	if(this->adamsBashforthKernel != NULL)
@@ -1543,6 +1634,10 @@ int CLModel::CleanUpCL()
 		{
 			wxLogError(wxT("clReleaseKernel adamsBashforthKernel failed %s"),this->ErrorMessage(status));
 			success=status;
+		}
+		else
+		{
+			this->adamsBashforthKernel = NULL;
 		}
 	}
 	
@@ -1554,6 +1649,10 @@ int CLModel::CleanUpCL()
 			wxLogError(wxT("clReleaseKernel adamsMoultonKernel failed %s"),this->ErrorMessage(status));
 			success=status;
 		}
+		else
+		{
+			this->adamsMoultonKernel = NULL;
+		}
 	}
 	
 	if(this->copyToDisplayKernel != NULL)
@@ -1563,6 +1662,10 @@ int CLModel::CleanUpCL()
 		{
 			wxLogError(wxT("clReleaseKernel copyToDisplayKernel failed %s"),this->ErrorMessage(status));
 			success=status;
+		}
+		else
+		{
+			this->copyToDisplayKernel = NULL;
 		}
 	}
 
@@ -1574,6 +1677,10 @@ int CLModel::CleanUpCL()
 			wxLogError(wxT("clReleaseProgram failed %s"),this->ErrorMessage(status));
 			success=status;
 		}
+		else
+		{
+			this->program = NULL;
+		}
 	}
 
 	if(this->commandQueue != NULL)
@@ -1584,6 +1691,10 @@ int CLModel::CleanUpCL()
 			wxLogError(wxT("clReleaseCommandQueue failed %s"),this->ErrorMessage(status));
 			success=status;
 		}
+		else
+		{
+			this->commandQueue = NULL;
+		}
 	}
 
 	if(this->context != NULL)
@@ -1593,6 +1704,10 @@ int CLModel::CleanUpCL()
 		{
 			wxLogError(wxT("clReleaseContext failed %s"),this->ErrorMessage(status));
 			success=status;
+		}
+		else
+		{
+			this->context = NULL;
 		}
 	}
 

@@ -40,7 +40,7 @@ class Application: public wxApp
 		char *desiredPlatform;
 		int numParticles;
 		int numGrav;
-		bool preferCpu;
+		bool useLastDevice;
 
 		Frame *frame;
 		bool Args(int argc, wxChar **argv);
