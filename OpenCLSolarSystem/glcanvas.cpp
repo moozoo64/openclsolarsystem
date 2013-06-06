@@ -100,7 +100,10 @@ void GLCanvas::OnPaint( wxPaintEvent& WXUNUSED(event) )
 #ifdef __WXDEBUG__
 	wxLogDebug(wxT("GLCanvas::OnPaint Start threadId: %ld"),wxThread::GetCurrentId());
 #endif
-	
+
+	GLenum errCode;
+	const GLubyte *errString;
+
 	if(!IsShown() || !this->active)
 	{
 		return;
@@ -189,14 +192,24 @@ void GLCanvas::OnPaint( wxPaintEvent& WXUNUSED(event) )
 
 	glPopMatrix();
 	glFinish();
-	wxLogDebug(wxT("GLCanvas::OnPaint glFinish()"));
+
+	wxLogDebug(wxT("GLCanvas::OnPaint glFinish()"));	
 	this->SwapBuffers();
 	
+	if ((errCode = glGetError()) != GL_NO_ERROR) {
+		errString = gluErrorString(errCode);
+	   wxLogError(wxT("GLCanvas::OnPaint Fatal OpenGL Error: %s"), errString);
+	   this->Close(true);
+	}
+
 	wxLogDebug(wxT("GLCanvas::OnPaint Done"));
 }
 
 void GLCanvas::SetColours(GLubyte *colorData)
 {
+	GLenum errCode;
+	const GLubyte *errString;
+	
 	if(!this->vboCreated)
 	{
 		wxLogError(wxT("SetColours before vboCreated"));
@@ -208,6 +221,13 @@ void GLCanvas::SetColours(GLubyte *colorData)
 	glBufferData(GL_ARRAY_BUFFER, colorSize, colorData, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glFinish();
+	
+	if ((errCode = glGetError()) != GL_NO_ERROR) {
+		errString = gluErrorString(errCode);
+	   wxLogError(wxT("GLCanvas::SetColours Fatal OpenGL Error: %s"), errString);
+	   this->Close(true);
+	}
+	
 	wxLogDebug(wxT("GLCanvas::SetColours glFinish()"));
 }
 
@@ -231,6 +251,9 @@ void GLCanvas::OnSize(wxSizeEvent& event)
 void GLCanvas::SetupProjectionAndModelView()
 {
 	wxLogDebug(wxT("GLCanvas::SetupProjectionAndModelView"));
+	GLenum errCode;
+	const GLubyte *errString;
+
 	int w, h;
 	this->GetClientSize(&w, &h);
 	this->SetCurrent(*this->glContext);
@@ -258,6 +281,11 @@ void GLCanvas::SetupProjectionAndModelView()
 	glTranslatef( 0.0, 0.0, -30000.0f );
 	
 	this->updateProjectionAndModelView = false;
+	if ((errCode = glGetError()) != GL_NO_ERROR) {
+		errString = gluErrorString(errCode);
+		wxLogError(wxT("GLCanvas::SetupProjectionAndModelView Fatal OpenGL Error: %s"), errString);
+		this->Close(true);
+	}
 }
 
 // Handle Key press events
@@ -378,6 +406,9 @@ void GLCanvas::OnEraseBackground( wxEraseEvent& WXUNUSED(event) )
 // This should be called for the first time after the CL context has been made
 GLuint* GLCanvas::getVbo()
 {
+	GLenum errCode;
+	const GLubyte *errString;
+
 	if(!this->vboCreated)
 	{
 		wxLogDebug(wxT("GLCanvas::getVbo creating vbo's"));
@@ -413,6 +444,13 @@ GLuint* GLCanvas::getVbo()
 		glFinish();
 		wxLogDebug(wxT("GLCanvas::getVbo glFinish()"));
 
+		if ((errCode = glGetError()) != GL_NO_ERROR)
+		{
+			errString = gluErrorString(errCode);
+			wxLogError(wxT("GLCanvas::getVbo Fatal OpenGL Error: %s"), errString);
+			this->Close(true);
+		}
+	
 		free(data);
 		free(colorData);
 		this->vboCreated = true;
@@ -498,6 +536,9 @@ bool GLCanvas::CreateOpenGlContext(int numParticles, int numGrav)
 	wxLogDebug(wxT("GLCanvas::CreateOpenGlContext Start threadId: %ld"),wxThread::GetCurrentId());
 #endif
 
+	GLenum errCode;
+	const GLubyte *errString;
+	
 	this->numParticles = numParticles;
 	this->numGrav = numGrav;
 
@@ -524,7 +565,14 @@ bool GLCanvas::CreateOpenGlContext(int numParticles, int numGrav)
 	this->VSync(false);
 	this->vboCreated = false;
 	this->updateProjectionAndModelView = true;
-	//glFinish();
+
+	if ((errCode = glGetError()) != GL_NO_ERROR)
+	{
+		errString = gluErrorString(errCode);
+		wxLogError(wxT("GLCanvas::CreateOpenGlContext Fatal OpenGL Error: %s"), errString);
+		this->Close(true);
+	}
+		
 	wxLogDebug(wxT("GLCanvas::CreateOpenGlContext Done"));
 	return true;
 }
@@ -532,12 +580,22 @@ bool GLCanvas::CreateOpenGlContext(int numParticles, int numGrav)
 bool GLCanvas::CleanUpGL()
 {
 	wxLogDebug(wxT("GLCanvas::CleanUpGL"));
+	GLenum errCode;
+	const GLubyte *errString;
+	
 	this->active = false;
 	glDeleteBuffers(2, &(this->vbo[0]));
 	glFinish();
 	wxLogDebug(wxT("GLCanvas::CleanUpGL glFinish()"));
 	this->vboCreated = false;
 	wxLogDebug(wxT("GLCanvas::CleanUpGL Done"));
+	if ((errCode = glGetError()) != GL_NO_ERROR)
+	{
+		errString = gluErrorString(errCode);
+		wxLogError(wxT("GLCanvas::CleanUpGL Fatal OpenGL Error: %s"), errString);
+		this->Close(true);
+		return false;
+	}
 	return true;
 }
 

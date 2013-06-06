@@ -653,7 +653,7 @@ void CLModel::CompileProgramAndCreateKernels()
 	cl_int status = CL_SUCCESS;
 	// load the contents of the kernel file into a in memory string
 	wxString nbodySource;
-	wxFFile nbodyFile("adams.cl", "r");
+	wxFFile nbodyFile("adamsfma.cl", "r");
 	if(!nbodyFile.IsOpened())
 	{
 		wxLogError(wxT("Failed to read adams.cl"));

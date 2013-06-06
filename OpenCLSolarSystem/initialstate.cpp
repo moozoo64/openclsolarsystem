@@ -65,21 +65,21 @@ bool InitialState::Allocate()
 	if(this->initialNumParticles == 0)
 	{
 		wxLogError(wxT("initialNumParticles is zero"));
-		return false;
+		throw -1;
 	}
 	
 	this->initialVelocities = new cl_double4[this->initialNumParticles];
 	if(this->initialVelocities == NULL)
 	{
 		wxLogError(wxT("Failed to Allocate initalVelocity"));
-		return false;
+		throw -1;
 	}
 
 	this->initialPositions = new cl_double4[this->initialNumParticles];
 	if(this->initialPositions == NULL)
 	{
 		wxLogError(wxT("Failed to Allocate initalPositions"));
-		return false;
+		throw -1;
 	}
 	
 	unsigned int colorSize = this->initialNumParticles * 4 * sizeof(GLubyte);
@@ -87,14 +87,14 @@ bool InitialState::Allocate()
 	if(this->initialColorData == NULL)
 	{
 		wxLogError(wxT("Failed to Allocate initialColorData"));
-		return false;
+		throw -1;
 	}
 	
 	this->physicalProperties = new PhysicalProperties[this->initialNumParticles];
 	if(this->physicalProperties == NULL)
 	{
 		wxLogError(wxT("Failed to Allocate physicalProperties"));
-		return false;
+		throw -1;
 	}
 	
 	return true;
@@ -265,6 +265,7 @@ bool InitialState::SaveInitialState(wxString fileName)
 	try
 	{
 		wxFile stateFile;
+		stateFile.ClearLastError();
 		stateFile.Create(fileName,true);
 		stateFile.Write(&this->initialNumParticles,sizeof(int));
 		stateFile.Write(&this->initialNumGrav,sizeof(int));
@@ -274,9 +275,19 @@ bool InitialState::SaveInitialState(wxString fileName)
 		stateFile.Write(this->initialColorData,this->initialNumParticles * 4 * sizeof(GLubyte));
 		stateFile.Write(this->physicalProperties,this->initialNumParticles * sizeof(PhysicalProperties));
 		stateFile.Close();
-		success = true;
+		if(stateFile.GetLastError() != 0)
+		{
+			success = false;
+			wxLogError(wxT("Save Failed"));
+		}
+		else
+		{
+			success = true;
+		}
+		
 	}catch(int e)
 	{
+		success = false;
 		wxLogError(wxT("Save Failed"));
 	}
 	
@@ -287,6 +298,8 @@ bool InitialState::SaveInitialState(wxString fileName)
 bool InitialState::LoadInitialState(wxString fileName)
 {
 	wxFile stateFile;
+	bool success = false;
+	
 	if(stateFile.Open(fileName))
 	{
 		stateFile.Read(&this->initialNumParticles,sizeof(int));
@@ -297,6 +310,7 @@ bool InitialState::LoadInitialState(wxString fileName)
 		if(!this->Allocate())
 		{
 			throw -1;
+			wxLogError(wxT("InitialState::LoadInitialState Allocate Failed"));
 		}
 
 		stateFile.Read(this->initialPositions,this->initialNumParticles * sizeof(cl_double4));
@@ -304,10 +318,17 @@ bool InitialState::LoadInitialState(wxString fileName)
 		stateFile.Read(this->initialColorData,this->initialNumParticles * 4 * sizeof(GLubyte));
 		stateFile.Read(this->physicalProperties,this->initialNumParticles * sizeof(PhysicalProperties));
 		stateFile.Close();
-		
-		return true;
+		if(stateFile.GetLastError() != 0)
+		{
+			wxLogError(wxT("InitialState::LoadInitialState Load Failed"));
+			success = false;
+		}
+		else
+		{
+			success = true;
+		}
 	}
-	return false;
+	return success;
 }
 
 // Exports the initial state in Solex SLF file format
