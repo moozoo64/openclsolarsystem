@@ -158,15 +158,16 @@ Frame::~Frame()
 
 }
 
-bool Frame::InitFrame(bool doubleBuffer, bool smooth, bool lighting, int numParticles, int numGrav, bool useLastDevice, char *desiredPlatform)
+void Frame::InitFrame(bool doubleBuffer, bool smooth, bool lighting, int numParticles, int numGrav, bool useLastDevice, char *desiredPlatform, bool tryForCPUFirst)
 {
-
+	bool die = false;
+	
 #ifdef __WXDEBUG__
 	wxLogDebug(wxT("Frame::InitFrame threadId: %ld"),wxThread::GetCurrentId());
 #endif
-	bool success = false;
 	this->numParticles = numParticles;
 	this->numGrav = numGrav;
+	this->tryForCPUFirst = tryForCPUFirst;
 	this->useLastDevice = useLastDevice;
 	this->desiredPlatform = desiredPlatform;
 
@@ -323,16 +324,18 @@ bool Frame::InitFrame(bool doubleBuffer, bool smooth, bool lighting, int numPart
 		menuItem = menuBar->FindItem(ID_SETRELATIVISTIC);
 		menuItem->Check(true);
 		
-		success = true;
 		wxLogDebug(wxT("Init Frame Succeeded"));
 	}
 	catch (int ex)
 	{
-		success = false;
-		wxLogError(wxT("Exception %d"),ex);
+		wxLogError(wxT("Fatal Exception %d"),ex);
+		die = true;
 	}
-
-	return success;
+	
+	if(die)
+	{
+		this->Close(true);
+	}
 }
 
 // Take the simulation date, time and step count and display it in the status bar
@@ -387,6 +390,22 @@ void Frame::ChooseDevice(wxConfigBase  *config)
 		}
 	}
 	
+	if(this->tryForCPUFirst)
+	{
+		// if no vendor device id was set try looking for a CPU
+		if(lastDeviceVendorId == 0)
+		{
+			if(this->clModel->FindDeviceAndCreateContext( 0, CL_DEVICE_TYPE_CPU , this->desiredPlatform))
+			{
+				lastDeviceVendorId = this->clModel->deviceVendorId;
+			}
+			else
+			{
+				this->clModel->CleanUpCL();
+			}
+		}
+	}
+	
 	// if no vendor device id was set try looking for a GPU
 	if(lastDeviceVendorId == 0)
 	{
@@ -400,16 +419,19 @@ void Frame::ChooseDevice(wxConfigBase  *config)
 		}
 	}
 	
-	// if no vendor device id was set try looking for a CPU
-	if(lastDeviceVendorId == 0)
+	if(!this->tryForCPUFirst)
 	{
-		if(this->clModel->FindDeviceAndCreateContext( 0, CL_DEVICE_TYPE_CPU , this->desiredPlatform))
+		// if no vendor device id was set try looking for a CPU
+		if(lastDeviceVendorId == 0)
 		{
-			lastDeviceVendorId = this->clModel->deviceVendorId;
-		}
-		else
-		{
-			this->clModel->CleanUpCL();
+			if(this->clModel->FindDeviceAndCreateContext( 0, CL_DEVICE_TYPE_CPU , this->desiredPlatform))
+			{
+				lastDeviceVendorId = this->clModel->deviceVendorId;
+			}
+			else
+			{
+				this->clModel->CleanUpCL();
+			}
 		}
 	}
 	
@@ -441,10 +463,13 @@ void Frame::DoStep()
 	try{
 		// Adams-Bashforth
 		this->clModel->ExecuteKernels();
+		
+		// Request that dispPos vbo be updated after the Adams-Moulton
 		this->clModel->RequestUpdate();
 		// Adams-Moulton
 		this->clModel->ExecuteKernels();
-	}catch( int e)
+	}
+	catch( int e)
 	{
 		this->Stop();
 	}
@@ -821,27 +846,39 @@ void Frame::OnImportSlf( wxCommandEvent& WXUNUSED(event) )
 
 void Frame::ResetAll()
 {
-
+	bool die = false;
 #ifdef __WXDEBUG__
 	wxLogDebug(wxT("Frame::ResetAll threadId: %ld"),wxThread::GetCurrentId());
 #endif
 
 	this->Stop();
-	this->clModel->CleanUpCL();
-	this->glCanvas->CleanUpGL();
-	this->glCanvas->CreateOpenGlContext(this->numParticles, this->numGrav);
-	this->ChooseDevice(this->config);
-	this->clModel->CreateBufferObjects(this->glCanvas->getVbo(), this->numParticles, this->numGrav);
-	this->clModel->CompileProgramAndCreateKernels();
-	this->clModel->SetInitalState(this->initialState->initialPositions,this->initialState->initialVelocities);
-	this->glCanvas->SetColours(this->initialState->initialColorData);
-	this->clModel->julianDate = this->initialState->initialJulianDate;
-	this->clModel->time = 0.0f;
-	this->UpdateStatusBar(0);
-	this->clModel->SetKernelArgumentsAndGroupSize();
-	this->clModel->UpdateDisplay();
-	this->Refresh(false);
-	this->UpdateMenuItems();
+	try{
+		this->clModel->CleanUpCL();
+		this->glCanvas->CleanUpGL();
+		this->glCanvas->CreateOpenGlContext(this->numParticles, this->numGrav);
+		this->ChooseDevice(this->config);
+		this->clModel->CreateBufferObjects(this->glCanvas->getVbo(), this->numParticles, this->numGrav);
+		this->clModel->CompileProgramAndCreateKernels();
+		this->clModel->SetInitalState(this->initialState->initialPositions,this->initialState->initialVelocities);
+		this->glCanvas->SetColours(this->initialState->initialColorData);
+		this->clModel->julianDate = this->initialState->initialJulianDate;
+		this->clModel->time = 0.0f;
+		this->UpdateStatusBar(0);
+		this->clModel->SetKernelArgumentsAndGroupSize();
+		this->clModel->UpdateDisplay();
+		this->Refresh(false);
+		this->UpdateMenuItems();
+	}
+	catch (int ex)
+	{
+		wxLogError(wxT("Fatal Exception %d"),ex);
+		die = true;
+	}
+	
+	if(die)
+	{
+		this->Close(true);
+	}
 }
 
 // set the number of bodies (particles)

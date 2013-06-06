@@ -532,7 +532,7 @@ bool CLModel::IsDeviceSuitable(cl_device_id deviceIdToCheck)
 	return isSuitable;
 }
 
-int CLModel::CreateBufferObjects(GLuint *vbo,int numParticles, int numGrav)
+void CLModel::CreateBufferObjects(GLuint *vbo,int numParticles, int numGrav)
 {
 
 #ifdef __WXDEBUG__
@@ -551,7 +551,7 @@ int CLModel::CreateBufferObjects(GLuint *vbo,int numParticles, int numGrav)
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clCreateFromGLBuffer failed to create cl_mem object for GL vertex buffer object %s"),this->ErrorMessage(status));
-		return status;
+		throw status;
 	}
 	
 	// The current positions of the solar system bodies.
@@ -559,7 +559,7 @@ int CLModel::CreateBufferObjects(GLuint *vbo,int numParticles, int numGrav)
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clCreateBuffer failed to create cl_mem object for currPos %s"),this->ErrorMessage(status));
-		return status;
+		throw status;
 	}
 	
 	// Contains the new positions computed by the integration from current positions.
@@ -567,7 +567,7 @@ int CLModel::CreateBufferObjects(GLuint *vbo,int numParticles, int numGrav)
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clCreateBuffer failed to create cl_mem object for newPos %s"),this->ErrorMessage(status));
-		return status;
+		throw status;
 	}
 
 	// This buffer contains a copy of the current positions for the bodys for which we are including gravitatoinal effects.
@@ -578,7 +578,7 @@ int CLModel::CreateBufferObjects(GLuint *vbo,int numParticles, int numGrav)
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clCreateBuffer failed to create cl_mem object for gravPos %s"),this->ErrorMessage(status));
-		return status;
+		throw status;
 	}
 	
 	// The current velocities of the solar system bodies.
@@ -586,7 +586,7 @@ int CLModel::CreateBufferObjects(GLuint *vbo,int numParticles, int numGrav)
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clCreateBuffer failed to create cl_mem object for currVel %s"),this->ErrorMessage(status));
-		return status;
+		throw status;
 	}
 
 	// Contains the new velocities computed by the integration from current velocities.
@@ -594,7 +594,7 @@ int CLModel::CreateBufferObjects(GLuint *vbo,int numParticles, int numGrav)
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clCreateBuffer failed to create cl_mem object for newVel %s"),this->ErrorMessage(status));
-		return status;
+		throw status;
 	}
 	
 	// contains the gravitational accerations computed from the current positions by the acceleration kernel
@@ -602,7 +602,7 @@ int CLModel::CreateBufferObjects(GLuint *vbo,int numParticles, int numGrav)
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clCreateBuffer failed to create cl_mem object for acc %s"),this->ErrorMessage(status));
-		return status;
+		throw status;
 	}
 	
 	// This is used to hold the current position at the start of the Adams Bashforth Intgration for use by the Adams Moulton Inegrator.
@@ -611,7 +611,7 @@ int CLModel::CreateBufferObjects(GLuint *vbo,int numParticles, int numGrav)
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clCreateBuffer failed to create cl_mem object for posLast %s"),this->ErrorMessage(status));
-		return status;
+		throw status;
 	}
 
 	// This is used to hold the current velocities at the start of the Adams Bashforth Intgration for use by the Adams Moulton Integrator. 
@@ -619,7 +619,7 @@ int CLModel::CreateBufferObjects(GLuint *vbo,int numParticles, int numGrav)
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clCreateBuffer failed to create cl_mem object for velLast %s"),this->ErrorMessage(status));
-		return status;
+		throw status;
 	}
 	
 	// 16 element ring buffer used to store the previous steps velocities.
@@ -628,7 +628,7 @@ int CLModel::CreateBufferObjects(GLuint *vbo,int numParticles, int numGrav)
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clCreateBuffer failed to create cl_mem object for velHistory %s"),this->ErrorMessage(status));
-		return status;
+		throw status;
 	}
 
 	// 16 element ring buffer used to store the previous steps accerlerations.
@@ -637,14 +637,13 @@ int CLModel::CreateBufferObjects(GLuint *vbo,int numParticles, int numGrav)
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clCreateBuffer failed to create cl_mem object for accHistory %s"),this->ErrorMessage(status));
-		return status;
+		throw status;
 	}
 	
 	wxLogDebug(wxT("Finished CLModel::CreateBufferObjects"));
-	return status;
 }
 
-int CLModel::CompileProgramAndCreateKernels()
+void CLModel::CompileProgramAndCreateKernels()
 {
 	
 #ifdef __WXDEBUG__
@@ -658,7 +657,7 @@ int CLModel::CompileProgramAndCreateKernels()
 	if(!nbodyFile.IsOpened())
 	{
 		wxLogError(wxT("Failed to read adams.cl"));
-		return -1;
+		throw -1;
 	}
 
 	nbodyFile.ReadAll(&nbodySource,wxConvISO8859_1);
@@ -693,7 +692,7 @@ int CLModel::CompileProgramAndCreateKernels()
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clCreateProgramWithSource failed %s"),this->ErrorMessage(status));
-		return status;
+		throw status;
 	}
 	
 	// compile the program (kernels)
@@ -715,7 +714,7 @@ int CLModel::CompileProgramAndCreateKernels()
 			clGetProgramBuildInfo(this->program, this->deviceId, CL_PROGRAM_BUILD_LOG, log_size, log, NULL);
 			wxLogError(log);
 		}
-		return status;
+		throw status;
 	}
 	
 	// if we are debugging then include the compile log
@@ -725,7 +724,7 @@ int CLModel::CompileProgramAndCreateKernels()
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clGetProgramBuildInfo failed %s"),this->ErrorMessage(status));
-		return status;
+		throw status;
 	}
 	// Allocate memory for the log
 	char *log = (char *) malloc(log_size);
@@ -735,7 +734,7 @@ int CLModel::CompileProgramAndCreateKernels()
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clGetProgramBuildInfo failed %s"),this->ErrorMessage(status));
-		return status;
+		throw status;
 	}
 	wxLogDebug(log);
 #endif
@@ -745,14 +744,14 @@ int CLModel::CompileProgramAndCreateKernels()
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clCreateKernel failed %s"),this->ErrorMessage(status));
-		return status;
+		throw status;
 	}
 	
 	this->startupKernel = clCreateKernel(this->program,"adamsStartup",&status);
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clCreateKernel adamsStartup failed %s"),this->ErrorMessage(status));
-		return status;
+		throw status;
 	}
 	
 	wxLogDebug(wxT("Using adamsBashforthKernel %s"),this->adamsBashforthKernelName->c_str());
@@ -760,7 +759,7 @@ int CLModel::CompileProgramAndCreateKernels()
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clCreateKernel adamsBashforthKernel failed %s"),this->ErrorMessage(status));
-		return status;
+		throw status;
 	}
 	
 	wxLogDebug(wxT("Using adamsKernel %s"),this->adamsMoultonKernelName->c_str());
@@ -768,24 +767,22 @@ int CLModel::CompileProgramAndCreateKernels()
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clCreateKernel adamsMoultonKernel failed %s"),this->ErrorMessage(status));
-		return status;
+		throw status;
 	}
 	
 	this->copyToDisplayKernel = clCreateKernel(this->program,"copyToDisplay",&status);
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clCreateKernel copyToDisplay failed %s"),this->ErrorMessage(status));
-		return status;
+		throw status;
 	}
 
 	this->initialisedOk = true;
 	wxLogDebug(wxT("Finished CLModel:CompileProgramAndCreateKernels"));
-
-	return status;
 }
 
 // Excutes the kernels to advance the simulation to the next time step
-int CLModel::ExecuteKernels()
+void CLModel::ExecuteKernels()
 {
 
 #ifdef __WXDEBUG__
@@ -797,7 +794,7 @@ int CLModel::ExecuteKernels()
 	if(!this->initialisedOk)
 	{
 		wxLogDebug(wxT("Aborted CLModel failed to Initialise"));
-		return -1;
+		throw -1;
 	}
 
 	//TODO this should be per kernel. Not the lowest that works for all of them
@@ -807,7 +804,7 @@ int CLModel::ExecuteKernels()
 	if(localThreads[0] > maxWorkItemSizes[0] || localThreads[0] > maxWorkGroupSize)
 	{
 		wxLogError(wxT("groupSize %d is greater than maxWorkItemSizes %d or maxWorkGroupSize %d"),this->groupSize,maxWorkItemSizes[0],maxWorkGroupSize);
-		return -1;
+		throw -1;
 	}
 
 	// Execute acceleration kernel on given device
@@ -816,14 +813,14 @@ int CLModel::ExecuteKernels()
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clEnqueueNDRangeKernel failed %s"),this->ErrorMessage(status));
-		return status;
+		throw status;
 	}
 
 	status = clWaitForEvents(1, eventND);
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clWaitForEvents failed %s"),this->ErrorMessage(status));
-		return status;
+		throw status;
 	}
 	clReleaseEvent(eventND[0]);
 
@@ -831,7 +828,7 @@ int CLModel::ExecuteKernels()
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clFinish failed %s"),this->ErrorMessage(status));
-		return status;
+		throw status;
 	}
 
 	wxLogDebug(wxT("CLModel::ExecuteKernels clFinish()"));
@@ -848,14 +845,14 @@ int CLModel::ExecuteKernels()
 		if( status != CL_SUCCESS)
 		{
 			wxLogError(wxT("clSetKernelArg 6 startupKernel failed for stage %s"),this->ErrorMessage(status));
-			return status;
+			throw status;
 		}
 		
 		status = clSetKernelArg(this->startupKernel,7,sizeof(cl_int),(void *)&this->step);
 		if( status != CL_SUCCESS)
 		{
 			wxLogError(wxT("clSetKernelArg 7 startupKernel failed for step %s"),this->ErrorMessage(status));
-			return status;
+			throw status;
 		}
 		
 		// use reuse event?
@@ -863,7 +860,7 @@ int CLModel::ExecuteKernels()
 		if( status != CL_SUCCESS)
 		{
 			wxLogError(wxT("clEnqueueNDRangeKernel startupKernel failed %s"),this->ErrorMessage(status));
-			return status;
+			throw status;
 		}
 	}
 	else
@@ -881,14 +878,14 @@ int CLModel::ExecuteKernels()
 			if( status != CL_SUCCESS)
 			{
 				wxLogError(wxT("clSetKernelArg 6 adamsBashforthKernel failed for stage %s"),this->ErrorMessage(status));
-				return status;
+				throw status;
 			}
 			
 			status = clSetKernelArg(this->adamsBashforthKernel,7,sizeof(cl_int),(void *)&this->step);
 			if( status != CL_SUCCESS)
 			{
 				wxLogError(wxT("clSetKernelArg 7 adamsBashforthKernel failed for step %s"),this->ErrorMessage(status));
-				return status;
+				throw status;
 			}
 			
 			// use reuse event?
@@ -896,7 +893,7 @@ int CLModel::ExecuteKernels()
 			if( status != CL_SUCCESS)
 			{
 				wxLogError(wxT("clEnqueueNDRangeKernel adamsBashforthKernel failed %s"),this->ErrorMessage(status));
-				return status;
+				throw status;
 			}
 		}
 		else
@@ -906,14 +903,14 @@ int CLModel::ExecuteKernels()
 			if( status != CL_SUCCESS)
 			{
 				wxLogError(wxT("clSetKernelArg 6 adamsMoultonKernel failed for stage %s"),this->ErrorMessage(status));
-				return status;
+				throw status;
 			}
 			
 			status = clSetKernelArg(this->adamsMoultonKernel,7,sizeof(cl_int),(void *)&this->step);
 			if( status != CL_SUCCESS)
 			{
 				wxLogError(wxT("clSetKernelArg 7 adamsMoultonKernel failed for step %s"),this->ErrorMessage(status));
-				return status;
+				throw status;
 			}
 			
 			// use reuse event?
@@ -921,7 +918,7 @@ int CLModel::ExecuteKernels()
 			if( status != CL_SUCCESS)
 			{
 				wxLogError(wxT("clEnqueueNDRangeKernel failed %s"),this->ErrorMessage(status));
-				return status;
+				throw status;
 			}
 		}
 	}
@@ -930,7 +927,7 @@ int CLModel::ExecuteKernels()
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clWaitForEvents failed %s"),this->ErrorMessage(status));
-		return status;
+		throw status;
 	}
 	clReleaseEvent(eventND[0]);
 		
@@ -938,7 +935,7 @@ int CLModel::ExecuteKernels()
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clFinish failed %s"),this->ErrorMessage(status));
-		return status;
+		throw status;
 	}
 	
 	wxLogDebug(wxT("CLModel::ExecuteKernels clFinish()"));
@@ -948,7 +945,7 @@ int CLModel::ExecuteKernels()
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clEnqueueCopyBuffer newPos to currPos failed %s"),this->ErrorMessage(status));
-		return status;
+		throw status;
 	}
 	
 	// Copy new positions of the bodies with mass to gravPos
@@ -956,21 +953,21 @@ int CLModel::ExecuteKernels()
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clEnqueueCopyBuffer newPos to currPos failed %s"),this->ErrorMessage(status));
-		return status;
+		throw status;
 	}
     // Copy new velocities to current velocities
 	status = clEnqueueCopyBuffer(commandQueue,this->newVel,this->currVel,0,0,sizeof(cl_double4) * this->numParticles,0,0,0);
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clEnqueueCopyBuffer newVel to currVel failed %s"),this->ErrorMessage(status));
-		return status;
+		throw status;
 	}
 
 	status = clFinish(this->commandQueue);
 	if ( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clFinish failed %s"),this->ErrorMessage(status));
-		return status;
+		throw status;
 	}
 	
 	wxLogDebug(wxT("CLModel::ExecuteKernels clFinish()"));
@@ -989,12 +986,12 @@ int CLModel::ExecuteKernels()
 			this->UpdateDisplay();
 		}
 	}
+	
 	wxLogDebug(wxT("CLModel:ExecuteKernel Done"));
-	return 1;
 }
 
 // Aquire the GL points buffer and then copy the positions to it
-int CLModel::UpdateDisplay()
+void CLModel::UpdateDisplay()
 {
 
 #ifdef __WXDEBUG__
@@ -1006,7 +1003,7 @@ int CLModel::UpdateDisplay()
 	if(!this->initialisedOk)
 	{
 		wxLogDebug(wxT("Aborted CLModel failed to Initialise"));
-		return -1;
+		throw -1;
 	}
 
 	//TODO this should be per kernel. Not the lowest that works for all of them
@@ -1016,7 +1013,7 @@ int CLModel::UpdateDisplay()
 	if(localThreads[0] > maxWorkItemSizes[0] || localThreads[0] > maxWorkGroupSize)
 	{
 		wxLogError(wxT("groupSize %d is greater than maxWorkItemSizes %d or maxWorkGroupSize %d"),this->groupSize,maxWorkItemSizes[0],maxWorkGroupSize);
-		return -1;
+		throw -1;
 	}
 
 	// Execute acceleration kernel on given device
@@ -1030,14 +1027,14 @@ int CLModel::UpdateDisplay()
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clEnqueueAcquireGLObjects failed to acquire dispPos %s"),this->ErrorMessage(status));
-		return status;
+		throw status;
 	}
 
 	status = clWaitForEvents(1, eventND);
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clWaitForEvents failed %s"),this->ErrorMessage(status));
-		return status;
+		throw status;
 	}
 	clReleaseEvent(eventND[0]);
 
@@ -1046,7 +1043,7 @@ int CLModel::UpdateDisplay()
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clEnqueueCopyBuffer newPos to dispPos failed %s"),this->ErrorMessage(status));
-		return status;
+		throw status;
 	}
 	 * */
 	
@@ -1055,7 +1052,7 @@ int CLModel::UpdateDisplay()
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clSetKernelArg 3 failed for centerBody %s"),this->ErrorMessage(status));
-		return status;
+		throw status;
 	}
 	
 	// use reuse event?
@@ -1063,14 +1060,14 @@ int CLModel::UpdateDisplay()
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clEnqueueNDRangeKernel copyToDisplayKernel failed %s"),this->ErrorMessage(status));
-		return status;
+		throw status;
 	}
 
 	status = clWaitForEvents(1, eventND);
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clWaitForEvents failed %s"),this->ErrorMessage(status));
-		return status;
+		throw status;
 	}
 	clReleaseEvent(eventND[0]);
 	
@@ -1079,14 +1076,14 @@ int CLModel::UpdateDisplay()
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clEnqueueReleaseGLObjects failed to release dispPos %s"),this->ErrorMessage(status));
-		return status;
+		throw status;
 	}
 
 	status = clWaitForEvents(1, eventND);
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clWaitForEvents clEnqueueReleaseGLObjects failed %s"),this->ErrorMessage(status));
-		return status;
+		throw status;
 	}
 	clReleaseEvent(eventND[0]);
 	
@@ -1094,16 +1091,15 @@ int CLModel::UpdateDisplay()
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clFinish failed %s"),this->ErrorMessage(status));
-		return status;
+		throw status;
 	}
 	
 	wxLogDebug(wxT("CLModel::UpdateDisplay clFinish()"));
 	wxLogDebug(wxT("CLModel:UpdateDisplay Done"));
-	return status;
 }
 
 // initialise the kernels so they are ready to be called.
-int CLModel::SetKernelArgumentsAndGroupSize()
+void CLModel::SetKernelArgumentsAndGroupSize()
 {
 
 #ifdef __WXDEBUG__
@@ -1113,10 +1109,9 @@ int CLModel::SetKernelArgumentsAndGroupSize()
 	if(!this->initialisedOk)
 	{
 		wxLogDebug(wxT("Aborted CLModel failed to Initialise"));
-		return -1;
+		throw -1;
 	}
 
-	int success = CL_SUCCESS;
 	cl_int status;
 	int paramNumber = 0;
 
@@ -1132,28 +1127,28 @@ int CLModel::SetKernelArgumentsAndGroupSize()
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clSetKernelArg failed for gravPos %s"),this->ErrorMessage(status));
-		success=status;
+		throw status;
 	}
 	
 	status = clSetKernelArg(this->copyToDisplayKernel,paramNumber++,sizeof(cl_mem),(void*)&this->currPos);
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clSetKernelArg failed for currPos %s"),this->ErrorMessage(status));
-		success=status;
+		throw status;
 	}
 	
 	status = clSetKernelArg(this->copyToDisplayKernel,paramNumber++,sizeof(cl_mem),(void*)&this->dispPos);
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clSetKernelArg failed for dispPos %s"),this->ErrorMessage(status));
-		success=status;
+		throw status;
 	}
 	
 	status = clSetKernelArg(this->copyToDisplayKernel,paramNumber++,sizeof(cl_int),(void*)&this->centerBody);
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clSetKernelArg failed for centerBody %s"),this->ErrorMessage(status));
-		success=status;
+		throw status;
 	}
 	
 	/* Set appropriate arguments to the kernel 
@@ -1169,14 +1164,14 @@ int CLModel::SetKernelArgumentsAndGroupSize()
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clSetKernelArg failed for gravPos %s"),this->ErrorMessage(status));
-		success=status;
+		throw status;
 	}
 	
 	status = clSetKernelArg(this->accKernel,paramNumber++,sizeof(cl_mem),(void*)&this->currPos);
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clSetKernelArg failed for currPos %s"),this->ErrorMessage(status));
-		success=status;
+		throw status;
 	}
 	
 	// the acceleration kernel that includes relativistic corrections need the relativistic parameter stored
@@ -1187,7 +1182,7 @@ int CLModel::SetKernelArgumentsAndGroupSize()
 		if( status != CL_SUCCESS)
 		{
 			wxLogError(wxT("clSetKernelArg failed for currVel %s"),this->ErrorMessage(status));
-			success=status;
+			throw status;
 		}
 	}
 	
@@ -1195,42 +1190,27 @@ int CLModel::SetKernelArgumentsAndGroupSize()
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clSetKernelArg failed for numGrav %s"),this->ErrorMessage(status));
-		success=status;
+		throw status;
 	}
 	
 	status = clSetKernelArg(this->accKernel,paramNumber++,sizeof(cl_double),(void *)&this->espSqr);
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clSetKernelArg failed for espSqr %s"),this->ErrorMessage(status));
-		success=status;
+		throw status;
 	}
 	
 	status = clSetKernelArg(this->accKernel,paramNumber++,sizeof(cl_mem),(void *)&this->acc);
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clSetKernelArg failed for acc %s"),this->ErrorMessage(status));
-		success=status;
+		throw status;
 	}
 
 	// set integration kernel args
-	status = SetAdamsKernelArgs(this->startupKernel);
-	if( status != CL_SUCCESS)
-	{
-		wxLogError(wxT("SetAdamsKernelArgs failed for  startupKernel %s"),this->ErrorMessage(status));
-		success=status;
-	}
-	status = SetAdamsKernelArgs(this->adamsBashforthKernel);
-	if( status != CL_SUCCESS)
-	{
-		wxLogError(wxT("SetAdamsKernelArgs failed for adamsBashforthKernel %s"),this->ErrorMessage(status));
-		success=status;
-	}
-	status = SetAdamsKernelArgs(this->adamsMoultonKernel);
-	if( status != CL_SUCCESS)
-	{
-		wxLogError(wxT("SetAdamsKernelArgs failed for adamsMoultonKernel %s"),this->ErrorMessage(status));
-		success=status;
-	}
+	SetAdamsKernelArgs(this->startupKernel);
+	SetAdamsKernelArgs(this->adamsBashforthKernel);
+	SetAdamsKernelArgs(this->adamsMoultonKernel);
 	
 	// I'm a bit paranoid here. I set the group size to the smallest that will work for all the kernels
 	// perhap each kernel should use the largest group size possible for it. But I don't do that.
@@ -1239,7 +1219,7 @@ int CLModel::SetKernelArgumentsAndGroupSize()
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("getting accKernel kernel CL_KERNEL_WORK_GROUP_SIZE failed %s"),this->ErrorMessage(status));
-		success=status;
+		throw status;
 	}
 	
 	wxLogDebug(wxT("accKernel Work Group Size %lu"),this->accKernelWorkGroupSize);
@@ -1254,7 +1234,7 @@ int CLModel::SetKernelArgumentsAndGroupSize()
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("getting startupKernel kernel CL_KERNEL_WORK_GROUP_SIZE failed %s"),this->ErrorMessage(status));
-		success=status;
+		throw status;
 	}
 
 	wxLogDebug(wxT("startupKernel Work Group Size %lu"),this->startupKernelWorkGroupSize);
@@ -1269,7 +1249,7 @@ int CLModel::SetKernelArgumentsAndGroupSize()
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("getting adamsBashforth kernel CL_KERNEL_WORK_GROUP_SIZE failed %s"),this->ErrorMessage(status));
-		success=status;
+		throw status;
 	}
 
 	wxLogDebug(wxT("adamsBashford Work Group Size %lu"),this->adamsBashforthKernelWorkGroupSize);
@@ -1284,7 +1264,7 @@ int CLModel::SetKernelArgumentsAndGroupSize()
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("getting adamsMoulton kernel CL_KERNEL_WORK_GROUP_SIZE failed %s"),this->ErrorMessage(status));
-		success=status;
+		throw status;
 	}
 
 	wxLogDebug(wxT("adamsKernel Work Group Size %lu"),this->adamsMoultonKernelWorkGroupSize);
@@ -1299,7 +1279,7 @@ int CLModel::SetKernelArgumentsAndGroupSize()
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("getting copyToDisplay kernel CL_KERNEL_WORK_GROUP_SIZE failed %s"),this->ErrorMessage(status));
-		success=status;
+		throw status;
 	}
 
 	wxLogDebug(wxT("copyToDisplayKernel Work Group Size %lu"),this->copyToDisplayKernelWorkGroupSize);
@@ -1311,7 +1291,6 @@ int CLModel::SetKernelArgumentsAndGroupSize()
 	}
 	
 	wxLogDebug(wxT("Finished CLModel:SetKernelArgumentsAndGroupSize"));
-	return success=status;;
 }
 
 // the Adams Bashforth and Adams Moulton integration kernels all have the same signature
@@ -1332,104 +1311,101 @@ __global double4* velLast,
 __global double4* velHistory,
 __global double4* accHistory)
 */
-int CLModel::SetAdamsKernelArgs(cl_kernel adamsKernel)
+void CLModel::SetAdamsKernelArgs(cl_kernel adamsKernel)
 {
 	cl_int status;
-	int success = CL_SUCCESS;
-	
+
 	//adamskernel
 	status = clSetKernelArg(adamsKernel,0,sizeof(cl_mem),(void *)&this->currPos);
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clSetKernelArg 0 failed for currPos %s"),this->ErrorMessage(status));
-		success=status;
+		throw status;
 	}
 	
 	status = clSetKernelArg(adamsKernel,1,sizeof(cl_mem),(void *)&this->currVel);
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clSetKernelArg 1 failed for currVel %s"),this->ErrorMessage(status));
-		success=status;
+		throw status;
 	}
 	
 	status = clSetKernelArg(adamsKernel,2,sizeof(cl_mem),(void *)&this->acc);
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clSetKernelArg 2 failed for acc %s"),this->ErrorMessage(status));
-		success=status;
+		throw status;
 	}
 
 	status = clSetKernelArg(adamsKernel,3,sizeof(cl_double),(void *)&this->delT);
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clSetKernelArg 3 failed for delT %s"),this->ErrorMessage(status));
-		success=status;
+		throw status;
 	}
 
 	status = clSetKernelArg(adamsKernel,4,sizeof(cl_mem),(void*)&this->newPos);
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clSetKernelArg 4 failed for newPos %s"),this->ErrorMessage(status));
-		success=status;
+		throw status;
 	}
 
 	status = clSetKernelArg(adamsKernel,5,sizeof(cl_mem),(void *)&this->newVel);
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clSetKernelArg 5 failed for newVel %s"),this->ErrorMessage(status));
-		success=status;
+		throw status;
 	}
 	
 	status = clSetKernelArg(adamsKernel,6,sizeof(cl_int),(void *)&this->stage);
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clSetKernelArg failed for stage %s"),this->ErrorMessage(status));
-		success=status;
+		throw status;
 	}
 	
 	status = clSetKernelArg(adamsKernel,7,sizeof(cl_int),(void *)&this->step);
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clSetKernelArg 7 failed for step %s"),this->ErrorMessage(status));
-		success=status;
+		throw status;
 	}
 	
 	status = clSetKernelArg(adamsKernel,8,sizeof(cl_int),(void *)&this->numParticles);
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clSetKernelArg 8 failed for step %s"),this->ErrorMessage(status));
-		success=status;
+		throw status;
 	}
 	
 	status = clSetKernelArg(adamsKernel,9,sizeof(cl_mem),(void *)&this->posLast);
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clSetKernelArg 9 failed for posLast %s"),this->ErrorMessage(status));
-		success=status;
+		throw status;
 	}
 	
 	status = clSetKernelArg(adamsKernel,10,sizeof(cl_mem),(void *)&this->velLast);
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clSetKernelArg 10 failed for velLast %s"),this->ErrorMessage(status));
-		success=status;
+		throw status;
 	}
 	
 	status = clSetKernelArg(adamsKernel,11,sizeof(cl_mem),(void *)&this->velHistory);
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clSetKernelArg 11 failed for velHistory %s"),this->ErrorMessage(status));
-		success=status;
+		throw status;
 	}
 	
 	status = clSetKernelArg(adamsKernel,12,sizeof(cl_mem),(void *)&this->accHistory);
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clSetKernelArg 12 failed for accHistory %s"),this->ErrorMessage(status));
-		success=status;
+		throw status;
 	}
-	
-	return success;
 }
 
 // Release and/or de-allocates all opencl resources.
@@ -1721,7 +1697,7 @@ void CLModel::RequestUpdate()
 }
 
 // Copies the initial positions and velocities into the opencl buffers
-int CLModel::SetInitalState(cl_double4 *initalPositions, cl_double4 *initalVelocities)
+void CLModel::SetInitalState(cl_double4 *initalPositions, cl_double4 *initalVelocities)
 {
 
 #ifdef __WXDEBUG__
@@ -1733,28 +1709,28 @@ int CLModel::SetInitalState(cl_double4 *initalPositions, cl_double4 *initalVeloc
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clEnqueueWriteBuffer write inital Positions to currPos %s"),this->ErrorMessage(status));
-		return status;
+		throw status;
 	}
 	
 	status = clEnqueueWriteBuffer(this->commandQueue,this->gravPos,CL_TRUE,0,this->numGrav * sizeof(cl_double4),initalPositions,0,0,0);
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clEnqueueWriteBuffer write inital Positions to gravPos %s"),this->ErrorMessage(status));
-		return status;
+		throw status;
 	}
 
 	status = clEnqueueWriteBuffer(this->commandQueue,this->currVel,CL_TRUE,0,this->numParticles * sizeof(cl_double4),initalVelocities,0,0,0);
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clEnqueueWriteBuffer write inital Velocity to currVel %s"),this->ErrorMessage(status));
+		throw status;
 	}
 	this->step = 0;
-	return status;
 }
 
 // snapshots the current positions and velocities and makes them the initial start conditions.
 // From there they can be saved to disk as either binary or slf format for later
-int CLModel::ReadToInitialState(cl_double4 *initalPositions, cl_double4 *initalVelocities)
+void CLModel::ReadToInitialState(cl_double4 *initalPositions, cl_double4 *initalVelocities)
 {
 
 #ifdef __WXDEBUG__
@@ -1766,15 +1742,15 @@ int CLModel::ReadToInitialState(cl_double4 *initalPositions, cl_double4 *initalV
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clEnqueueWriteBuffer write inital Positions to currPos %s"),this->ErrorMessage(status));
-		return status;
+		throw status;
 	}
 	
 	status = clEnqueueReadBuffer(this->commandQueue,this->currVel,CL_TRUE,0,this->numParticles * sizeof(cl_double4),initalVelocities,0,0,0);
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clEnqueueWriteBuffer write inital Velocity to currVel %s"),this->ErrorMessage(status));
+		throw status;
 	}
-	return status;
 }
 
 // convert the openCL status code to text

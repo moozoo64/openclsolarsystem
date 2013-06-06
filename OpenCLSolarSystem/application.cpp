@@ -16,11 +16,15 @@
 #include "global.hpp"
 #include "application.hpp"
 
+
+// Parses the arguments passed on the command line
 bool Application::Args(int argc, wxChar **argv)
 {
 	this->numParticles = 2560;
 	this->numGrav=16;
 	this->useLastDevice = true;
+	this->tryForCPUFirst = false;
+	this->desiredPlatform = NULL;
 			
 	for (int i = 1; i < argc; i++)
 	{
@@ -32,26 +36,29 @@ bool Application::Args(int argc, wxChar **argv)
 		{
 			this->doubleBuffer = true;
 		}
+		else if (wxStrcmp(argv[i], wxT("-cpu")) == 0)
+		{
+			this->tryForCPUFirst = true;
+			this->useLastDevice = false;
+		}
 		else if (wxStrcmp(argv[i], wxT("-nvidia")) == 0)
 		{
-			desiredPlatform=(char*)"NVIDIA Corporation";
+			this->desiredPlatform =(char*)"NVIDIA Corporation";
 			this->useLastDevice = false;
 		}
 		else if (wxStrcmp(argv[i], wxT("-amd")) == 0)
 		{
-			desiredPlatform=(char*)"Advanced Micro Devices, Inc.";
+			this->desiredPlatform =(char*)"Advanced Micro Devices, Inc.";
 			this->useLastDevice = false;
 		}
 		else if (wxStrcmp(argv[i], wxT("-intel")) == 0)
 		{
-			desiredPlatform=(char*)"Intel(R) Corporation";
+			this->desiredPlatform =(char*)"Intel(R) Corporation";
 			this->useLastDevice = false;
 		}
 		else
 		{
-			wxString msg = wxT("Bad option: ");
-			msg += argv[i];
-			wxMessageBox(msg);
+			wxLogError(wxT("Bad option: %s"),argv[i]);
 			return false;
 		}
 	}
@@ -67,10 +74,11 @@ Application::Application()
 	this->lighting = false;
 	this->smooth = false;
 	this->doubleBuffer = true;
-	this->useLastDevice = true;
-	this->numParticles = 2560*8;
+	this->numParticles = 2560;
 	this->numGrav=16;
-	this->desiredPlatform = (char*)"Advanced Micro Devices, Inc.";
+	this->useLastDevice = true;
+	this->tryForCPUFirst = false;
+	this->desiredPlatform = NULL;
 	
 	// Attach the Console so that opencl printf's will go to it. 
 	AttachConsole((DWORD)-1);
@@ -79,26 +87,37 @@ Application::Application()
 // `Main program' equivalent, creating windows and returning main app frame
 bool Application::OnInit()
 {
-	this->frame = new Frame(NULL, wxT("Solar System Simulation"), wxDefaultPosition, wxDefaultSize);
+	bool success = false;
+	this->frame = NULL;
+	
+	try
+	{
+		this->frame = new Frame(NULL, wxT("Solar System Simulation"), wxDefaultPosition, wxDefaultSize);
 
 #if defined(__WXDEBUG__ )
-	//If debugging send log to a windows
-	//This is attached to the Frame so that it closes with it.
-	wxLogWindow *logWindow = new wxLogWindow(this->frame, wxT("Debug Log"),true,true);
-	wxLog::SetActiveTarget(logWindow);
-	wxLogDebug(wxT("Application::OnInit threadId: %ld"),wxThread::GetCurrentId());
+		//If debugging send log to a windows
+		//This is attached to the Frame so that it closes with it.
+		wxLogWindow *logWindow = new wxLogWindow(this->frame, wxT("Debug Log"),true,true);
+		wxLog::SetActiveTarget(logWindow);
+		wxLogDebug(wxT("Application::OnInit threadId: %ld"),wxThread::GetCurrentId());
 #endif
 
-	// Process the command line arguments
-	this->Args(argc, argv);
-	if(!this->frame->InitFrame(this->doubleBuffer, this->smooth, this->lighting,this->numParticles, this->numGrav,this->useLastDevice,this->desiredPlatform))
-	{
-		this->frame->Destroy();
-		return false;
+		// Process the command line arguments
+		this->Args(argc, argv);
+		this->frame->InitFrame(this->doubleBuffer, this->smooth, this->lighting,this->numParticles, this->numGrav,this->useLastDevice,this->desiredPlatform, this->tryForCPUFirst);
+		success = true;
+		wxLogDebug(wxT("Application::OnInit Done"));
 	}
-
-	wxLogDebug(wxT("Application::OnInit Done"));
-	return true;
+	catch( int ex)
+	{
+		success = false;
+		if(this->frame != NULL)
+		{
+			this->frame->Destroy();
+		}
+	}
+	
+	return success;
 }
 
 int Application::OnExit()

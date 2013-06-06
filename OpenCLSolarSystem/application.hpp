@@ -41,6 +41,7 @@ class Application: public wxApp
 		int numParticles;
 		int numGrav;
 		bool useLastDevice;
+		bool tryForCPUFirst;
 
 		Frame *frame;
 		bool Args(int argc, wxChar **argv);

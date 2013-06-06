@@ -21,15 +21,15 @@ class CLModel
 	public:
 		CLModel();
 		~CLModel();
-		int CompileProgramAndCreateKernels();
+		void CompileProgramAndCreateKernels();
 		bool FindDeviceAndCreateContext(cl_uint desiredDeviceVendorId, cl_device_type deviceType, char *desiredPlatformName);
-		int CreateBufferObjects(GLuint *vbo,int numParticles, int numGrav);
-		int SetInitalState(cl_double4 *initalPositions, cl_double4 *initalVelocities);
-		int ReadToInitialState(cl_double4 *initalPositions, cl_double4 *initalVelocities);
-		int SetKernelArgumentsAndGroupSize();
-		int ExecuteKernels();
+		void CreateBufferObjects(GLuint *vbo,int numParticles, int numGrav);
+		void SetInitalState(cl_double4 *initalPositions, cl_double4 *initalVelocities);
+		void ReadToInitialState(cl_double4 *initalPositions, cl_double4 *initalVelocities);
+		void SetKernelArgumentsAndGroupSize();
+		void ExecuteKernels();
 		int CleanUpCL();
-		int UpdateDisplay();
+		void UpdateDisplay();
 		void RequestUpdate();
 		wxString ErrorMessage(cl_int status);
 		wxString *deviceName;
@@ -93,7 +93,7 @@ class CLModel
 		bool gotAmdFp64;
 		bool gotKhrGlSharing;
 		bool gotAppleGlSharing;
-		int SetAdamsKernelArgs(cl_kernel adamsKernel);
+		void SetAdamsKernelArgs(cl_kernel adamsKernel);
 		bool IsDeviceSuitable(cl_device_id deviceIdToCheck);
 };
 
