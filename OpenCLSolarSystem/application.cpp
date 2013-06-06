@@ -79,7 +79,7 @@ Application::Application()
 // `Main program' equivalent, creating windows and returning main app frame
 bool Application::OnInit()
 {
-	this->frame = new Frame(NULL, wxT("OpenGL/CL Solar System fp64"), wxDefaultPosition, wxDefaultSize);
+	this->frame = new Frame(NULL, wxT("Solar System Simulation"), wxDefaultPosition, wxDefaultSize);
 
 #if defined(__WXDEBUG__ )
 	//If debugging send log to a windows

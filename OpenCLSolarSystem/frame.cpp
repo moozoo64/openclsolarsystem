@@ -986,6 +986,6 @@ void Frame::OnClose(wxCloseEvent& event)
 void Frame::OnAbout(wxCommandEvent& WXUNUSED(event))
 {
 	wxString message;
-	message.Printf(wxT("OpenCL/GL Solar System\n (c) 2013 Michael Simmons\nbody count:%d\nWith Mass:%d\nPredictor %s\nCorrector %s\nOpenCL Platform: %s\nOpenCL Device: %s\nWeb: https://sourceforge.net/projects/openclsolarsyst/"),this->numParticles, this->numGrav,this->clModel->adamsBashforthKernelName->c_str(),this->clModel->adamsMoultonKernelName->c_str(), this->clModel->platformName->c_str(), this->clModel->deviceName->c_str());
+	message.Printf(wxT("Solar System Simulation\n (c) 2013 Michael Simmons\nbody count:%d\nWith Mass:%d\nPredictor %s\nCorrector %s\nPlatform: %s\nDevice: %s\nWeb: https://sourceforge.net/projects/openclsolarsyst/"),this->numParticles, this->numGrav,this->clModel->adamsBashforthKernelName->c_str(),this->clModel->adamsMoultonKernelName->c_str(), this->clModel->platformName->c_str(), this->clModel->deviceName->c_str());
 	wxMessageBox( message, wxT("About NBody"), wxOK | wxICON_INFORMATION );
 }

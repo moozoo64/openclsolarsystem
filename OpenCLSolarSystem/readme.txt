@@ -1,8 +1,8 @@
 
-OpenCL Solar System by Michael Simmons
+Solar System Simulation by Michael Simmons
 
 This program simulates the Solar System through numerical integration.
-It utilises opencl to enable the integration of not only the planets but also 600000 odd asteroids.
+It utilises OpenCL(tm) to enable the integration of not only the planets but also 600000 odd asteroids.
 
 A Solex SLF formated data file of the solar system is needed.
 A file astrorbsolexsmall.slf is included in the source.
@@ -55,7 +55,12 @@ The inspiration to create this program was from the programs Solex by Aldo Vitag
 
 The relatvistic correction used is from the paper "NUMERICAL INTEGRATION FOR THE REAL TIME PRODUCTION OF FUNDAMENTAL EPHEMERIDES OVER A WIDE TIME SPAN" by Aldo Vitagliano
 
+The binary distribution contains the file initial.bin. This file contains asteroid data based on the astrorb.dat asteroid database and planet data from the program Solex.
 astrorb.dat asteroid database can be found at http://www.naic.edu/~nolan/astorb.html and is the work of Dr. Edward Bowell. It was funded principally by NASA grant NAG5-4741, and in part by the Lowell Observatory endowment. 
+It is based on astrometric observations downloaded from the Minor Planet Center (http://www.minorplanetcenter.net).
+
+OpenCL® and the OpenCL logo are trademarks of Apple Inc. used by permission by Khronos
+OpenGL® and the oval logo are trademarks or registered trademarks of Silicon Graphics, Inc. in the United States and/or other countries worldwide.
 
 "The OpenGL Extension Wrangler Library" http://glew.sourceforge.net/ is used by this program.
 

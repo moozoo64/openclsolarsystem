@@ -1,5 +1,5 @@
 1) Get AMD gpu opencl working
-2) Clean up and comment code
+2) Clean up and comment code. Fix error handling.
 3) Implement Runge Kutta 7th order for startup
 4) Remember configuration between runs (config.ini?)
 5) Allow configuration of opencl device from a list of platform : device
