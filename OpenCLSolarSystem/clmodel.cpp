@@ -518,7 +518,7 @@ bool CLModel::IsDeviceSuitable(cl_device_id deviceIdToCheck)
 			throw status;
 		}
 		
-		if((deviceHasKhrGlSharing || deviceHasAppleGlSharing) && preferedVectorWidthDouble != 0)
+		if((deviceHasKhrGlSharing || deviceHasAppleGlSharing) && (preferedVectorWidthDouble != 0 || deviceHasAmdFp64))
 		{
 			isSuitable=true;
 		}
