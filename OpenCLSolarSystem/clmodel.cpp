@@ -174,7 +174,7 @@ bool CLModel::FindDeviceAndCreateContext(cl_uint desiredDeviceVendorId, cl_devic
 
 			// Now find the device
 			deviceIds = new cl_device_id[numberOfDevices];
-			status = clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, numberOfDevices, deviceIds, NULL);
+			status = clGetDeviceIDs(platform, deviceType, numberOfDevices, deviceIds, NULL);
 			if( status != CL_SUCCESS)
 			{
 				wxLogError(wxT("clGetDeviceIDs failed to get devices %s"),this->ErrorMessage(status));
