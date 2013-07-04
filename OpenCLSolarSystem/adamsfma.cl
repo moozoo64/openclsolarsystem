@@ -104,6 +104,62 @@ __global double4* acc)
 }
 
 __kernel
+void relativisticLocal( 
+__constant double4* gravPos,
+__global double4* pos,
+__global double4* vel,
+int numGrav, 
+double epsSqr, 
+__global double4* acc) 
+{ 
+	unsigned int gid = get_global_id(0); 
+	double4 myPos = pos[gid];
+	double4 myVel = vel[gid];
+	double4 newAcc = (double4)(0.0f, 0.0f, 0.0f, 0.0f);
+	double4 r;
+	double distSqr;
+	double invDist;
+	double invDistCube;
+	double s;
+	double4 gravPosN;
+	
+	__local double4 localGravPos[384];
+	
+	if(gid<=numGrav)
+	{
+		localGravPos[gid]=gravPos[gid];
+	}
+	
+	barrier(CLK_LOCAL_MEM_FENCE);
+	
+	// Do the Sun
+	gravPosN = localGravPos[0];
+	r = gravPosN - myPos;
+	r.w =0.0;
+	distSqr = r.x * r.x + r.y * r.y + r.z * r.z;
+	invDist = rsqrt(distSqr + epsSqr); 
+	invDistCube = invDist * invDist * invDist; 
+	s = gravPosN.w * invDistCube;
+	s = s * (1.0 + myVel.w + (relativisticC1*invDist));
+	double4 accSun= s * r;
+
+    //Do the rest
+	for(int gravBody = 1; gravBody < numGrav; gravBody++)
+	{
+		gravPosN = localGravPos[gravBody];
+		r = gravPosN - myPos;
+		r.w =0.0;
+		distSqr = r.x * r.x + r.y * r.y + r.z * r.z;
+		invDist = rsqrt(distSqr + epsSqr); 
+		invDistCube = invDist * invDist * invDist; 
+		s = gravPosN.w * invDistCube; 
+		newAcc += s * r; 
+	}
+	
+	acc[gid] = newAcc + accSun;
+}
+
+__kernel
 void copyToDisplay(
 __constant double4* gravPos,
 __global double4* pos,
