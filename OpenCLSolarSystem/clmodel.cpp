@@ -1176,7 +1176,7 @@ void CLModel::SetKernelArgumentsAndGroupSize()
 	
 	// the acceleration kernel that includes relativistic corrections need the relativistic parameter stored
 	// in .w. We pass the whole velocity vector in case it can be used in a more complicated relativistic on MOND type kernel
-	if(this->accelerationKernelName->IsSameAs(wxT("relativistic"),false))
+	if(!this->accelerationKernelName->IsSameAs(wxT("newtonian"),false))
 	{
 		status = clSetKernelArg(this->accKernel,paramNumber++,sizeof(cl_mem),(void*)&this->currVel);
 		if( status != CL_SUCCESS)

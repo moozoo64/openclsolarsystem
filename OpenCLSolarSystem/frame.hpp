@@ -75,6 +75,7 @@ class Frame: public wxFrame
 		void OnImportSlf(wxCommandEvent& event);
 		void OnExportSlf(wxCommandEvent& event);
 		void OnSetRelativistic(wxCommandEvent& event);
+		void OnSetRelativisticL(wxCommandEvent& event);
 		void OnSaveInitialState(wxCommandEvent& event);
 		void OnLoadInitialState(wxCommandEvent& event);
 		void OnReadToInitialState(wxCommandEvent& event);

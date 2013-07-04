@@ -58,6 +58,7 @@ enum
 	ID_SETADAMS16,
 	ID_SETNEWTONIAN,
 	ID_SETRELATIVISTIC,
+	ID_SETRELATIVISTICL,
 	ID_SETCENTER0,
 	ID_SETCENTER1,
 	ID_SETCENTER2,
@@ -119,6 +120,7 @@ BEGIN_EVENT_TABLE(Frame, wxFrame)
 	EVT_MENU(ID_SETCENTER10, Frame::OnSetCenter)
 	EVT_MENU(ID_SETNEWTONIAN, Frame::OnSetNewtonian)
 	EVT_MENU(ID_SETRELATIVISTIC, Frame::OnSetRelativistic)
+	EVT_MENU(ID_SETRELATIVISTICL, Frame::OnSetRelativisticL)
 	EVT_MENU(ID_SAVESTATE, Frame::OnSaveInitialState)
 	EVT_MENU(ID_LOADSTATE, Frame::OnLoadInitialState)
 	EVT_MENU(ID_READSTATE, Frame::OnReadToInitialState)
@@ -223,7 +225,7 @@ void Frame::InitFrame(bool doubleBuffer, bool smooth, bool lighting, int numPart
 		wxMenu *menuGravity = new wxMenu;
 		menuGravity->AppendRadioItem( ID_SETNEWTONIAN, wxT("Newtonian"));
 		menuGravity->AppendRadioItem( ID_SETRELATIVISTIC, wxT("With Relativistic corrections"));
-	
+		menuGravity->AppendRadioItem( ID_SETRELATIVISTICL, wxT("With Relativistic corrections using Local Memory"));
 		// Create a menu that lets the user choose the time step size.
 		// Only one option can be chosen at any time
 		wxMenu *menuDeltaT = new wxMenu;
@@ -1002,6 +1004,13 @@ void Frame::OnSetNewtonian(wxCommandEvent& event)
 void Frame::OnSetRelativistic(wxCommandEvent& event)
 {
 	this->clModel->accelerationKernelName = new wxString("relativistic");
+	this->ResetAll();
+}
+
+// sets the Acceleration calculation to use the Newtonian Gravitaton with Relativistic corrections kernel
+void Frame::OnSetRelativisticL(wxCommandEvent& event)
+{
+	this->clModel->accelerationKernelName = new wxString("relativisticLocal");
 	this->ResetAll();
 }
 		
