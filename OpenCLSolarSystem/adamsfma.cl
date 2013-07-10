@@ -140,7 +140,7 @@ __local double4* localGravPos)
 		}
 		
 		barrier(CLK_LOCAL_MEM_FENCE);
-		uint start =0;
+		uint start = 0;
 		if(block == 0)
 		{
 			// Do the Sun
