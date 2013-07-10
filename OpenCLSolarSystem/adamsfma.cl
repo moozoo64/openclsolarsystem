@@ -110,52 +110,58 @@ __global double4* pos,
 __global double4* vel,
 int numGrav, 
 double epsSqr, 
-__global double4* acc) 
+__global double4* acc,
+__local double4* localGravPos) 
 { 
-	unsigned int gid = get_global_id(0); 
+	uint gid = get_global_id(0);
+	uint lid = get_local_id(0); 
 	double4 myPos = pos[gid];
 	double4 myVel = vel[gid];
-	double4 newAcc = (double4)(0.0f, 0.0f, 0.0f, 0.0f);
+
 	double4 r;
 	double distSqr;
 	double invDist;
 	double invDistCube;
 	double s;
-	double4 gravPosN;
 	
-	__local double4 localGravPos[384];
-	
-	if(gid<=numGrav)
+	uint blockSize = get_local_size(0);
+	uint numBlocks = numGrav/blockSize;
+	double4 newAcc = (double4)(0.0f, 0.0f, 0.0f, 0.0f);
+	double4 accSun = (double4)(0.0f, 0.0f, 0.0f, 0.0f);
+    double4 gravPosN;
+	for(uint block = 0; block < numBlocks; block++)
 	{
-		localGravPos[gid]=gravPos[gid];
+		localGravPos[lid] = gravPos[block*numBlocks+lid];
+		barrier(CLK_LOCAL_MEM_FENCE);
+		uint start =0;
+		if(block == 0)
+		{
+			// Do the Sun
+			gravPosN =localGravPos[0];
+			r = gravPosN - myPos;
+			r.w =0.0;
+			distSqr = r.x * r.x + r.y * r.y + r.z * r.z;
+			invDist = rsqrt(distSqr + epsSqr); 
+			invDistCube = invDist * invDist * invDist; 
+			s = gravPosN.w * invDistCube;
+			s = s * (1.0 + myVel.w + (relativisticC1*invDist));
+			accSun= s * r;
+			start = 1;
+		}
+		for( uint gravBody = start ;gravBody < blockSize ; gravBody++)
+		{
+			//Do the rest
+           gravPosN =localGravPos[gravBody];
+			r = gravPosN - myPos;
+			r.w =0.0;
+			distSqr = r.x * r.x + r.y * r.y + r.z * r.z;
+			invDist = rsqrt(distSqr + epsSqr); 
+			invDistCube = invDist * invDist * invDist; 
+			s = gravPosN.w * invDistCube; 
+			newAcc += s * r;
+		}
+	    barrier(CLK_LOCAL_MEM_FENCE);
 	}
-	
-	barrier(CLK_LOCAL_MEM_FENCE);
-	
-	// Do the Sun
-	gravPosN = localGravPos[0];
-	r = gravPosN - myPos;
-	r.w =0.0;
-	distSqr = r.x * r.x + r.y * r.y + r.z * r.z;
-	invDist = rsqrt(distSqr + epsSqr); 
-	invDistCube = invDist * invDist * invDist; 
-	s = gravPosN.w * invDistCube;
-	s = s * (1.0 + myVel.w + (relativisticC1*invDist));
-	double4 accSun= s * r;
-
-    //Do the rest
-	for(int gravBody = 1; gravBody < numGrav; gravBody++)
-	{
-		gravPosN = localGravPos[gravBody];
-		r = gravPosN - myPos;
-		r.w =0.0;
-		distSqr = r.x * r.x + r.y * r.y + r.z * r.z;
-		invDist = rsqrt(distSqr + epsSqr); 
-		invDistCube = invDist * invDist * invDist; 
-		s = gravPosN.w * invDistCube; 
-		newAcc += s * r; 
-	}
-	
 	acc[gid] = newAcc + accSun;
 }
 

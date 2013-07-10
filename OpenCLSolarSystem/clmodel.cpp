@@ -1206,6 +1206,16 @@ void CLModel::SetKernelArgumentsAndGroupSize()
 		wxLogError(wxT("clSetKernelArg failed for acc %s"),this->ErrorMessage(status));
 		throw status;
 	}
+	
+	if(this->accelerationKernelName->IsSameAs(wxT("relativisticLocal"),false))
+	{
+		status = clSetKernelArg(this->accKernel,paramNumber++,sizeof(cl_double4)*this->groupSize,NULL);
+		if( status != CL_SUCCESS)
+		{
+			wxLogError(wxT("clSetKernelArg failed for currVel %s"),this->ErrorMessage(status));
+			throw status;
+		}
+	}
 
 	// set integration kernel args
 	SetAdamsKernelArgs(this->startupKernel);
