@@ -125,13 +125,20 @@ __local double4* localGravPos)
 	double s;
 	
 	uint blockSize = get_local_size(0);
-	uint numBlocks = numGrav/blockSize;
+	uint numBlocks = 1 + (numGrav/blockSize);
 	double4 newAcc = (double4)(0.0f, 0.0f, 0.0f, 0.0f);
 	double4 accSun = (double4)(0.0f, 0.0f, 0.0f, 0.0f);
     double4 gravPosN;
+	uint gravPosToLoad;
+	
 	for(uint block = 0; block < numBlocks; block++)
 	{
-		localGravPos[lid] = gravPos[block*numBlocks+lid];
+		gravPosToLoad = block*numBlocks+lid;
+		if(gravPosToLoad < numGrav)
+		{
+			localGravPos[lid] = gravPos[gravPosToLoad];
+		}
+		
 		barrier(CLK_LOCAL_MEM_FENCE);
 		uint start =0;
 		if(block == 0)
@@ -148,10 +155,10 @@ __local double4* localGravPos)
 			accSun= s * r;
 			start = 1;
 		}
-		for( uint gravBody = start ;gravBody < blockSize ; gravBody++)
+		for( uint gravBody = start ;gravBody < blockSize && (block*numBlocks + gravBody) < numGrav; gravBody++)
 		{
 			//Do the rest
-           gravPosN =localGravPos[gravBody];
+			gravPosN =localGravPos[gravBody];
 			r = gravPosN - myPos;
 			r.w =0.0;
 			distSqr = r.x * r.x + r.y * r.y + r.z * r.z;
