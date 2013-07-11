@@ -807,30 +807,36 @@ void CLModel::ExecuteKernels()
 		throw -1;
 	}
 
-	// Execute acceleration kernel on given device
-	cl_event  eventND[1];
-	status = clEnqueueNDRangeKernel(this->commandQueue, this->accKernel, 1, NULL, globalThreads, localThreads, 0, 0, eventND );
-	if( status != CL_SUCCESS)
-	{
-		wxLogError(wxT("clEnqueueNDRangeKernel failed %s"),this->ErrorMessage(status));
-		throw status;
-	}
-
-	status = clWaitForEvents(1, eventND);
-	if( status != CL_SUCCESS)
-	{
-		wxLogError(wxT("clWaitForEvents failed %s"),this->ErrorMessage(status));
-		throw status;
-	}
-	clReleaseEvent(eventND[0]);
-
 	status = clFinish(this->commandQueue);
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clFinish failed %s"),this->ErrorMessage(status));
 		throw status;
 	}
+	
+	// Execute acceleration kernel on given device
+	//cl_event  eventND[1];
+	status = clEnqueueNDRangeKernel(this->commandQueue, this->accKernel, 1, NULL, globalThreads, localThreads, 0, 0, NULL );
+	if( status != CL_SUCCESS)
+	{
+		wxLogError(wxT("clEnqueueNDRangeKernel failed %s"),this->ErrorMessage(status));
+		throw status;
+	}
 
+	status = clFlush(this->commandQueue);
+	if( status != CL_SUCCESS)
+	{
+		wxLogError(wxT("clFinish failed %s"),this->ErrorMessage(status));
+		throw status;
+	}
+	
+	status = clEnqueueBarrierWithWaitList(this->commandQueue,0,NULL,NULL);
+	if( status != CL_SUCCESS)
+	{
+		wxLogError(wxT("clFinish failed %s"),this->ErrorMessage(status));
+		throw status;
+	}
+	
 	wxLogDebug(wxT("CLModel::ExecuteKernels clFinish()"));
 
 	// for the first 16 steps we call the startupKernel. This populates the 16 element ring buffer
@@ -856,7 +862,7 @@ void CLModel::ExecuteKernels()
 		}
 		
 		// use reuse event?
-		status = clEnqueueNDRangeKernel(this->commandQueue, this->startupKernel, 1, NULL, globalThreads, localThreads, 0, 0, eventND );
+		status = clEnqueueNDRangeKernel(this->commandQueue, this->startupKernel, 1, NULL, globalThreads, localThreads, 0, 0, NULL );
 		if( status != CL_SUCCESS)
 		{
 			wxLogError(wxT("clEnqueueNDRangeKernel startupKernel failed %s"),this->ErrorMessage(status));
@@ -889,7 +895,7 @@ void CLModel::ExecuteKernels()
 			}
 			
 			// use reuse event?
-			status = clEnqueueNDRangeKernel(this->commandQueue, this->adamsBashforthKernel, 1, NULL, globalThreads, localThreads, 0, 0, eventND );
+			status = clEnqueueNDRangeKernel(this->commandQueue, this->adamsBashforthKernel, 1, NULL, globalThreads, localThreads, 0, 0, NULL );
 			if( status != CL_SUCCESS)
 			{
 				wxLogError(wxT("clEnqueueNDRangeKernel adamsBashforthKernel failed %s"),this->ErrorMessage(status));
@@ -914,7 +920,7 @@ void CLModel::ExecuteKernels()
 			}
 			
 			// use reuse event?
-			status = clEnqueueNDRangeKernel(this->commandQueue, this->adamsMoultonKernel, 1, NULL, globalThreads, localThreads, 0, 0, eventND );
+			status = clEnqueueNDRangeKernel(this->commandQueue, this->adamsMoultonKernel, 1, NULL, globalThreads, localThreads, 0, 0, NULL );
 			if( status != CL_SUCCESS)
 			{
 				wxLogError(wxT("clEnqueueNDRangeKernel failed %s"),this->ErrorMessage(status));
@@ -923,15 +929,14 @@ void CLModel::ExecuteKernels()
 		}
 	}
 
-	status = clWaitForEvents(1, eventND);
+	status = clFlush(this->commandQueue);
 	if( status != CL_SUCCESS)
 	{
-		wxLogError(wxT("clWaitForEvents failed %s"),this->ErrorMessage(status));
+		wxLogError(wxT("clFinish failed %s"),this->ErrorMessage(status));
 		throw status;
 	}
-	clReleaseEvent(eventND[0]);
-		
-	status = clFinish(this->commandQueue);
+	
+	status = clEnqueueBarrierWithWaitList(this->commandQueue,0,NULL,NULL);
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clFinish failed %s"),this->ErrorMessage(status));
@@ -963,7 +968,7 @@ void CLModel::ExecuteKernels()
 		throw status;
 	}
 
-	status = clFinish(this->commandQueue);
+	status = clEnqueueBarrierWithWaitList(this->commandQueue,0,NULL,NULL);
 	if ( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clFinish failed %s"),this->ErrorMessage(status));
@@ -1021,32 +1026,16 @@ void CLModel::UpdateDisplay()
 
 	wxLogDebug(wxT("CLModel::UpdateDisplay clEnqueueAcquireGLObjects()"));
 
-	cl_event  eventND[1];
+	//cl_event  eventND[1];
 	// Acquire GL buffer
-	status = clEnqueueAcquireGLObjects(this->commandQueue, 1, &this->dispPos, 0, 0, eventND);
+	status = clEnqueueAcquireGLObjects(this->commandQueue, 1, &this->dispPos, 0, 0, NULL);
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clEnqueueAcquireGLObjects failed to acquire dispPos %s"),this->ErrorMessage(status));
 		throw status;
 	}
 
-	status = clWaitForEvents(1, eventND);
-	if( status != CL_SUCCESS)
-	{
-		wxLogError(wxT("clWaitForEvents failed %s"),this->ErrorMessage(status));
-		throw status;
-	}
-	clReleaseEvent(eventND[0]);
-
 	// Copy new positions to the display vertex buffer
-	/*status = clEnqueueCopyBuffer(commandQueue,this->currPos,this->dispPos,0,0,sizeof(cl_double4) * this->numParticles,0,0,0);
-	if( status != CL_SUCCESS)
-	{
-		wxLogError(wxT("clEnqueueCopyBuffer newPos to dispPos failed %s"),this->ErrorMessage(status));
-		throw status;
-	}
-	 * */
-	
 	// update the copyToDisplayKernel's centerBody argument so it knows which body to offset the posistions against
 	status = clSetKernelArg(this->copyToDisplayKernel,3,sizeof(cl_int),(void*)&this->centerBody);
 	if( status != CL_SUCCESS)
@@ -1056,36 +1045,20 @@ void CLModel::UpdateDisplay()
 	}
 	
 	// use reuse event?
-	status = clEnqueueNDRangeKernel(this->commandQueue, this->copyToDisplayKernel, 1, NULL, globalThreads, localThreads, 0, 0, eventND );
+	status = clEnqueueNDRangeKernel(this->commandQueue, this->copyToDisplayKernel, 1, NULL, globalThreads, localThreads, 0, 0, NULL );
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clEnqueueNDRangeKernel copyToDisplayKernel failed %s"),this->ErrorMessage(status));
 		throw status;
 	}
 
-	status = clWaitForEvents(1, eventND);
-	if( status != CL_SUCCESS)
-	{
-		wxLogError(wxT("clWaitForEvents failed %s"),this->ErrorMessage(status));
-		throw status;
-	}
-	clReleaseEvent(eventND[0]);
-	
 	// Release GL buffer
-	status = clEnqueueReleaseGLObjects(this->commandQueue, 1, &this->dispPos, 0, 0, eventND);
+	status = clEnqueueReleaseGLObjects(this->commandQueue, 1, &this->dispPos, 0, 0, NULL);
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clEnqueueReleaseGLObjects failed to release dispPos %s"),this->ErrorMessage(status));
 		throw status;
 	}
-
-	status = clWaitForEvents(1, eventND);
-	if( status != CL_SUCCESS)
-	{
-		wxLogError(wxT("clWaitForEvents clEnqueueReleaseGLObjects failed %s"),this->ErrorMessage(status));
-		throw status;
-	}
-	clReleaseEvent(eventND[0]);
 	
 	status = clFinish(this->commandQueue);
 	if( status != CL_SUCCESS)
@@ -1725,26 +1698,34 @@ void CLModel::SetInitalState(cl_double4 *initalPositions, cl_double4 *initalVelo
 #endif
 	
 	cl_int status = CL_SUCCESS;
-	status = clEnqueueWriteBuffer(this->commandQueue,this->currPos,CL_TRUE,0,this->numParticles * sizeof(cl_double4),initalPositions,0,0,0);
+	status = clEnqueueWriteBuffer(this->commandQueue,this->currPos,CL_FALSE,0,this->numParticles * sizeof(cl_double4),initalPositions,0,0,0);
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clEnqueueWriteBuffer write inital Positions to currPos %s"),this->ErrorMessage(status));
 		throw status;
 	}
 	
-	status = clEnqueueWriteBuffer(this->commandQueue,this->gravPos,CL_TRUE,0,this->numGrav * sizeof(cl_double4),initalPositions,0,0,0);
+	status = clEnqueueWriteBuffer(this->commandQueue,this->gravPos,CL_FALSE,0,this->numGrav * sizeof(cl_double4),initalPositions,0,0,0);
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clEnqueueWriteBuffer write inital Positions to gravPos %s"),this->ErrorMessage(status));
 		throw status;
 	}
 
-	status = clEnqueueWriteBuffer(this->commandQueue,this->currVel,CL_TRUE,0,this->numParticles * sizeof(cl_double4),initalVelocities,0,0,0);
+	status = clEnqueueWriteBuffer(this->commandQueue,this->currVel,CL_FALSE,0,this->numParticles * sizeof(cl_double4),initalVelocities,0,0,0);
 	if( status != CL_SUCCESS)
 	{
 		wxLogError(wxT("clEnqueueWriteBuffer write inital Velocity to currVel %s"),this->ErrorMessage(status));
 		throw status;
 	}
+	
+	status = clFinish(this->commandQueue);
+	if( status != CL_SUCCESS)
+	{
+		wxLogError(wxT("clFinish failed %s"),this->ErrorMessage(status));
+		throw status;
+	}
+	
 	this->step = 0;
 }
 
@@ -1758,6 +1739,13 @@ void CLModel::ReadToInitialState(cl_double4 *initalPositions, cl_double4 *inital
 #endif
 
 	cl_int status = CL_SUCCESS;
+	status = clFinish(this->commandQueue);
+	if( status != CL_SUCCESS)
+	{
+		wxLogError(wxT("clFinish failed %s"),this->ErrorMessage(status));
+		throw status;
+	}
+	
 	status = clEnqueueReadBuffer(this->commandQueue,this->currPos,CL_TRUE,0,this->numParticles * sizeof(cl_double4),initalPositions,0,0,0);
 	if( status != CL_SUCCESS)
 	{
