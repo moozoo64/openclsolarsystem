@@ -1430,7 +1430,17 @@ int CLModel::CleanUpCL()
 
 	cl_int status;
 	int success = CL_SUCCESS;
-
+	
+	if(this->commandQueue != NULL)
+	{
+		status = clFinish(this->commandQueue);
+		if( status != CL_SUCCESS)
+		{
+			wxLogError(wxT("clFinish failed %s"),this->ErrorMessage(status));
+			success=status;
+		}
+	}
+	
 	if(this->currPos != NULL)
 	{
 		status = clReleaseMemObject(this->currPos);
