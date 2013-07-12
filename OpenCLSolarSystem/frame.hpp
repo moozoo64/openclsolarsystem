@@ -71,11 +71,9 @@ class Frame: public wxFrame
 		void OnSetNum(wxCommandEvent& event);
 		void OnSetGrav(wxCommandEvent& event);
 		void OnSetCenter(wxCommandEvent& event);
-		void OnSetNewtonian(wxCommandEvent& event);
 		void OnImportSlf(wxCommandEvent& event);
 		void OnExportSlf(wxCommandEvent& event);
-		void OnSetRelativistic(wxCommandEvent& event);
-		void OnSetRelativisticL(wxCommandEvent& event);
+		void OnSetAcceleration(wxCommandEvent& event);
 		void OnSaveInitialState(wxCommandEvent& event);
 		void OnLoadInitialState(wxCommandEvent& event);
 		void OnReadToInitialState(wxCommandEvent& event);

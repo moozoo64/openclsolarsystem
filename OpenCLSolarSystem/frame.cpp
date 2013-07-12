@@ -32,6 +32,7 @@ enum
 	ID_SETDELTATMINUSHR,
 	ID_SETDELTATMINUSFOURHR,
 	ID_SETDELTATMINUSDAY,
+	ID_SETNUMVSMALL,
 	ID_SETNUMSMALL,
 	ID_SETNUMMEDIUM,
 	ID_SETNUMLARGE,
@@ -94,6 +95,7 @@ BEGIN_EVENT_TABLE(Frame, wxFrame)
 	EVT_MENU(ID_SETDELTATHR, Frame::OnSetDeltaTime)
 	EVT_MENU(ID_SETDELTATFOURHR, Frame::OnSetDeltaTime)
 	EVT_MENU(ID_SETDELTATDAY, Frame::OnSetDeltaTime)
+	EVT_MENU(ID_SETNUMVSMALL, Frame::OnSetNum)
 	EVT_MENU(ID_SETNUMSMALL, Frame::OnSetNum)
 	EVT_MENU(ID_SETNUMMEDIUM, Frame::OnSetNum)
 	EVT_MENU(ID_SETNUMLARGE, Frame::OnSetNum)
@@ -118,9 +120,9 @@ BEGIN_EVENT_TABLE(Frame, wxFrame)
 	EVT_MENU(ID_SETCENTER8, Frame::OnSetCenter)
 	EVT_MENU(ID_SETCENTER9, Frame::OnSetCenter)
 	EVT_MENU(ID_SETCENTER10, Frame::OnSetCenter)
-	EVT_MENU(ID_SETNEWTONIAN, Frame::OnSetNewtonian)
-	EVT_MENU(ID_SETRELATIVISTIC, Frame::OnSetRelativistic)
-	EVT_MENU(ID_SETRELATIVISTICL, Frame::OnSetRelativisticL)
+	EVT_MENU(ID_SETNEWTONIAN, Frame::OnSetAcceleration)
+	EVT_MENU(ID_SETRELATIVISTIC, Frame::OnSetAcceleration)
+	EVT_MENU(ID_SETRELATIVISTICL, Frame::OnSetAcceleration)
 	EVT_MENU(ID_SAVESTATE, Frame::OnSaveInitialState)
 	EVT_MENU(ID_LOADSTATE, Frame::OnLoadInitialState)
 	EVT_MENU(ID_READSTATE, Frame::OnReadToInitialState)
@@ -241,6 +243,7 @@ void Frame::InitFrame(bool doubleBuffer, bool smooth, bool lighting, int numPart
 		// Create a menu that lets the user choose the number of bodies/particles.
 		// Only one option can be chosen at any time
 		wxMenu *menuNum = new wxMenu;
+		menuNum->AppendRadioItem( ID_SETNUMVSMALL, wxT("2560" ));
 		menuNum->AppendRadioItem( ID_SETNUMSMALL, wxT("8192" ));
 		menuNum->AppendRadioItem( ID_SETNUMMEDIUM, wxT("309760" ));
 		menuNum->AppendRadioItem( ID_SETNUMLARGE, wxT("594688" ));
@@ -316,11 +319,12 @@ void Frame::InitFrame(bool doubleBuffer, bool smooth, bool lighting, int numPart
 		
 		// set the keyboard focus to the simmulation display so that the keyboard functions work
 		this->glCanvas->SetFocus();
+
+		// Update the menu items to reflect the current state
+		this->UpdateMenuItems();
 		
 		menuBar = this->GetMenuBar();
 		wxMenuItem *menuItem;
-		menuItem = menuBar->FindItem(ID_SETDELTATFOURHR);
-		menuItem->Check(true);
 		menuItem = menuBar->FindItem(ID_SETADAMS11);
 		menuItem->Check(true);
 		menuItem = menuBar->FindItem(ID_SETRELATIVISTIC);
@@ -761,6 +765,10 @@ void Frame::UpdateMenuItems()
 
 		switch(this->numParticles)
 		{
+			case 256*10:
+				menuItem = menuBar->FindItem(ID_SETNUMVSMALL);
+				menuItem->Check(true);
+				break;
 			case 256*32:
 				menuItem = menuBar->FindItem(ID_SETNUMSMALL);
 				menuItem->Check(true);
@@ -888,6 +896,9 @@ void Frame::OnSetNum(wxCommandEvent& event)
 {
 	switch(event.GetId())
 	{
+		case ID_SETNUMVSMALL:
+			this->numParticles = 256*10 < this->initialState->initialNumParticles ? 256*10 : this->initialState->initialNumParticles;
+			break;
 		case ID_SETNUMSMALL:
 			this->numParticles = 256*32 < this->initialState->initialNumParticles ? 256*32 : this->initialState->initialNumParticles;
 			break;
@@ -993,27 +1004,27 @@ void Frame::OnSetIntegrator(wxCommandEvent& event)
 	this->ResetAll();
 }
 
-// sets the Acceleration calculation to use the Newtonian Gravitaton kernel
-void Frame::OnSetNewtonian(wxCommandEvent& event)
+// sets the Acceleration calculation kernel to use
+void Frame::OnSetAcceleration(wxCommandEvent& event)
 {
-	this->clModel->accelerationKernelName = new wxString("newtonian");
+	switch(event.GetId())
+	{
+		case ID_SETNEWTONIAN:
+			this->clModel->accelerationKernelName = new wxString("newtonian");
+			break;
+		case ID_SETRELATIVISTIC:
+			this->clModel->accelerationKernelName = new wxString("relativistic");
+			break;
+		case ID_SETRELATIVISTICL:
+			this->clModel->accelerationKernelName = new wxString("relativisticLocal");
+			break;
+		default:
+			this->clModel->accelerationKernelName = new wxString("relativistic");
+			break;
+	}
 	this->ResetAll();
 }
 
-// sets the Acceleration calculation to use the Newtonian Gravitaton with Relativistic corrections kernel
-void Frame::OnSetRelativistic(wxCommandEvent& event)
-{
-	this->clModel->accelerationKernelName = new wxString("relativistic");
-	this->ResetAll();
-}
-
-// sets the Acceleration calculation to use the Newtonian Gravitaton with Relativistic corrections kernel
-void Frame::OnSetRelativisticL(wxCommandEvent& event)
-{
-	this->clModel->accelerationKernelName = new wxString("relativisticLocal");
-	this->ResetAll();
-}
-		
 // Intercept menu commands
 void Frame::OnExit( wxCommandEvent& WXUNUSED(event) )
 {
