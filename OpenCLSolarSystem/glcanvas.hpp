@@ -23,6 +23,7 @@ class GLCanvas: public wxGLCanvas
 private:
 		bool vboCreated;
 		bool active;
+		bool stereo;
 		int numParticles;
 		GLboolean doubleBuffer;
 		GLboolean smooth;
@@ -45,7 +46,7 @@ public:
 		GLCanvas(wxWindow *parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition,
 		         const wxSize& size = wxDefaultSize, long style = 0,
 		         const wxString& name = _T("TestGLCanvas"),
-		         bool doubleBuffer = true, bool smooth = true, bool lighting = true
+		         bool doubleBuffer = true, bool smooth = true, bool lighting = true, bool stereo = false
 		        );
 		~GLCanvas();
 

@@ -16,15 +16,29 @@
 #include "global.hpp"
 #include "glcanvas.hpp"
 
-static int *makeGLAttrib(bool doubleBuffer)
+static int *makeGLAttrib(bool doubleBuffer, bool stereo)
 {
 
 #ifdef __WXMSW__
-	int *gl_attrib = NULL;
+
+//	int *gl_attrib = NULL;
+static int gl_attrib[20] = { WX_GL_RGBA, WX_GL_MIN_RED, 1, WX_GL_MIN_GREEN, 1,
+	                             WX_GL_MIN_BLUE, 1, WX_GL_DEPTH_SIZE, 1,
+	                             WX_GL_DOUBLEBUFFER, WX_GL_STEREO, GL_NONE};
+if(!doubleBuffer)
+{
+	gl_attrib[9] = GL_NONE;
+}
+
+if(!stereo)
+{
+	gl_attrib[10] = GL_NONE;
+}
+
 #else
 	static int gl_attrib[20] = { WX_GL_RGBA, WX_GL_MIN_RED, 1, WX_GL_MIN_GREEN, 1,
 	                             WX_GL_MIN_BLUE, 1, WX_GL_DEPTH_SIZE, 1,
-	                             WX_GL_DOUBLEBUFFER,
+	                             WX_GL_DOUBLEBUFFER, WX_GL_STEREO,
 #  if defined(__WXMAC__) || defined(__WXCOCOA__)
 	                             GL_NONE
 	                           };
@@ -59,8 +73,8 @@ END_EVENT_TABLE()
 GLCanvas::GLCanvas(wxWindow *parent, wxWindowID id,
                    const wxPoint& pos, const wxSize& size, long style,
                    const wxString& name,
-                   bool doubleBuffer, bool smooth, bool lighting)
-	: wxGLCanvas(parent, id,makeGLAttrib(doubleBuffer), pos, size, style|wxFULL_REPAINT_ON_RESIZE, name, wxNullPalette)
+                   bool doubleBuffer, bool smooth, bool lighting, bool stereo)
+	: wxGLCanvas(parent, id,makeGLAttrib(doubleBuffer,stereo), pos, size, style|wxFULL_REPAINT_ON_RESIZE, name, wxNullPalette)
 
 {
 #ifdef __WXDEBUG__
@@ -85,6 +99,7 @@ GLCanvas::GLCanvas(wxWindow *parent, wxWindowID id,
 	this->doubleBuffer = doubleBuffer?GL_TRUE:GL_FALSE;
 	this->smooth = smooth?GL_TRUE:GL_FALSE;
 	this->lighting = lighting?GL_TRUE:GL_FALSE;
+	this->stereo = stereo;
 }
 
 GLCanvas::~GLCanvas()
@@ -103,6 +118,7 @@ void GLCanvas::OnPaint( wxPaintEvent& WXUNUSED(event) )
 
 	GLenum errCode;
 	const GLubyte *errString;
+	float eyeOffset=0.0f;
 
 	if(!IsShown() || !this->active)
 	{
@@ -150,50 +166,69 @@ void GLCanvas::OnPaint( wxPaintEvent& WXUNUSED(event) )
 	}
 
     wxPaintDC(this);
-		
+	glDrawBuffer(GL_BACK);
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-	glPushMatrix();
-	glTranslatef( this->xDist, this->yDist, this->zDist);
-	glRotatef( this->yrot, 0.0f, 1.0f, 0.0f );
-	glRotatef( this->xrot, 1.0f, 0.0f, 0.0f );
-
-	glBindBuffer(GL_ARRAY_BUFFER, this->vbo[0]);
-	glVertexPointer(3, GL_FLOAT, 4*sizeof(GLfloat), 0);
-	glBindBuffer(GL_ARRAY_BUFFER, this->vbo[1]);
-	glColorPointer(4, GL_UNSIGNED_BYTE, 0, 0);
-	
-	glEnable(GL_POINT_SMOOTH);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	for(int eye = 0 ; eye < (this->stereo?2:1); eye++)
+	{
+		if(this->stereo)
+		{
+			if(eye == 0)
+			{
+				wxLogDebug(wxT("Rendering Left Eye"));
+				glDrawBuffer(GL_BACK_LEFT);
+				eyeOffset = -2.5f;
+			}else
+			{
+				wxLogDebug(wxT("Rendering Right Eye"));
+				glDrawBuffer(GL_BACK_RIGHT);
+				eyeOffset = +2.5f;
+			}
+		}
 		
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_COLOR_ARRAY);
+		glPushMatrix();
+		glTranslatef( this->xDist + eyeOffset, this->yDist, this->zDist);
+		glRotatef( this->yrot, 0.0f, 1.0f, 0.0f );
+		glRotatef( this->xrot, 1.0f, 0.0f, 0.0f );
 
-	// Draw the Sun as a large point
-	glPointSize(3);
-	glDrawArrays(GL_POINTS, 0, 1);
-	
-	// Draw the first 16 "planets"
-	glPointSize(2);
-	glDrawArrays(GL_POINTS, 1, 16);
-	
-	// Draw the rest as single pixels
-	if(!this->blending){
-		glDisable(GL_BLEND);
+
+		glBindBuffer(GL_ARRAY_BUFFER, this->vbo[0]);
+		glVertexPointer(3, GL_FLOAT, 4*sizeof(GLfloat), 0);
+		glBindBuffer(GL_ARRAY_BUFFER, this->vbo[1]);
+		glColorPointer(4, GL_UNSIGNED_BYTE, 0, 0);
+		
+		glEnable(GL_POINT_SMOOTH);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glEnableClientState(GL_COLOR_ARRAY);
+
+		// Draw the Sun as a large point
+		glPointSize(3);
+		glDrawArrays(GL_POINTS, 0, 1);
+		
+		// Draw the first 16 "planets"
+		glPointSize(2);
+		glDrawArrays(GL_POINTS, 1, 16);
+		
+		// Draw the rest as single pixels
+		if(!this->blending){
+			glDisable(GL_BLEND);
+		}
+		glPointSize(1);
+		glDisable(GL_POINT_SMOOTH);
+		glDrawArrays(GL_POINTS, 16, this->numParticles-16);
+
+		glDisableClientState(GL_COLOR_ARRAY);
+		glDisableClientState(GL_VERTEX_ARRAY);
+
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+		glPopMatrix();
+		glFinish();
 	}
-	glPointSize(1);
-	glDisable(GL_POINT_SMOOTH);
-	glDrawArrays(GL_POINTS, 16, this->numParticles-16);
-
-	glDisableClientState(GL_COLOR_ARRAY);
-	glDisableClientState(GL_VERTEX_ARRAY);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	glPopMatrix();
-	glFinish();
-
-	wxLogDebug(wxT("GLCanvas::OnPaint glFinish()"));	
+	wxLogDebug(wxT("GLCanvas::OnPaint glFinish()"));
+	
 	this->SwapBuffers();
 	
 	if ((errCode = glGetError()) != GL_NO_ERROR) {

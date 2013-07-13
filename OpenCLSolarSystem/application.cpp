@@ -36,6 +36,10 @@ bool Application::Args(int argc, wxChar **argv)
 		{
 			this->doubleBuffer = true;
 		}
+		else if (wxStrcmp(argv[i], wxT("-stereo")) == 0)
+		{
+			this->stereo = true;
+		}
 		else if (wxStrcmp(argv[i], wxT("-cpu")) == 0)
 		{
 			this->tryForCPUFirst = true;
@@ -74,6 +78,7 @@ Application::Application()
 	this->lighting = false;
 	this->smooth = false;
 	this->doubleBuffer = true;
+	this->stereo = false;
 	this->numParticles = 2560;
 	this->numGrav=16;
 	this->useLastDevice = true;
@@ -104,7 +109,7 @@ bool Application::OnInit()
 
 		// Process the command line arguments
 		this->Args(argc, argv);
-		this->frame->InitFrame(this->doubleBuffer, this->smooth, this->lighting,this->numParticles, this->numGrav,this->useLastDevice,this->desiredPlatform, this->tryForCPUFirst);
+		this->frame->InitFrame(this->doubleBuffer, this->smooth, this->lighting,this->stereo, this->numParticles, this->numGrav,this->useLastDevice,this->desiredPlatform, this->tryForCPUFirst);
 		success = true;
 		wxLogDebug(wxT("Application::OnInit Done"));
 	}

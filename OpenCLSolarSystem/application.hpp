@@ -37,6 +37,7 @@ class Application: public wxApp
 		bool doubleBuffer;
 		bool smooth;
 		bool lighting;
+		bool stereo;
 		char *desiredPlatform;
 		int numParticles;
 		int numGrav;

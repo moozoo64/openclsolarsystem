@@ -33,7 +33,7 @@ class Frame: public wxFrame
 	public:
 		Frame(wxFrame *frame, const wxString& title, const wxPoint& pos, const wxSize& size, long style = wxDEFAULT_FRAME_STYLE | wxMAXIMIZE);
 		virtual ~Frame();
-		void InitFrame(bool doubleBuffer, bool smooth, bool lighting, int numParticles, int numGrav, bool useLastDevice, char *desiredPlatform, bool tryForCPUFirst);
+		void InitFrame(bool doubleBuffer, bool smooth, bool lighting, bool stereo, int numParticles, int numGrav, bool useLastDevice, char *desiredPlatform, bool tryForCPUFirst);
 
 	private:
 #if wxUSE_GLCANVAS

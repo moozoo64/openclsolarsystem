@@ -162,7 +162,7 @@ Frame::~Frame()
 
 }
 
-void Frame::InitFrame(bool doubleBuffer, bool smooth, bool lighting, int numParticles, int numGrav, bool useLastDevice, char *desiredPlatform, bool tryForCPUFirst)
+void Frame::InitFrame(bool doubleBuffer, bool smooth, bool lighting, bool stereo, int numParticles, int numGrav, bool useLastDevice, char *desiredPlatform, bool tryForCPUFirst)
 {
 	bool die = false;
 	
@@ -301,7 +301,7 @@ void Frame::InitFrame(bool doubleBuffer, bool smooth, bool lighting, int numPart
 		this->Show(true);
 
 		// Create the OpenGL canvas on which the simulation will be displayed
-		this->glCanvas = new GLCanvas(this, wxID_ANY, wxDefaultPosition,wxDefaultSize, 0, wxT("GLCanvas"), doubleBuffer, smooth, lighting);
+		this->glCanvas = new GLCanvas(this, wxID_ANY, wxDefaultPosition,wxDefaultSize, 0, wxT("GLCanvas"), doubleBuffer, smooth, lighting, stereo);
 		this->glCanvas->blending = true;
 		this->glCanvas->CreateOpenGlContext(this->numParticles, this->numGrav);
 		
