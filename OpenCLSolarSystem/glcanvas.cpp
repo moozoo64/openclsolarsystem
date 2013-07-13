@@ -18,42 +18,33 @@
 
 static int *makeGLAttrib(bool doubleBuffer, bool stereo)
 {
+	int index =0;
+	static int gl_attrib[32];
+	
+	gl_attrib[index++] = WX_GL_RGBA;
+	gl_attrib[index++] = WX_GL_MIN_RED;
+	gl_attrib[index++] = 1;
+	gl_attrib[index++] = WX_GL_MIN_GREEN;
+	gl_attrib[index++] = 1;
+	gl_attrib[index++] = WX_GL_MIN_BLUE;
+	gl_attrib[index++] = 1;
+	gl_attrib[index++] = WX_GL_DEPTH_SIZE;
+	gl_attrib[index++] = 0;
 
-#ifdef __WXMSW__
-
-//	int *gl_attrib = NULL;
-static int gl_attrib[20] = { WX_GL_RGBA, WX_GL_MIN_RED, 1, WX_GL_MIN_GREEN, 1,
-	                             WX_GL_MIN_BLUE, 1, WX_GL_DEPTH_SIZE, 1,
-	                             WX_GL_DOUBLEBUFFER, WX_GL_STEREO, GL_NONE};
-if(!doubleBuffer)
-{
-	gl_attrib[9] = GL_NONE;
-}
-
-if(!stereo)
-{
-	gl_attrib[10] = GL_NONE;
-}
-
-#else
-	static int gl_attrib[20] = { WX_GL_RGBA, WX_GL_MIN_RED, 1, WX_GL_MIN_GREEN, 1,
-	                             WX_GL_MIN_BLUE, 1, WX_GL_DEPTH_SIZE, 1,
-	                             WX_GL_DOUBLEBUFFER, WX_GL_STEREO,
-#  if defined(__WXMAC__) || defined(__WXCOCOA__)
-	                             GL_NONE
-	                           };
-#  else
-	None
-};
-#  endif
-#endif //__WXMSW__
-
-#ifdef __WXGTK__
-	if(!doubleBuffer)
+	//gl_attrib[index++] = WX_GL_SAMPLE_BUFFERS;
+	//gl_attrib[index++] = GL_TRUE;
+	
+	if(doubleBuffer)
 	{
-		gl_attrib[9] = None;
+		gl_attrib[index++] = WX_GL_DOUBLEBUFFER;
 	}
-#endif
+
+	if(stereo)
+	{
+		gl_attrib[index++] = WX_GL_STEREO;
+	}
+
+	gl_attrib[index++] = GL_NONE;
 
 	return gl_attrib;
 }
