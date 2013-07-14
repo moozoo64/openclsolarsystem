@@ -16,6 +16,33 @@
 #include "global.hpp"
 #include "glcanvas.hpp"
 
+void GLCanvas::SetFrustum(void)
+{
+    double top = this->nearClippingPlane*tan(DTR*this->fieldOfViewYAxis/2);
+    double right = this->aspectRatio*top;
+    double frustumshift = (this->intraocularDistance/2)*this->nearClippingPlane/this->screenProjectionPlane;
+
+    this->centerCam.topfrustum = top;
+    this->centerCam.bottomfrustum = -top;
+    this->centerCam.leftfrustum = -right;
+    this->centerCam.rightfrustum = right;
+    this->centerCam.modeltranslation = 0.0f;
+	
+    this->leftCam.topfrustum = top;
+    this->leftCam.bottomfrustum = -top;
+    this->leftCam.leftfrustum = -right + frustumshift;
+    this->leftCam.rightfrustum = right + frustumshift;
+    this->leftCam.modeltranslation = this->intraocularDistance/2;
+
+    this->rightCam.topfrustum = top;
+    this->rightCam.bottomfrustum = -top;
+    this->rightCam.leftfrustum = -right - frustumshift;
+    this->rightCam.rightfrustum = right - frustumshift;
+    this->rightCam.modeltranslation = -this->intraocularDistance/2;
+	
+	this->updateFrustum = false;
+}
+
 static int *makeGLAttrib(bool doubleBuffer, bool stereo)
 {
 	int index =0;
@@ -79,11 +106,12 @@ GLCanvas::GLCanvas(wxWindow *parent, wxWindowID id,
 	this->yrot = 0.0f;
 	this->xDist = 0.0f;
 	this->yDist = 0.0f;
-	this->zDist = 0.0f;
+	this->zDist = -2600.0f;
 	this->vbo[0] = 0;
 	this->vbo[1] = 0;
 	this->vboCreated = false;
-	this->updateProjectionAndModelView = true;
+	this->updateViewPort = true;
+	this->updateFrustum = true;
 	this->updateShadeModel = true;
 	this->updateLighting = true;
 	this->active = false;
@@ -91,6 +119,13 @@ GLCanvas::GLCanvas(wxWindow *parent, wxWindowID id,
 	this->smooth = smooth?GL_TRUE:GL_FALSE;
 	this->lighting = lighting?GL_TRUE:GL_FALSE;
 	this->stereo = stereo;
+	this->aspectRatio = 16.0f/9.0f;
+	this->fieldOfViewYAxis = 45;
+	this->nearClippingPlane = 5.0;
+	this->farClippingPlane = 600000.0;
+	this->depthZ = -10;
+	this->screenProjectionPlane = 2600.0;
+	this->intraocularDistance = 0.0f;
 }
 
 GLCanvas::~GLCanvas()
@@ -125,9 +160,15 @@ void GLCanvas::OnPaint( wxPaintEvent& WXUNUSED(event) )
 	
 	// check if projection and model view need to be set
 	// This will happen on the first OnPaint after creation or a resize
-	if(this->updateProjectionAndModelView)
+	if(this->updateViewPort)
 	{
 		this->SetupProjectionAndModelView();
+
+	}
+	
+	if(this->updateFrustum)
+	{
+		this->SetFrustum();
 	}
 	
 	if(this->updateShadeModel)
@@ -156,24 +197,49 @@ void GLCanvas::OnPaint( wxPaintEvent& WXUNUSED(event) )
 		this->updateLighting = false;
 	}
 
-    wxPaintDC(this);
-	glDrawBuffer(GL_BACK);
-	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	for(int eye = 0 ; eye < (this->stereo?2:1); eye++)
 	{
 		if(this->stereo)
 		{
 			if(eye == 0)
 			{
-				wxLogDebug(wxT("Rendering Left Eye"));
+				wxLogDebug(wxT("Rendering Left Eye Camera"));
+				glMatrixMode(GL_PROJECTION);
+				glLoadIdentity();
+				glFrustum(this->leftCam.leftfrustum, this->leftCam.rightfrustum, this->leftCam.bottomfrustum, this->leftCam.topfrustum, this->nearClippingPlane, this->farClippingPlane);
+				glTranslatef(this->leftCam.modeltranslation, 0.0, 0.0);
+				glMatrixMode(GL_MODELVIEW);
+				glLoadIdentity();
+				wxPaintDC(this);
+				glDrawBuffer(GL_BACK);
+				glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 				glDrawBuffer(GL_BACK_LEFT);
-				eyeOffset = -2.5f;
-			}else
-			{
-				wxLogDebug(wxT("Rendering Right Eye"));
-				glDrawBuffer(GL_BACK_RIGHT);
-				eyeOffset = +2.5f;
 			}
+			else
+			{
+				wxLogDebug(wxT("Rendering Right Eye Camera"));
+				glMatrixMode(GL_PROJECTION);
+				glLoadIdentity();
+				glFrustum(this->rightCam.leftfrustum, this->rightCam.rightfrustum, this->rightCam.bottomfrustum, this->rightCam.topfrustum, this->nearClippingPlane, this->farClippingPlane);
+				glTranslatef(this->rightCam.modeltranslation, 0.0, 0.0);
+				glMatrixMode(GL_MODELVIEW);
+				glLoadIdentity();
+				wxPaintDC(this);
+				glDrawBuffer(GL_BACK);
+				glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+				glDrawBuffer(GL_BACK_RIGHT);
+			}
+		}else{
+				wxLogDebug(wxT("Center Camera"));
+				glMatrixMode(GL_PROJECTION);
+				glLoadIdentity();
+				glFrustum(this->centerCam.leftfrustum, this->centerCam.rightfrustum, this->centerCam.bottomfrustum, this->centerCam.topfrustum, this->nearClippingPlane, this->farClippingPlane);
+				glTranslatef(this->centerCam.modeltranslation, 0.0, 0.0);
+				glMatrixMode(GL_MODELVIEW);
+				glLoadIdentity();
+				wxPaintDC(this);
+				glDrawBuffer(GL_BACK);
+				glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 		}
 		
 		glPushMatrix();
@@ -224,7 +290,7 @@ void GLCanvas::OnPaint( wxPaintEvent& WXUNUSED(event) )
 	
 	if ((errCode = glGetError()) != GL_NO_ERROR) {
 		errString = gluErrorString(errCode);
-	   wxLogError(wxT("GLCanvas::OnPaint Fatal OpenGL Error: %s"), errString);
+	   wxLogError(wxT("GLCanvas::OnPaint Fatal OpenGL Error: %d %s"), errCode, errString);
 	   this->Close(true);
 	}
 
@@ -269,8 +335,7 @@ void GLCanvas::OnSize(wxSizeEvent& event)
 	{
 		wxLogError(wxT("OnSize before vboCreated"));
 	}
-	
-	this->updateProjectionAndModelView = true;
+	this->updateViewPort = true;
 }
 
 // sets up the Projection and Model View
@@ -297,16 +362,18 @@ void GLCanvas::SetupProjectionAndModelView()
         height = (float)h/(float)w;
         width = 1.0;
     }
-		
-	glMatrixMode(GL_PROJECTION);
+	this->aspectRatio = width/height;
+	
+/*	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glFrustum( -width/10.0, width/10.0, -height/10.0, height/10.0, 5.0, 600000.0 );
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glTranslatef( 0.0, 0.0, -30000.0f );
-	
-	this->updateProjectionAndModelView = false;
+*/	
+	this->SetFrustum();
+	this->updateViewPort = false;
 	if ((errCode = glGetError()) != GL_NO_ERROR) {
 		errString = gluErrorString(errCode);
 		wxLogError(wxT("GLCanvas::SetupProjectionAndModelView Fatal OpenGL Error: %s"), errString);
@@ -371,6 +438,31 @@ void GLCanvas::OnChar(wxKeyEvent& event)
 			
 		case 'Z':
 			this->zDist += -1000.0f;
+			break;
+			
+		case 'c':
+		case 'C':
+			this->yDist = 0.0f;
+			this->xDist = 0.0f;
+			break;
+
+		case 'r':
+		case 'R':
+			this->yDist = 0.0f;
+			this->xDist = 0.0f;
+			this->xrot = 0.0f;
+			this->yrot = 0.0f;
+			break;
+			
+		case 'i':
+			this->intraocularDistance += 100.0f;
+			this->updateFrustum = true;
+			break;
+			
+		case 'I':
+			this->intraocularDistance += -100.0f;
+			this->intraocularDistance = (this->intraocularDistance < 0) ? 0 : this->intraocularDistance;
+			this->updateFrustum = true;
 			break;
 
 		default:
@@ -590,7 +682,7 @@ bool GLCanvas::CreateOpenGlContext(int numParticles, int numGrav)
 	this->active=true;
 	this->VSync(false);
 	this->vboCreated = false;
-	this->updateProjectionAndModelView = true;
+	this->updateViewPort = true;
 
 	if ((errCode = glGetError()) != GL_NO_ERROR)
 	{

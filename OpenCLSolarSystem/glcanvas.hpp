@@ -18,6 +18,9 @@
 
 #if wxUSE_GLCANVAS
 
+
+#define DTR 0.0174532925
+
 class GLCanvas: public wxGLCanvas
 {
 private:
@@ -25,6 +28,7 @@ private:
 		bool active;
 		bool stereo;
 		int numParticles;
+		float aspectRatio;
 		GLboolean doubleBuffer;
 		GLboolean smooth;
 		GLboolean lighting;
@@ -36,10 +40,27 @@ private:
 		GLuint vbo[2];
 		wxGLContext*	glContext;
 		void SetupProjectionAndModelView();
-		bool updateProjectionAndModelView;
+		void SetFrustum(void);
+		bool updateFrustum;
+		bool updateViewPort;
 		bool updateShadeModel;
 		bool updateLighting;
+		float depthZ;
+		double fieldOfViewYAxis;
+		double nearClippingPlane;
+		double farClippingPlane;
+		double screenProjectionPlane;
+		double intraocularDistance;
 
+		struct Camera
+		{
+			GLdouble leftfrustum;
+			GLdouble rightfrustum;
+			GLdouble bottomfrustum;
+			GLdouble topfrustum;
+			GLfloat modeltranslation;
+		} leftCam, rightCam, centerCam;
+		
 public:
 		int numGrav;
 		bool blending;
