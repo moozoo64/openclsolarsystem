@@ -121,11 +121,11 @@ GLCanvas::GLCanvas(wxWindow *parent, wxWindowID id,
 	this->stereo = stereo;
 	this->aspectRatio = 16.0f/9.0f;
 	this->fieldOfViewYAxis = 45;
-	this->nearClippingPlane = 5.0;
+	this->nearClippingPlane = 1000.0;
 	this->farClippingPlane = 600000.0;
 	this->depthZ = -10;
 	this->screenProjectionPlane = 2600.0;
-	this->intraocularDistance = 0.0f;
+	this->intraocularDistance = 400.0f;
 }
 
 GLCanvas::~GLCanvas()
@@ -197,6 +197,10 @@ void GLCanvas::OnPaint( wxPaintEvent& WXUNUSED(event) )
 		this->updateLighting = false;
 	}
 
+	wxPaintDC(this);
+	glDrawBuffer(GL_BACK);
+	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+				
 	for(int eye = 0 ; eye < (this->stereo?2:1); eye++)
 	{
 		if(this->stereo)
@@ -210,9 +214,6 @@ void GLCanvas::OnPaint( wxPaintEvent& WXUNUSED(event) )
 				glTranslatef(this->leftCam.modeltranslation, 0.0, 0.0);
 				glMatrixMode(GL_MODELVIEW);
 				glLoadIdentity();
-				wxPaintDC(this);
-				glDrawBuffer(GL_BACK);
-				glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 				glDrawBuffer(GL_BACK_LEFT);
 			}
 			else
@@ -224,9 +225,6 @@ void GLCanvas::OnPaint( wxPaintEvent& WXUNUSED(event) )
 				glTranslatef(this->rightCam.modeltranslation, 0.0, 0.0);
 				glMatrixMode(GL_MODELVIEW);
 				glLoadIdentity();
-				wxPaintDC(this);
-				glDrawBuffer(GL_BACK);
-				glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 				glDrawBuffer(GL_BACK_RIGHT);
 			}
 		}else{
@@ -237,9 +235,6 @@ void GLCanvas::OnPaint( wxPaintEvent& WXUNUSED(event) )
 				glTranslatef(this->centerCam.modeltranslation, 0.0, 0.0);
 				glMatrixMode(GL_MODELVIEW);
 				glLoadIdentity();
-				wxPaintDC(this);
-				glDrawBuffer(GL_BACK);
-				glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 		}
 		
 		glPushMatrix();
@@ -282,11 +277,12 @@ void GLCanvas::OnPaint( wxPaintEvent& WXUNUSED(event) )
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 		glPopMatrix();
-		glFinish();
 	}
+
 	wxLogDebug(wxT("GLCanvas::OnPaint glFinish()"));
-	
+	glFinish();
 	this->SwapBuffers();
+
 	
 	if ((errCode = glGetError()) != GL_NO_ERROR) {
 		errString = gluErrorString(errCode);
