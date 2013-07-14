@@ -115,6 +115,7 @@ GLCanvas::GLCanvas(wxWindow *parent, wxWindowID id,
 	this->updateShadeModel = true;
 	this->updateLighting = true;
 	this->active = false;
+	this->checkStereo = true;
 	this->doubleBuffer = doubleBuffer?GL_TRUE:GL_FALSE;
 	this->smooth = smooth?GL_TRUE:GL_FALSE;
 	this->lighting = lighting?GL_TRUE:GL_FALSE;
@@ -157,6 +158,16 @@ void GLCanvas::OnPaint( wxPaintEvent& WXUNUSED(event) )
 	}
 	
     wxGLCanvas::SetCurrent(*this->glContext);
+	
+	// Check if got stereo
+	if(this->stereo && this->checkStereo)
+	{
+		GLboolean  supportsStereo = GL_FALSE;
+		glGetBooleanv(GL_STEREO,&supportsStereo);
+		this->stereo = (supportsStereo == GL_TRUE);
+		wxLogDebug(wxT("Stereo %s"),this->stereo?"enabled":"disabled");
+		this->checkStereo = false;
+	}
 	
 	// check if projection and model view need to be set
 	// This will happen on the first OnPaint after creation or a resize

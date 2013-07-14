@@ -27,6 +27,7 @@ private:
 		bool vboCreated;
 		bool active;
 		bool stereo;
+		bool checkStereo;
 		int numParticles;
 		float aspectRatio;
 		GLboolean doubleBuffer;
