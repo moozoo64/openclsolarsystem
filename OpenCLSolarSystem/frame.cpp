@@ -34,6 +34,7 @@ enum
 	ID_SETDELTATMINUSDAY,
 	ID_SETNUMVSMALL,
 	ID_SETNUMSMALL,
+	ID_SETNUMSMEDIUM,
 	ID_SETNUMMEDIUM,
 	ID_SETNUMLARGE,
 	ID_SETNUMMAX,
@@ -97,6 +98,7 @@ BEGIN_EVENT_TABLE(Frame, wxFrame)
 	EVT_MENU(ID_SETDELTATDAY, Frame::OnSetDeltaTime)
 	EVT_MENU(ID_SETNUMVSMALL, Frame::OnSetNum)
 	EVT_MENU(ID_SETNUMSMALL, Frame::OnSetNum)
+	EVT_MENU(ID_SETNUMSMEDIUM, Frame::OnSetNum)
 	EVT_MENU(ID_SETNUMMEDIUM, Frame::OnSetNum)
 	EVT_MENU(ID_SETNUMLARGE, Frame::OnSetNum)
 	EVT_MENU(ID_SETNUMMAX, Frame::OnSetNum)
@@ -245,6 +247,7 @@ void Frame::InitFrame(bool doubleBuffer, bool smooth, bool lighting, bool stereo
 		wxMenu *menuNum = new wxMenu;
 		menuNum->AppendRadioItem( ID_SETNUMVSMALL, wxT("2560" ));
 		menuNum->AppendRadioItem( ID_SETNUMSMALL, wxT("8192" ));
+		menuNum->AppendRadioItem( ID_SETNUMSMEDIUM, wxT("65536" ));
 		menuNum->AppendRadioItem( ID_SETNUMMEDIUM, wxT("309760" ));
 		menuNum->AppendRadioItem( ID_SETNUMLARGE, wxT("594688" ));
 		menuNum->AppendRadioItem( ID_SETNUMMAX, wxT("Maximum" ));
@@ -773,6 +776,10 @@ void Frame::UpdateMenuItems()
 				menuItem = menuBar->FindItem(ID_SETNUMSMALL);
 				menuItem->Check(true);
 				break;
+			case 256*4*64:
+				menuItem = menuBar->FindItem(ID_SETNUMSMEDIUM);
+				menuItem->Check(true);
+				break;			
 			case 256*1210:
 				menuItem = menuBar->FindItem(ID_SETNUMMEDIUM);
 				menuItem->Check(true);
@@ -901,6 +908,9 @@ void Frame::OnSetNum(wxCommandEvent& event)
 			break;
 		case ID_SETNUMSMALL:
 			this->numParticles = 256*32 < this->initialState->initialNumParticles ? 256*32 : this->initialState->initialNumParticles;
+			break;
+		case ID_SETNUMSMEDIUM:
+			this->numParticles = 256*4*64 < this->initialState->initialNumParticles ? 256*4*64 : this->initialState->initialNumParticles;
 			break;
 		case ID_SETNUMMEDIUM:
 			this->numParticles = 256*1210 < this->initialState->initialNumParticles ? 256*1210 : this->initialState->initialNumParticles;
