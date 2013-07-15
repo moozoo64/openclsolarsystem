@@ -46,7 +46,6 @@ private:
 		bool updateViewPort;
 		bool updateShadeModel;
 		bool updateLighting;
-		float depthZ;
 		double fieldOfViewYAxis;
 		double nearClippingPlane;
 		double farClippingPlane;

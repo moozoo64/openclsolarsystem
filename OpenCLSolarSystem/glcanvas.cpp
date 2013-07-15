@@ -106,7 +106,7 @@ GLCanvas::GLCanvas(wxWindow *parent, wxWindowID id,
 	this->yrot = 0.0f;
 	this->xDist = 0.0f;
 	this->yDist = 0.0f;
-	this->zDist = -2600.0f;
+	this->zDist = -2610.0f;
 	this->vbo[0] = 0;
 	this->vbo[1] = 0;
 	this->vboCreated = false;
@@ -122,9 +122,8 @@ GLCanvas::GLCanvas(wxWindow *parent, wxWindowID id,
 	this->stereo = stereo;
 	this->aspectRatio = 16.0f/9.0f;
 	this->fieldOfViewYAxis = 45;
-	this->nearClippingPlane = 1000.0;
+	this->nearClippingPlane = 0.5;
 	this->farClippingPlane = 600000.0;
-	this->depthZ = -10;
 	this->screenProjectionPlane = 2600.0;
 	this->intraocularDistance = 400.0f;
 }
@@ -145,8 +144,6 @@ void GLCanvas::OnPaint( wxPaintEvent& WXUNUSED(event) )
 
 	GLenum errCode;
 	const GLubyte *errString;
-	float eyeOffset=0.0f;
-
 	if(!IsShown() || !this->active)
 	{
 		return;
@@ -238,7 +235,9 @@ void GLCanvas::OnPaint( wxPaintEvent& WXUNUSED(event) )
 				glLoadIdentity();
 				glDrawBuffer(GL_BACK_RIGHT);
 			}
-		}else{
+		}
+		else
+		{
 				wxLogDebug(wxT("Center Camera"));
 				glMatrixMode(GL_PROJECTION);
 				glLoadIdentity();
@@ -249,7 +248,7 @@ void GLCanvas::OnPaint( wxPaintEvent& WXUNUSED(event) )
 		}
 		
 		glPushMatrix();
-		glTranslatef( this->xDist + eyeOffset, this->yDist, this->zDist);
+		glTranslatef( this->xDist, this->yDist, this->zDist);
 		glRotatef( this->yrot, 0.0f, 1.0f, 0.0f );
 		glRotatef( this->xrot, 1.0f, 0.0f, 0.0f );
 
@@ -286,7 +285,6 @@ void GLCanvas::OnPaint( wxPaintEvent& WXUNUSED(event) )
 		glDisableClientState(GL_VERTEX_ARRAY);
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
-
 		glPopMatrix();
 	}
 
@@ -370,17 +368,9 @@ void GLCanvas::SetupProjectionAndModelView()
         width = 1.0;
     }
 	this->aspectRatio = width/height;
-	
-/*	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glFrustum( -width/10.0, width/10.0, -height/10.0, height/10.0, 5.0, 600000.0 );
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	glTranslatef( 0.0, 0.0, -30000.0f );
-*/	
 	this->SetFrustum();
 	this->updateViewPort = false;
+	
 	if ((errCode = glGetError()) != GL_NO_ERROR) {
 		errString = gluErrorString(errCode);
 		wxLogError(wxT("GLCanvas::SetupProjectionAndModelView Fatal OpenGL Error: %s"), errString);
@@ -440,11 +430,13 @@ void GLCanvas::OnChar(wxKeyEvent& event)
 			break;
 
 		case 'z':
-			this->zDist += 1000.0f;
+			this->zDist += 10.0f;
+			wxLogDebug(wxT("GLCanvas::OnChar zDist %f"),this->zDist);
 			break;
 			
 		case 'Z':
-			this->zDist += -1000.0f;
+			this->zDist += -10.0f;
+			wxLogDebug(wxT("GLCanvas::OnChar zDist %f"),this->zDist);
 			break;
 			
 		case 'c':
@@ -459,6 +451,26 @@ void GLCanvas::OnChar(wxKeyEvent& event)
 			this->xDist = 0.0f;
 			this->xrot = 0.0f;
 			this->yrot = 0.0f;
+			this->zDist = -2600.0f;
+			this->fieldOfViewYAxis = 45;
+			this->nearClippingPlane = 1000.0;
+			this->farClippingPlane = 600000.0;
+			this->screenProjectionPlane = 2600.0;
+			this->intraocularDistance = 400.0f;
+			break;
+
+		case 't':
+			this->zDist = this->zDist*0.1;
+			//this->screenProjectionPlane = - this->zDist;
+			this->nearClippingPlane = -this->zDist/2.0;
+			wxLogDebug(wxT("GLCanvas::OnChar zDist %f, nearClippingPlane %f, screenProjectionPlane %f"),this->zDist,this->nearClippingPlane,this->screenProjectionPlane);
+			break;
+			
+		case 'T':
+			this->zDist = this->zDist*10.0;
+			//this->screenProjectionPlane = -this->zDist;
+			this->nearClippingPlane = -this->zDist/2.0;
+			wxLogDebug(wxT("GLCanvas::OnChar zDist %f, nearClippingPlane %f, screenProjectionPlane %f"),this->zDist,this->nearClippingPlane,this->screenProjectionPlane);
 			break;
 			
 		case 'i':
@@ -470,6 +482,19 @@ void GLCanvas::OnChar(wxKeyEvent& event)
 			this->intraocularDistance += -100.0f;
 			this->intraocularDistance = (this->intraocularDistance < 0) ? 0 : this->intraocularDistance;
 			this->updateFrustum = true;
+			break;
+			
+		case 'n':
+			this->nearClippingPlane = this->nearClippingPlane*0.1f;
+			this->updateFrustum = true;
+			wxLogDebug(wxT("GLCanvas::OnChar nearClippingPlane %f"),this->nearClippingPlane);
+			break;
+			
+		case 'N':
+			this->nearClippingPlane = this->nearClippingPlane*10.0f;
+			this->nearClippingPlane = (this->nearClippingPlane < 0) ? 0 : this->nearClippingPlane;
+			this->updateFrustum = true;
+			wxLogDebug(wxT("GLCanvas::OnChar nearClippingPlane %f"),this->nearClippingPlane);
 			break;
 
 		default:
