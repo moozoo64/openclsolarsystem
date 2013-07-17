@@ -96,6 +96,7 @@ bool CLModel::FindDeviceAndCreateContext(cl_uint desiredDeviceVendorId, cl_devic
 	cl_device_id *deviceIds = NULL;
 	char *extensions = NULL;
 	char *deviceName = NULL;
+	char *deviceCLVersion = NULL;
 	cl_device_id *contextDeviceIds = NULL;
 	
 	try
@@ -256,7 +257,57 @@ bool CLModel::FindDeviceAndCreateContext(cl_uint desiredDeviceVendorId, cl_devic
 		this->deviceName = new wxString(deviceName,wxConvUTF8);
 		delete[] deviceName;
 		deviceName = NULL;
+	
+		size_t deviceCLVersionSize;
+		status = clGetDeviceInfo(this->deviceId, CL_DEVICE_VERSION, 0, NULL, &deviceCLVersionSize);
+		if( status != CL_SUCCESS)
+		{
+			wxLogError(wxT("clGetDeviceInfo failed to get CL_DEVICE_VERSION %s"),this->ErrorMessage(status));
+			throw status;
+		}
 		
+		// Get the device name
+		deviceCLVersion = new char[deviceCLVersionSize/sizeof(char)];
+		status = clGetDeviceInfo(this->deviceId, CL_DEVICE_VERSION, deviceCLVersionSize, deviceCLVersion, NULL);
+		if( status != CL_SUCCESS)
+		{
+			wxLogError(wxT("clGetDeviceInfo failed to get CL_DEVICE_VERSION %s"),this->ErrorMessage(status));
+			throw status;
+		}
+		
+		this->deviceCLVersion = new wxString(deviceCLVersion,wxConvUTF8);
+		delete[] deviceCLVersion;
+		deviceCLVersion = NULL;
+		
+		// Format of CL_DEVICE_VERSION is OpenCL<space><major_version.minor_version><space><vendor-specific information>
+		// Parse it and extract the major.minor version number as a double
+		if(this->deviceCLVersion!= NULL && this->deviceCLVersion->length()>0)
+		{
+			wxStringTokenizer *lineTokenizer = new wxStringTokenizer(this->deviceCLVersion->c_str());
+			if(lineTokenizer->HasMoreTokens())
+			{
+				// Skip "OpenCL"
+				lineTokenizer->GetNextToken();
+				if(lineTokenizer->HasMoreTokens())
+				{
+					wxString version = lineTokenizer->GetNextToken();
+					
+					if(!version.ToDouble(&(this->deviceCLVersionNumber)))
+					{
+						wxLogDebug(wxT("Invalid version number %s"), version);
+						this->deviceCLVersionNumber = 1.2;
+					}
+				}
+				else
+				{
+					wxLogDebug(wxT("Expected <major_version.minor_version> in CL_DEVICE_VERSION"));
+				}
+			}
+			else
+			{
+				wxLogDebug(wxT("Expected OpenCL<space> in CL_DEVICE_VERSION"));
+			}
+		}
 		// Get Extensions
 		this->gotKhrFp64 = false;
 		this->gotAmdFp64 =false;
@@ -830,11 +881,23 @@ void CLModel::ExecuteKernels()
 		throw status;
 	}
 	
-	status = clEnqueueBarrierWithWaitList(this->commandQueue,0,NULL,NULL);
-	if( status != CL_SUCCESS)
+	if(this->deviceCLVersionNumber >= 1.2)
 	{
-		wxLogError(wxT("clFinish failed %s"),this->ErrorMessage(status));
-		throw status;
+		status = clEnqueueBarrierWithWaitList(this->commandQueue,0,NULL,NULL);
+		if( status != CL_SUCCESS)
+		{
+			wxLogError(wxT("clFinish failed %s"),this->ErrorMessage(status));
+			throw status;
+		}
+	}
+	else
+	{
+		status = clEnqueueBarrier(this->commandQueue);
+		if( status != CL_SUCCESS)
+		{
+			wxLogError(wxT("clEnqueueBarrier failed %s"),this->ErrorMessage(status));
+			throw status;
+		}
 	}
 	
 	wxLogDebug(wxT("CLModel::ExecuteKernels clFinish()"));
@@ -936,11 +999,23 @@ void CLModel::ExecuteKernels()
 		throw status;
 	}
 	
-	status = clEnqueueBarrierWithWaitList(this->commandQueue,0,NULL,NULL);
-	if( status != CL_SUCCESS)
+	if(this->deviceCLVersionNumber >= 1.2)
 	{
-		wxLogError(wxT("clFinish failed %s"),this->ErrorMessage(status));
-		throw status;
+		status = clEnqueueBarrierWithWaitList(this->commandQueue,0,NULL,NULL);
+		if( status != CL_SUCCESS)
+		{
+			wxLogError(wxT("clFinish failed %s"),this->ErrorMessage(status));
+			throw status;
+		}
+	}
+	else
+	{
+		status = clEnqueueBarrier(this->commandQueue);
+		if( status != CL_SUCCESS)
+		{
+			wxLogError(wxT("clEnqueueBarrier failed %s"),this->ErrorMessage(status));
+			throw status;
+		}
 	}
 	
 	wxLogDebug(wxT("CLModel::ExecuteKernels clFinish()"));
@@ -968,11 +1043,23 @@ void CLModel::ExecuteKernels()
 		throw status;
 	}
 
-	status = clEnqueueBarrierWithWaitList(this->commandQueue,0,NULL,NULL);
-	if ( status != CL_SUCCESS)
+	if(this->deviceCLVersionNumber >= 1.2)
 	{
-		wxLogError(wxT("clFinish failed %s"),this->ErrorMessage(status));
-		throw status;
+		status = clEnqueueBarrierWithWaitList(this->commandQueue,0,NULL,NULL);
+		if( status != CL_SUCCESS)
+		{
+			wxLogError(wxT("clFinish failed %s"),this->ErrorMessage(status));
+			throw status;
+		}
+	}
+	else
+	{
+		status = clEnqueueBarrier(this->commandQueue);
+		if( status != CL_SUCCESS)
+		{
+			wxLogError(wxT("clEnqueueBarrier failed %s"),this->ErrorMessage(status));
+			throw status;
+		}
 	}
 	
 	wxLogDebug(wxT("CLModel::ExecuteKernels clFinish()"));

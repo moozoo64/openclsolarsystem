@@ -33,10 +33,12 @@ class CLModel
 		void RequestUpdate();
 		wxString ErrorMessage(cl_int status);
 		wxString *deviceName;
+		wxString *deviceCLVersion;
 		wxString *platformName;
 		wxString *adamsBashforthKernelName; //Bashforth
 		wxString *adamsMoultonKernelName;
 		wxString *accelerationKernelName;
+		double deviceCLVersionNumber;
 		cl_double delT;                      /**< dT (timestep) */
 		cl_double espSqr;                    /**< Softening Factor*/
 		cl_double julianDate;
