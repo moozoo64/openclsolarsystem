@@ -308,6 +308,9 @@ bool CLModel::FindDeviceAndCreateContext(cl_uint desiredDeviceVendorId, cl_devic
 				wxLogDebug(wxT("Expected OpenCL<space> in CL_DEVICE_VERSION"));
 			}
 		}
+		
+		//this->deviceCLVersionNumber = 1.1;
+		
 		// Get Extensions
 		this->gotKhrFp64 = false;
 		this->gotAmdFp64 =false;
