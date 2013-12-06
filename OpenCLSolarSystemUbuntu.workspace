@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CodeLite_Workspace Name="OpenCLSolarSystem" Database="./OpenCLSolarSystem.tags">
-  <Project Name="OpenCLSolarSystem" Path="OpenCLSolarSystem/OpenCLSolarSystem.project" Active="Yes"/>
+  <Project Name="OpenCLSolarSystem" Path="OpenCLSolarSystem/OpenCLSolarSystemUbuntu.project" Active="Yes"/>
   <BuildMatrix>
     <WorkspaceConfiguration Name="Debug" Selected="no">
       <Project Name="OpenCLSolarSystem" ConfigName="Debug"/>
