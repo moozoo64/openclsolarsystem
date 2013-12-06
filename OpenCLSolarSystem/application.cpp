@@ -84,9 +84,12 @@ Application::Application()
 	this->useLastDevice = true;
 	this->tryForCPUFirst = false;
 	this->desiredPlatform = NULL;
-	
+
+#ifdef _WIN32
 	// Attach the Console so that opencl printf's will go to it. 
 	AttachConsole((DWORD)-1);
+#endif	
+
 }
 
 // `Main program' equivalent, creating windows and returning main app frame

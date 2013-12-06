@@ -49,7 +49,9 @@
         <LibraryPath Value="/SDK/Khronos/opencl1.2/lib/"/>
         <LibraryPath Value="/SDK/glew-1.9.0/lib"/>
         <Library Value="OpenCL"/>
-        <Library Value="glew32"/>
+        <Library Value="GL"/>
+        <Library Value="GLEW"/>
+        <Library Value="GLU"/>
       </Linker>
       <ResourceCompiler Options="$(shell wx-config --rcflags)" Required="no"/>
       <General OutputFile="$(IntermediateDirectory)/$(ProjectName)" IntermediateDirectory="./Debug" Command="./$(ProjectName)" CommandArguments="-amd" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="yes"/>
@@ -62,8 +64,8 @@
         <StartupCommands/>
       </Debugger>
       <PreBuild>
-        <Command Enabled="yes">copy adamsfma.cl $(ConfigurationName)</Command>
-        <Command Enabled="yes">copy astrorbsolexsmall.slf $(ConfigurationName)</Command>
+        <Command Enabled="yes">cp adamsfma.cl $(ConfigurationName)</Command>
+        <Command Enabled="yes">cp astrorbsolexsmall.slf $(ConfigurationName)</Command>
       </PreBuild>
       <PostBuild/>
       <CustomBuild Enabled="no">
@@ -96,7 +98,9 @@
         <LibraryPath Value="/SDK/Khronos/opencl1.2/lib/"/>
         <LibraryPath Value="/SDK/glew-1.9.0/lib"/>
         <Library Value="OpenCL"/>
-        <Library Value="glew32"/>
+        <Library Value="GL"/>
+        <Library Value="GLEW"/>
+        <Library Value="GLU"/>
       </Linker>
       <ResourceCompiler Options="$(shell wx-config --rcflags)" Required="no"/>
       <General OutputFile="$(IntermediateDirectory)/$(ProjectName)" IntermediateDirectory="./Release" Command="./$(ProjectName)" CommandArguments="-amd" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="yes"/>
@@ -109,8 +113,8 @@
         <StartupCommands/>
       </Debugger>
       <PreBuild>
-        <Command Enabled="yes">copy adamsfma.cl $(ConfigurationName)</Command>
-        <Command Enabled="yes">copy astrorbsolexsmall.slf $(ConfigurationName)</Command>
+        <Command Enabled="yes">cp adamsfma.cl $(ConfigurationName)</Command>
+        <Command Enabled="yes">cp astrorbsolexsmall.slf $(ConfigurationName)</Command>
       </PreBuild>
       <PostBuild/>
       <CustomBuild Enabled="no">

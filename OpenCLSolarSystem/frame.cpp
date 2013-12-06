@@ -195,7 +195,9 @@ void Frame::InitFrame(bool doubleBuffer, bool smooth, bool lighting, bool stereo
 		this->numParticles = this->numParticles > this->initialState->initialNumParticles ? this->initialState->initialNumParticles : this->numParticles;
 		
 		// Give it an icon
+#ifdef _WIN32
 		this->SetIcon(wxICON(sample));
+#endif
 	
 		// Create a menu that lets the user save, load and exit
 		wxMenu *menuFile = new wxMenu;

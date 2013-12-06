@@ -15,11 +15,20 @@
 */
 #include "wx/wxprec.h"
 #ifndef WX_PRECOMP
+
 //#define GLEW_STATIC
 #include <GL/glew.h>
 
 #ifdef __BORLANDC__
 #pragma hdrstop
+#endif
+
+#ifdef _WIN32
+#include <GL/wglew.h>
+#endif
+
+#ifdef __linux__
+#include <GL/glxew.h>
 #endif
 
 #include "wx/wx.h"
@@ -36,15 +45,6 @@
 #include <wx/txtstrm.h>
 #include <wx/filedlg.h>
 #include <wx/config.h>
-
-
-#ifdef _WIN32
-#include <GL/wglew.h>
-#endif
-
-#ifdef __linux__
-#include <GL/glxew.h>
-#endif
 
 #endif
 
