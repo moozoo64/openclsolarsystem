@@ -23,13 +23,9 @@
 #pragma hdrstop
 #endif
 
-#ifdef _WIN32
-#include <GL/wglew.h>
-#endif
-
 #ifdef __linux__
 #include <GL/glxew.h>
-#endif
+#endif 
 
 #include "wx/wx.h"
 #include "wx/timer.h"
@@ -45,6 +41,11 @@
 #include <wx/txtstrm.h>
 #include <wx/filedlg.h>
 #include <wx/config.h>
+
+#ifdef _WIN32
+#include <GL/wglew.h>
+#endif
+
 
 #endif
 
