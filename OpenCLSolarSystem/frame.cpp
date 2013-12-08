@@ -559,7 +559,11 @@ void Frame::Stop()
 void Frame::Start()
 {
 	this->runOnIdle = true;
+
+#ifdef _WIN32
 	this->timer->Start(1,false);
+#endif
+
 	this->stopWatch.Start(0);
 }
 
