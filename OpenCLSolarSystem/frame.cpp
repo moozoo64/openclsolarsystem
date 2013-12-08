@@ -676,7 +676,7 @@ void Frame::OnSetCenter(wxCommandEvent& event)
 void Frame::OnSaveInitialState(wxCommandEvent& event)
 {
 	wxLogDebug(wxT("Saving"));
-	wxFileDialog fileDialog(this, wxT("Choose Save file"), wxT(""), wxT(""), wxT("*.bin"), wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+	wxFileDialog fileDialog(this, wxT("Choose Save file"), wxT(""), wxT(""), wxT("*.bin;*.BIN"), wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
 	if(fileDialog.ShowModal() == wxID_OK)
 	{
 		this->initialState->SaveInitialState(fileDialog.GetPath());
@@ -686,7 +686,7 @@ void Frame::OnSaveInitialState(wxCommandEvent& event)
 void Frame::OnExportSlf(wxCommandEvent& event)
 {
 	wxLogDebug(wxT("Exporting to SLF file"));
-	wxFileDialog fileDialog(this, wxT("Choose Save file"), wxT(""), wxT(""), wxT("*.slf"), wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+	wxFileDialog fileDialog(this, wxT("Choose Save file"), wxT(""), wxT(""), wxT("*.slf;*.SLF"), wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
 	if(fileDialog.ShowModal() == wxID_OK)
 	{
 		this->initialState->ExportSLF(fileDialog.GetPath());
@@ -699,7 +699,7 @@ void Frame::OnLoadInitialState(wxCommandEvent& event)
 	wxLogDebug(wxT("Frame::LoadInitialState"));
 	this->Stop();
 	wxLogDebug(wxT("Loading"));
-	wxFileDialog fileDialog(this, wxT("Choose file"), wxT(""), wxT(""), wxT("*.bin"), wxFD_OPEN || wxFD_FILE_MUST_EXIST);
+	wxFileDialog fileDialog(this, wxT("Choose file"), wxT(""), wxT(""), wxT("*.bin;*.BIN"), wxFD_OPEN || wxFD_FILE_MUST_EXIST);
 	if(fileDialog.ShowModal() == wxID_OK)
 	{		
 		if(this->initialState->LoadInitialState(fileDialog.GetPath()))
@@ -853,7 +853,7 @@ void Frame::UpdateMenuItems()
 void Frame::OnImportSlf( wxCommandEvent& WXUNUSED(event) )
 {
 	wxLogDebug(wxT("Importing Solex SFL file"));
-	wxFileDialog fileDialog(this, wxT("Choose Solex SLF file to Import"), wxT(""), wxT(""), wxT("*.SLF"), wxFD_OPEN);
+	wxFileDialog fileDialog(this, wxT("Choose Solex SLF file to Import"), wxT(""), wxT(""), wxT("*.SLF;*.slf"), wxFD_OPEN);
 	if(fileDialog.ShowModal() == wxID_OK)
 	{
 		if(this->initialState->ImportSLF(fileDialog.GetPath()))
