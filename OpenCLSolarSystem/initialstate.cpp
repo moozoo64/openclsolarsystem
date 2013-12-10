@@ -34,25 +34,25 @@ InitialState::~InitialState()
 // Deallocate the arrays
 void InitialState::DeAllocate()
 {
-	if(this->physicalProperties != NULL)
+	if( this->physicalProperties != NULL )
 	{
 		delete[] this->physicalProperties;
 		this->physicalProperties = NULL;
 	}
-	
-	if(this->initialVelocities != NULL)
+
+	if( this->initialVelocities != NULL )
 	{
 		delete[] this->initialVelocities;
 		this->initialVelocities = NULL;
 	}
 
-	if(this->initialPositions != NULL)
+	if( this->initialPositions != NULL )
 	{
 		delete[] this->initialPositions;
 		this->initialPositions = NULL;
 	}
-	
-	if(this->initialColorData != NULL)
+
+	if( this->initialColorData != NULL )
 	{
 		delete[] this->initialColorData;
 		this->initialColorData = NULL;
@@ -62,41 +62,41 @@ void InitialState::DeAllocate()
 // Allocate the arrays
 bool InitialState::Allocate()
 {
-	if(this->initialNumParticles == 0)
+	if( this->initialNumParticles == 0 )
 	{
-		wxLogError(wxT("initialNumParticles is zero"));
+		wxLogError( wxT( "initialNumParticles is zero" ) );
 		throw -1;
 	}
-	
+
 	this->initialVelocities = new cl_double4[this->initialNumParticles];
-	if(this->initialVelocities == NULL)
+	if( this->initialVelocities == NULL )
 	{
-		wxLogError(wxT("Failed to Allocate initalVelocity"));
+		wxLogError( wxT( "Failed to Allocate initalVelocity" ) );
 		throw -1;
 	}
 
 	this->initialPositions = new cl_double4[this->initialNumParticles];
-	if(this->initialPositions == NULL)
+	if( this->initialPositions == NULL )
 	{
-		wxLogError(wxT("Failed to Allocate initalPositions"));
+		wxLogError( wxT( "Failed to Allocate initalPositions" ) );
 		throw -1;
 	}
-	
-	unsigned int colorSize = this->initialNumParticles * 4 * sizeof(GLubyte);
+
+	unsigned int colorSize = this->initialNumParticles * 4 * sizeof( GLubyte );
 	this->initialColorData = new GLubyte [colorSize];
-	if(this->initialColorData == NULL)
+	if( this->initialColorData == NULL )
 	{
-		wxLogError(wxT("Failed to Allocate initialColorData"));
+		wxLogError( wxT( "Failed to Allocate initialColorData" ) );
 		throw -1;
 	}
-	
+
 	this->physicalProperties = new PhysicalProperties[this->initialNumParticles];
-	if(this->physicalProperties == NULL)
+	if( this->physicalProperties == NULL )
 	{
-		wxLogError(wxT("Failed to Allocate physicalProperties"));
+		wxLogError( wxT( "Failed to Allocate physicalProperties" ) );
 		throw -1;
 	}
-	
+
 	return true;
 }
 
@@ -106,149 +106,169 @@ unsigned long InitialState::xor128()
 {
 	static unsigned long x=123456789,y=362436069,z=521288629,w=88675123;
 	unsigned long t;
-	t=(x^(x<<11));
+	t=( x^( x<<11 ) );
 	x=y;
 	y=z;
 	z=w;
-	return(w=(w^(w>>19))^(t^(t>>8)));
+	return( w=( w^( w>>19 ) )^( t^( t>>8 ) ) );
 }
 
 // set the colour of the bodies based on name and if its mass is being used.
 void InitialState::SetDefaultBodyColours()
 {
-	if(this->physicalProperties == NULL || this->initialColorData == NULL)
+	if( this->physicalProperties == NULL || this->initialColorData == NULL )
 	{
-		wxLogDebug(wxT("SetDefaultBodyColours called with physicalProperties or initialColorData NULL "));
+		wxLogDebug( wxT( "SetDefaultBodyColours called with physicalProperties or initialColorData NULL " ) );
 		return;
 	}
-	
-	for(int i=0; i<this->initialNumParticles; i++)
+
+	for( int i=0; i<this->initialNumParticles; i++ )
 	{
-		wxString name = wxString(this->physicalProperties[i].Name);
-		
-		if(i > this->initialNumGrav)
+		wxString name = wxString( this->physicalProperties[i].Name );
+
+		if( i > this->initialNumGrav )
 		{
 			this->initialColorData[i*4+0] = 64;
 			this->initialColorData[i*4+1] = 64;
 			this->initialColorData[i*4+2] = 92;
 			this->initialColorData[i*4+3] = 128;
-		}else if(name.IsSameAs(wxT("Sun"),false))
+		}
+		else if( name.IsSameAs( wxT( "Sun" ),false ) )
 		{
 			this->initialColorData[i*4+0] = 255;
 			this->initialColorData[i*4+1] = 255;
 			this->initialColorData[i*4+2] = 255;
 			this->initialColorData[i*4+3] = 255;
-		}else if(name.IsSameAs(wxT("RogueStar"),false))
+		}
+		else if( name.IsSameAs( wxT( "RogueStar" ),false ) )
 		{
 			this->initialColorData[i*4+0] = 255;
 			this->initialColorData[i*4+1] = 255;
 			this->initialColorData[i*4+2] = 255;
 			this->initialColorData[i*4+3] = 255;
-		}else if(name.IsSameAs(wxT("RogueDwarf"),false))
+		}
+		else if( name.IsSameAs( wxT( "RogueDwarf" ),false ) )
 		{
 			this->initialColorData[i*4+0] = 255;
 			this->initialColorData[i*4+1] = 192;
 			this->initialColorData[i*4+2] = 192;
 			this->initialColorData[i*4+3] = 255;
-		}else if(name.IsSameAs(wxT("RoguePlanet"),false))
+		}
+		else if( name.IsSameAs( wxT( "RoguePlanet" ),false ) )
 		{
 			this->initialColorData[i*4+0] = 255;
 			this->initialColorData[i*4+1] = 255;
 			this->initialColorData[i*4+2] = 128;
 			this->initialColorData[i*4+3] = 255;
-		}else if(name.IsSameAs(wxT("Mercury"),false))
+		}
+		else if( name.IsSameAs( wxT( "Mercury" ),false ) )
 		{
 			this->initialColorData[i*4+0] = 255;
 			this->initialColorData[i*4+1] = 128;
 			this->initialColorData[i*4+2] = 128;
 			this->initialColorData[i*4+3] = 255;
-		}else if(name.IsSameAs(wxT("Venus")))
+		}
+		else if( name.IsSameAs( wxT( "Venus" ) ) )
 		{
 			this->initialColorData[i*4+0] = 192;
 			this->initialColorData[i*4+1] = 192;
 			this->initialColorData[i*4+2] = 192;
 			this->initialColorData[i*4+3] = 255;
-		}else if(name.IsSameAs(wxT("Earth")))
+		}
+		else if( name.IsSameAs( wxT( "Earth" ) ) )
 		{
 			this->initialColorData[i*4+0] = 64;
 			this->initialColorData[i*4+1] = 128;
 			this->initialColorData[i*4+2] = 255;
 			this->initialColorData[i*4+3] = 255;
-			
-		}else if(name.IsSameAs(wxT("Moon")))
+
+		}
+		else if( name.IsSameAs( wxT( "Moon" ) ) )
 		{
 			this->initialColorData[i*4+0] = 128;
 			this->initialColorData[i*4+1] = 128;
 			this->initialColorData[i*4+2] = 128;
 			this->initialColorData[i*4+3] = 255;
-			
-		}else if(name.IsSameAs(wxT("Mars")))
+
+		}
+		else if( name.IsSameAs( wxT( "Mars" ) ) )
 		{
 			this->initialColorData[i*4+0] = 255;
 			this->initialColorData[i*4+1] = 64;
 			this->initialColorData[i*4+2] = 64;
 			this->initialColorData[i*4+3] = 255;
-		}else if(name.IsSameAs(wxT("Jupiter")))
+		}
+		else if( name.IsSameAs( wxT( "Jupiter" ) ) )
 		{
 			this->initialColorData[i*4+0] = 255;
 			this->initialColorData[i*4+1] = 255;
 			this->initialColorData[i*4+2] = 128;
 			this->initialColorData[i*4+3] = 255;
-		}else if(name.IsSameAs(wxT("Saturn")))
+		}
+		else if( name.IsSameAs( wxT( "Saturn" ) ) )
 		{
 			this->initialColorData[i*4+0] = 255;
 			this->initialColorData[i*4+1] = 255;
 			this->initialColorData[i*4+2] = 128;
 			this->initialColorData[i*4+3] = 255;
-		}else if(name.IsSameAs(wxT("Uranus")))
+		}
+		else if( name.IsSameAs( wxT( "Uranus" ) ) )
 		{
 			this->initialColorData[i*4+0] = 128;
 			this->initialColorData[i*4+1] = 128;
 			this->initialColorData[i*4+2] = 255;
 			this->initialColorData[i*4+3] = 255;
-		}else if(name.IsSameAs(wxT("Neptune")))
+		}
+		else if( name.IsSameAs( wxT( "Neptune" ) ) )
 		{
 			this->initialColorData[i*4+0] = 128;
 			this->initialColorData[i*4+1] = 128;
 			this->initialColorData[i*4+2] = 255;
 			this->initialColorData[i*4+3] = 255;
-		}else if(name.IsSameAs(wxT("Pluto")))
+		}
+		else if( name.IsSameAs( wxT( "Pluto" ) ) )
 		{
 			this->initialColorData[i*4+0] = 128;
 			this->initialColorData[i*4+1] = 128;
 			this->initialColorData[i*4+2] = 128;
 			this->initialColorData[i*4+3] = 255;
-		}else if(name.IsSameAs(wxT("Ceres")))
+		}
+		else if( name.IsSameAs( wxT( "Ceres" ) ) )
 		{
 			this->initialColorData[i*4+0] = 128;
 			this->initialColorData[i*4+1] = 128;
 			this->initialColorData[i*4+2] = 255;
 			this->initialColorData[i*4+3] = 255;
-		}else if(name.IsSameAs(wxT("Pallas")))
+		}
+		else if( name.IsSameAs( wxT( "Pallas" ) ) )
 		{
 			this->initialColorData[i*4+0] = 128;
 			this->initialColorData[i*4+1] = 128;
 			this->initialColorData[i*4+2] = 255;
 			this->initialColorData[i*4+3] = 255;
-		}else if(name.IsSameAs(wxT("Vesta")))
+		}
+		else if( name.IsSameAs( wxT( "Vesta" ) ) )
 		{
 			this->initialColorData[i*4+0] = 128;
 			this->initialColorData[i*4+1] = 128;
 			this->initialColorData[i*4+2] = 255;
 			this->initialColorData[i*4+3] = 255;
-		}else if(name.IsSameAs(wxT("Juno")))
+		}
+		else if( name.IsSameAs( wxT( "Juno" ) ) )
 		{
 			this->initialColorData[i*4+0] = 128;
 			this->initialColorData[i*4+1] = 128;
 			this->initialColorData[i*4+2] = 255;
 			this->initialColorData[i*4+3] = 255;
-		}else if(name.IsSameAs(wxT("C2013A1")))
+		}
+		else if( name.IsSameAs( wxT( "C2013A1" ) ) )
 		{
 			this->initialColorData[i*4+0] = 128;
 			this->initialColorData[i*4+1] = 128;
 			this->initialColorData[i*4+2] = 128;
 			this->initialColorData[i*4+3] = 255;
-		}else
+		}
+		else
 		{
 			this->initialColorData[i*4+0] = 128;
 			this->initialColorData[i*4+1] = 128;
@@ -259,68 +279,69 @@ void InitialState::SetDefaultBodyColours()
 }
 
 // write the initial state out to a file in binary format
-bool InitialState::SaveInitialState(wxString fileName)
+bool InitialState::SaveInitialState( wxString fileName )
 {
 	bool success = false;
 	try
 	{
 		wxFile stateFile;
 		stateFile.ClearLastError();
-		stateFile.Create(fileName,true);
-		stateFile.Write(&this->initialNumParticles,sizeof(int));
-		stateFile.Write(&this->initialNumGrav,sizeof(int));
-		stateFile.Write(&this->initialJulianDate,sizeof(cl_double));
-		stateFile.Write(this->initialPositions,this->initialNumParticles * sizeof(cl_double4));
-		stateFile.Write(this->initialVelocities,this->initialNumParticles * sizeof(cl_double4));
-		stateFile.Write(this->initialColorData,this->initialNumParticles * 4 * sizeof(GLubyte));
-		stateFile.Write(this->physicalProperties,this->initialNumParticles * sizeof(PhysicalProperties));
+		stateFile.Create( fileName,true );
+		stateFile.Write( &this->initialNumParticles,sizeof( int ) );
+		stateFile.Write( &this->initialNumGrav,sizeof( int ) );
+		stateFile.Write( &this->initialJulianDate,sizeof( cl_double ) );
+		stateFile.Write( this->initialPositions,this->initialNumParticles * sizeof( cl_double4 ) );
+		stateFile.Write( this->initialVelocities,this->initialNumParticles * sizeof( cl_double4 ) );
+		stateFile.Write( this->initialColorData,this->initialNumParticles * 4 * sizeof( GLubyte ) );
+		stateFile.Write( this->physicalProperties,this->initialNumParticles * sizeof( PhysicalProperties ) );
 		stateFile.Close();
-		if(stateFile.GetLastError() != 0)
+		if( stateFile.GetLastError() != 0 )
 		{
 			success = false;
-			wxLogError(wxT("Save Failed"));
+			wxLogError( wxT( "Save Failed" ) );
 		}
 		else
 		{
 			success = true;
 		}
-		
-	}catch(int e)
+
+	}
+	catch( int e )
 	{
 		success = false;
-		wxLogError(wxT("Save Failed"));
+		wxLogError( wxT( "Save Failed" ) );
 	}
-	
+
 	return success;
 }
 
 // loads the initial state in binary format from a file
-bool InitialState::LoadInitialState(wxString fileName)
+bool InitialState::LoadInitialState( wxString fileName )
 {
 	wxFile stateFile;
 	bool success = false;
-	
-	if(stateFile.Open(fileName))
+
+	if( stateFile.Open( fileName ) )
 	{
-		stateFile.Read(&this->initialNumParticles,sizeof(int));
-		stateFile.Read(&this->initialNumGrav,sizeof(int));
-		stateFile.Read(&this->initialJulianDate,sizeof(cl_double));
-		
+		stateFile.Read( &this->initialNumParticles,sizeof( int ) );
+		stateFile.Read( &this->initialNumGrav,sizeof( int ) );
+		stateFile.Read( &this->initialJulianDate,sizeof( cl_double ) );
+
 		this->DeAllocate();
-		if(!this->Allocate())
+		if( !this->Allocate() )
 		{
+			wxLogError( wxT( "InitialState::LoadInitialState Allocate Failed" ) );
 			throw -1;
-			wxLogError(wxT("InitialState::LoadInitialState Allocate Failed"));
 		}
 
-		stateFile.Read(this->initialPositions,this->initialNumParticles * sizeof(cl_double4));
-		stateFile.Read(this->initialVelocities,this->initialNumParticles * sizeof(cl_double4));
-		stateFile.Read(this->initialColorData,this->initialNumParticles * 4 * sizeof(GLubyte));
-		stateFile.Read(this->physicalProperties,this->initialNumParticles * sizeof(PhysicalProperties));
+		stateFile.Read( this->initialPositions,this->initialNumParticles * sizeof( cl_double4 ) );
+		stateFile.Read( this->initialVelocities,this->initialNumParticles * sizeof( cl_double4 ) );
+		stateFile.Read( this->initialColorData,this->initialNumParticles * 4 * sizeof( GLubyte ) );
+		stateFile.Read( this->physicalProperties,this->initialNumParticles * sizeof( PhysicalProperties ) );
 		stateFile.Close();
-		if(stateFile.GetLastError() != 0)
+		if( stateFile.GetLastError() != 0 )
 		{
-			wxLogError(wxT("InitialState::LoadInitialState Load Failed"));
+			wxLogError( wxT( "InitialState::LoadInitialState Load Failed" ) );
 			success = false;
 		}
 		else
@@ -332,41 +353,41 @@ bool InitialState::LoadInitialState(wxString fileName)
 }
 
 // Exports the initial state in Solex SLF file format
-bool InitialState::ExportSLF(wxString fileName)
+bool InitialState::ExportSLF( wxString fileName )
 {
 	wxString message;
-	message.Printf("Saving %s",fileName.c_str());
-	wxProgressDialog progressBar(message, wxT("Saving"), this->initialNumParticles, NULL, wxPD_AUTO_HIDE );
-	
+	message.Printf( "Saving %s",fileName.c_str() );
+	wxProgressDialog progressBar( message, wxT( "Saving" ), this->initialNumParticles, NULL, wxPD_AUTO_HIDE );
+
 	// find the index for the earth
 	int earth =0;
 	wxString name;
-	for(int i=0; i< this->initialNumParticles; i++)
+	for( int i=0; i< this->initialNumParticles; i++ )
 	{
-		name = wxString(this->physicalProperties[i].Name);
-		if(name.IsSameAs(wxT("Earth")))
+		name = wxString( this->physicalProperties[i].Name );
+		if( name.IsSameAs( wxT( "Earth" ) ) )
 		{
 			earth = i;
 			break;
 		}
 	}
-	
-	wxFileOutputStream fileOutputStream(fileName);
-	wxTextOutputStream exportSLFTextOut(fileOutputStream);
+
+	wxFileOutputStream fileOutputStream( fileName );
+	wxTextOutputStream exportSLFTextOut( fileOutputStream );
 	wxString line;
-	line.Printf("%.16G\n 3 ",this->initialJulianDate);
-	exportSLFTextOut.WriteString(line);
-	for(int i=0; i< this->initialNumParticles; i++)
+	line.Printf( "%.16G\n 3 ",this->initialJulianDate );
+	exportSLFTextOut.WriteString( line );
+	for( int i=0; i< this->initialNumParticles; i++ )
 	{
-		name = wxString(this->physicalProperties[i].Name);
+		name = wxString( this->physicalProperties[i].Name );
 		double x = this->initialPositions[i].x;
 		double y = this->initialPositions[i].y;
 		double z = this->initialPositions[i].z;
 		double vx = this->initialVelocities[i].x;
 		double vy = this->initialVelocities[i].y;
 		double vz = this->initialVelocities[i].z;
-		
-		if(name.IsSameAs(wxT("Moon")))
+
+		if( name.IsSameAs( wxT( "Moon" ) ) )
 		{
 			x = x - this->initialPositions[earth].x;
 			y = y - this->initialPositions[earth].y;
@@ -375,252 +396,253 @@ bool InitialState::ExportSLF(wxString fileName)
 			vy = vy - this->initialVelocities[earth].y;
 			vz = vz - this->initialVelocities[earth].z;
 		}
-		
-		line.Printf("%.16G %.16G %.16G %.16G# %s\n",this->physicalProperties[i].Mass,this->physicalProperties[i].Radius,this->physicalProperties[i].AbsoluteMagnitude,this->physicalProperties[i].RelativisticParameter,this->physicalProperties[i].Name);
-		exportSLFTextOut.WriteString(line);
-		line.Printf("%.16E %.16E %.16E\n",x,y,z);
-		exportSLFTextOut.WriteString(line);
-		line.Printf("%.16E %.16E %.16E\n",vx,vy,vz);
-		exportSLFTextOut.WriteString(line);
-		
-		if( i % 100 == 0)
+
+		line.Printf( "%.16G %.16G %.16G %.16G# %s\n",this->physicalProperties[i].Mass,this->physicalProperties[i].Radius,this->physicalProperties[i].AbsoluteMagnitude,this->physicalProperties[i].RelativisticParameter,this->physicalProperties[i].Name );
+		exportSLFTextOut.WriteString( line );
+		line.Printf( "%.16E %.16E %.16E\n",x,y,z );
+		exportSLFTextOut.WriteString( line );
+		line.Printf( "%.16E %.16E %.16E\n",vx,vy,vz );
+		exportSLFTextOut.WriteString( line );
+
+		if( i % 100 == 0 )
 		{
-			message.Printf("%d",i);
-			progressBar.Update(i,message);
+			message.Printf( "%d",i );
+			progressBar.Update( i,message );
 		}
 	}
 	return true;
 }
 
 // imports a Solex SLF formated file
-bool InitialState::ImportSLF(wxString fileName)
+bool InitialState::ImportSLF( wxString fileName )
 {
 	this->initialNumParticles = 1000000;
 	this->initialNumGrav = 16;
-	
+
 	wxString message;
-	message.Printf("Loading %s",fileName.c_str());
-	wxProgressDialog progressBar(message, wxT("Loading"), this->initialNumParticles, NULL, wxPD_AUTO_HIDE );
-	
+	message.Printf( "Loading %s",fileName.c_str() );
+	wxProgressDialog progressBar( message, wxT( "Loading" ), this->initialNumParticles, NULL, wxPD_AUTO_HIDE );
+
 	this->DeAllocate();
-	if(!this->Allocate())
+	if( !this->Allocate() )
 	{
 		return false;
 	}
-	
-	wxFileInputStream initialConditionsfileInputStream(fileName);
-	wxTextInputStream initialConditions(initialConditionsfileInputStream);
 
-	if(initialConditionsfileInputStream.Eof())
+	wxFileInputStream initialConditionsfileInputStream( fileName );
+	wxTextInputStream initialConditions( initialConditionsfileInputStream );
+
+	if( initialConditionsfileInputStream.Eof() )
 	{
-		wxLogDebug(wxT("File is Empty"));
+		wxLogDebug( wxT( "File is Empty" ) );
 		return false;
 	}
 
-	progressBar.Update(0,wxT("Loading"));
+	progressBar.Update( 0,wxT( "Loading" ) );
 
 	long bodiesReadCount = 0L;
 	wxString FirstLine = initialConditions.ReadLine();
 	double time;
-	FirstLine.ToDouble(&time);
+	FirstLine.ToDouble( &time );
 	this->initialJulianDate = time;
-	
+
 	this->SetDefaultBodyColours();
-	
+
 	int moon = -1;
 	int earth = -1;
-	for(int i=0; i< this->initialNumParticles; i++)
+	for( int i=0; i< this->initialNumParticles; i++ )
 	{
-		this->initialPositions[i].w = 0.2 * double(xor128()/double(ULONG_MAX));
-		this->initialPositions[i].x = double(1.0 * (xor128()/(double(ULONG_MAX)) - 0.5));
-		this->initialPositions[i].y = double(1.0 * (xor128()/(double(ULONG_MAX)) - 0.5));
-		this->initialPositions[i].z = double(1.0 * (xor128()/(double(ULONG_MAX)) - 0.5));
+		this->initialPositions[i].w = 0.2 * double( xor128()/double( ULONG_MAX ) );
+		this->initialPositions[i].x = double( 1.0 * ( xor128()/( double( ULONG_MAX ) ) - 0.5 ) );
+		this->initialPositions[i].y = double( 1.0 * ( xor128()/( double( ULONG_MAX ) ) - 0.5 ) );
+		this->initialPositions[i].z = double( 1.0 * ( xor128()/( double( ULONG_MAX ) ) - 0.5 ) );
 
 		this->initialVelocities[i].x=0.0;
 		this->initialVelocities[i].y=0.0;
 		this->initialVelocities[i].z=0.0;
 		this->initialVelocities[i].w=0.0;
 
-		if(!initialConditionsfileInputStream.Eof())
+		if( !initialConditionsfileInputStream.Eof() )
 		{
 			double mass,radius,absoluteMagnitude,relativisticParameter,xPos,yPos,zPos,xVel,yVel,zVel;
 
-			if(initialConditionsfileInputStream.Eof())
+			if( initialConditionsfileInputStream.Eof() )
 			{
-				wxLogDebug(wxT("Read in %ld"), bodiesReadCount);
+				wxLogDebug( wxT( "Read in %ld" ), bodiesReadCount );
 				break;
 			}
 			wxString line = initialConditions.ReadLine();
-			wxStringTokenizer *lineTokenizer = new wxStringTokenizer(line);
-			if(i == 0)
+			wxStringTokenizer *lineTokenizer = new wxStringTokenizer( line );
+			if( i == 0 )
 			{
 				lineTokenizer->GetNextToken();
 			}
 
 			// Get Mass
-			if(!lineTokenizer->HasMoreTokens())
+			if( !lineTokenizer->HasMoreTokens() )
 			{
-				wxLogDebug(wxT("Expected mass"));
+				wxLogDebug( wxT( "Expected mass" ) );
 				break;
 			}
 			wxString massToken = lineTokenizer->GetNextToken();
-			if(!massToken.ToDouble(&mass))
+			if( !massToken.ToDouble( &mass ) )
 			{
-				wxLogDebug(wxT("Invalid mass %s"), massToken);
+				wxLogDebug( wxT( "Invalid mass %s" ), massToken );
 				return false;
 			}
 
 			// Get Radius
-			if(!lineTokenizer->HasMoreTokens())
+			if( !lineTokenizer->HasMoreTokens() )
 			{
-				wxLogDebug(wxT("Expected radius"));
+				wxLogDebug( wxT( "Expected radius" ) );
 				break;
 			}
 			wxString radiusToken = lineTokenizer->GetNextToken();
-			if(!radiusToken.ToDouble(&radius))
+			if( !radiusToken.ToDouble( &radius ) )
 			{
-				wxLogDebug(wxT("Invalid radius %s"), radiusToken);
+				wxLogDebug( wxT( "Invalid radius %s" ), radiusToken );
 				return false;
 			}
 
 			// Get absolute magnitude
-			if(!lineTokenizer->HasMoreTokens())
+			if( !lineTokenizer->HasMoreTokens() )
 			{
-				wxLogDebug(wxT("Expected absolute magnitude"));
+				wxLogDebug( wxT( "Expected absolute magnitude" ) );
 				break;
 			}
 			wxString absoluteMagnitudeToken = lineTokenizer->GetNextToken();
-			if(!absoluteMagnitudeToken.ToDouble(&absoluteMagnitude))
+			if( !absoluteMagnitudeToken.ToDouble( &absoluteMagnitude ) )
 			{
-				wxLogDebug(wxT("Invalid absolute magnitude %s"), absoluteMagnitudeToken);
+				wxLogDebug( wxT( "Invalid absolute magnitude %s" ), absoluteMagnitudeToken );
 				return false;
 			}
-			
+
 			// Get relativistic parameter
-			if(!lineTokenizer->HasMoreTokens())
+			if( !lineTokenizer->HasMoreTokens() )
 			{
-				wxLogDebug(wxT("Expected relativistic parameter"));
+				wxLogDebug( wxT( "Expected relativistic parameter" ) );
 				break;
 			}
 			wxString relativisticParameterToken = lineTokenizer->GetNextToken();
-			if(relativisticParameterToken.EndsWith(wxT("#"),NULL))
+			if( relativisticParameterToken.EndsWith( wxT( "#" ),NULL ) )
 			{
 				relativisticParameterToken.RemoveLast();
 			}
-			if(!relativisticParameterToken.ToDouble(&relativisticParameter))
+			if( !relativisticParameterToken.ToDouble( &relativisticParameter ) )
 			{
-				wxLogDebug(wxT("Invalid relativisticParameter"),relativisticParameterToken);
+				wxLogDebug( wxT( "Invalid relativisticParameter" ),relativisticParameterToken );
 				return false;
 			}
 			// Get name
-			if(!lineTokenizer->HasMoreTokens())
+			if( !lineTokenizer->HasMoreTokens() )
 			{
-				wxLogDebug(wxT("Expected name"));
+				wxLogDebug( wxT( "Expected name" ) );
 				break;
 			}
 			wxString nameToken = lineTokenizer->GetNextToken();
-			
-			if(nameToken.IsSameAs(wxT("Earth")))
+
+			if( nameToken.IsSameAs( wxT( "Earth" ) ) )
 			{
 				earth = i;
-			}else if(nameToken.IsSameAs(wxT("Moon")))
+			}
+			else if( nameToken.IsSameAs( wxT( "Moon" ) ) )
 			{
 				moon = i;
 			}
-			
+
 			// Next Line
-			if(initialConditionsfileInputStream.Eof())
+			if( initialConditionsfileInputStream.Eof() )
 			{
-				wxLogDebug(wxT("Expected xPos. Read in %ld"), bodiesReadCount);
+				wxLogDebug( wxT( "Expected xPos. Read in %ld" ), bodiesReadCount );
 				break;
 			}
 			line = initialConditions.ReadLine();
-			lineTokenizer = new wxStringTokenizer(line);
+			lineTokenizer = new wxStringTokenizer( line );
 
 			// Get xPos
-			if(!lineTokenizer->HasMoreTokens())
+			if( !lineTokenizer->HasMoreTokens() )
 			{
-				wxLogDebug(wxT("Expected x Position"));
+				wxLogDebug( wxT( "Expected x Position" ) );
 				return false;
 			}
 			wxString xPosToken = lineTokenizer->GetNextToken();
-			if(!xPosToken.ToDouble(&xPos))
+			if( !xPosToken.ToDouble( &xPos ) )
 			{
-				wxLogDebug(wxT("Invalid xPos %s"),xPosToken);
+				wxLogDebug( wxT( "Invalid xPos %s" ),xPosToken );
 				return false;
 			}
 
 			// Get yPos
-			if(!lineTokenizer->HasMoreTokens())
+			if( !lineTokenizer->HasMoreTokens() )
 			{
-				wxLogDebug(wxT("Expected y Position"));
+				wxLogDebug( wxT( "Expected y Position" ) );
 				return false;
 			}
 			wxString yPosToken = lineTokenizer->GetNextToken();
-			if(!yPosToken.ToDouble(&yPos))
+			if( !yPosToken.ToDouble( &yPos ) )
 			{
-				wxLogDebug(wxT("Invalid yPos"),yPosToken);
+				wxLogDebug( wxT( "Invalid yPos" ),yPosToken );
 				return false;
 			}
 
 			// Get zPos
-			if(!lineTokenizer->HasMoreTokens())
+			if( !lineTokenizer->HasMoreTokens() )
 			{
-				wxLogDebug(wxT("Expected z Position"));
+				wxLogDebug( wxT( "Expected z Position" ) );
 				return false;
 			}
 			wxString zPosToken = lineTokenizer->GetNextToken();
-			if(!zPosToken.ToDouble(&zPos))
+			if( !zPosToken.ToDouble( &zPos ) )
 			{
-				wxLogDebug(wxT("Invalid zPos"),zPosToken);
+				wxLogDebug( wxT( "Invalid zPos" ),zPosToken );
 				return false;
 			}
-			
+
 			// Next Line
-			if(initialConditionsfileInputStream.Eof())
+			if( initialConditionsfileInputStream.Eof() )
 			{
-				wxLogDebug(wxT("Expected xVel. Read in %ld"), bodiesReadCount);
+				wxLogDebug( wxT( "Expected xVel. Read in %ld" ), bodiesReadCount );
 				break;
 			}
 			line = initialConditions.ReadLine();
-			lineTokenizer = new wxStringTokenizer(line);
+			lineTokenizer = new wxStringTokenizer( line );
 
 			// Get xVel
-			if(!lineTokenizer->HasMoreTokens())
+			if( !lineTokenizer->HasMoreTokens() )
 			{
-				wxLogDebug(wxT("Expected x Velocity"));
+				wxLogDebug( wxT( "Expected x Velocity" ) );
 				return false;
 			}
 			wxString xVelToken = lineTokenizer->GetNextToken();
-			if(!xVelToken.ToDouble(&xVel))
+			if( !xVelToken.ToDouble( &xVel ) )
 			{
-				wxLogDebug(wxT("Invalid xVel"),xVelToken);
+				wxLogDebug( wxT( "Invalid xVel" ),xVelToken );
 				return false;
 			}
 
 			//Get yVel
-			if(!lineTokenizer->HasMoreTokens())
+			if( !lineTokenizer->HasMoreTokens() )
 			{
-				wxLogDebug(wxT("Expected y Velocity"));
+				wxLogDebug( wxT( "Expected y Velocity" ) );
 				return false;
 			}
 			wxString yVelToken = lineTokenizer->GetNextToken();
-			if(!yVelToken.ToDouble(&yVel))
+			if( !yVelToken.ToDouble( &yVel ) )
 			{
-				wxLogDebug(wxT("Invalid yVel"),yVelToken);
+				wxLogDebug( wxT( "Invalid yVel" ),yVelToken );
 				return false;
 			}
 
 			// Get zVel
-			if(!lineTokenizer->HasMoreTokens())
+			if( !lineTokenizer->HasMoreTokens() )
 			{
-				wxLogDebug(wxT("Expected z Velocity"));
+				wxLogDebug( wxT( "Expected z Velocity" ) );
 				return false;
 			}
 			wxString zVelToken = lineTokenizer->GetNextToken();
-			if(!zVelToken.ToDouble(&zVel))
+			if( !zVelToken.ToDouble( &zVel ) )
 			{
-				wxLogDebug(wxT("Invalid zVel"),zVelToken);
+				wxLogDebug( wxT( "Invalid zVel" ),zVelToken );
 				return false;
 			}
 
@@ -633,42 +655,42 @@ bool InitialState::ImportSLF(wxString fileName)
 			this->initialVelocities[i].y = yVel;
 			this->initialVelocities[i].z = zVel;
 			this->initialVelocities[i].w = relativisticParameter;
-			
+
 			this->physicalProperties[i].Mass = mass;
 			this->physicalProperties[i].Radius = radius;
 			this->physicalProperties[i].AbsoluteMagnitude = absoluteMagnitude;
 			this->physicalProperties[i].RelativisticParameter = relativisticParameter;
 			this->physicalProperties[i].index = i;
-			
-			for(size_t charIndex =0;charIndex < 32;charIndex++)
+
+			for( size_t charIndex =0; charIndex < 32; charIndex++ )
 			{
 				wxChar ch = 0;
-				if(charIndex < nameToken.Len())
+				if( charIndex < nameToken.Len() )
 				{
-					ch = nameToken.GetChar(charIndex);
+					ch = nameToken.GetChar( charIndex );
 				}
 				this->physicalProperties[i].Name[charIndex] = ch;
 			}
 			this->physicalProperties[i].Name[31] =0;
 
-			wxLogDebug(wxT("Read %ld,%s,%f,%f,%f,%f,%f,%f,%f"),bodiesReadCount++,this->physicalProperties[i].Name,mass,xPos,yPos,zPos,xVel,yVel,zVel);
+			wxLogDebug( wxT( "Read %ld,%s,%f,%f,%f,%f,%f,%f,%f" ),bodiesReadCount++,this->physicalProperties[i].Name,mass,xPos,yPos,zPos,xVel,yVel,zVel );
 		}
 		else
 		{
 			break;
 		}
 
-		if( i % 100 == 0)
+		if( i % 100 == 0 )
 		{
-			message.Printf("%d",i);
-			progressBar.Update(i,message);
+			message.Printf( "%d",i );
+			progressBar.Update( i,message );
 		}
 	}
 	this->initialNumParticles = bodiesReadCount;
-	this->SetDefaultBodyColours();	
-	
+	this->SetDefaultBodyColours();
+
 	// In slf files the moon is in Geocentic (earth centered) co-ordinates. We need it in heliocentric
-	if( moon != -1 and earth != -1)
+	if( moon != -1 and earth != -1 )
 	{
 		this->initialPositions[moon].x += this->initialPositions[earth].x;
 		this->initialPositions[moon].y += this->initialPositions[earth].y;
@@ -688,26 +710,26 @@ bool InitialState::CreateRandomInitialConfig()
 	this->initialNumParticles = 8192;
 	this->initialNumGrav = 16;
 	this->initialJulianDate = 0;
-	
+
 	this->DeAllocate();
-	if(!this->Allocate())
+	if( !this->Allocate() )
 	{
 		return false;
 	}
-	
-	for(int i=0; i<this->initialNumParticles; i++)
+
+	for( int i=0; i<this->initialNumParticles; i++ )
 	{
-		wxString name = wxT("cube");
-		
+		wxString name = wxT( "cube" );
+
 		this->initialColorData[i*4+0] = 255;
 		this->initialColorData[i*4+1] = 255;
 		this->initialColorData[i*4+2] = 255;
 		this->initialColorData[i*4+3] = 255;
-		
-		double mass = 0.2 * double(xor128()/double(ULONG_MAX));
+
+		double mass = 0.2 * double( xor128()/double( ULONG_MAX ) );
 		this->initialPositions[i].w = mass;
-		
-		if(i == 0)
+
+		if( i == 0 )
 		{
 			this->initialPositions[i].x = 0.0;
 			this->initialPositions[i].y = 0.0;
@@ -715,28 +737,28 @@ bool InitialState::CreateRandomInitialConfig()
 		}
 		else
 		{
-			this->initialPositions[i].x = 1000.0*double(1.0 * (xor128()/(double(ULONG_MAX)) - 0.5));
-			this->initialPositions[i].y = 1000.0*double(1.0 * (xor128()/(double(ULONG_MAX)) - 0.5));
-			this->initialPositions[i].z = 1000.0*double(1.0 * (xor128()/(double(ULONG_MAX)) - 0.5));
+			this->initialPositions[i].x = 1000.0*double( 1.0 * ( xor128()/( double( ULONG_MAX ) ) - 0.5 ) );
+			this->initialPositions[i].y = 1000.0*double( 1.0 * ( xor128()/( double( ULONG_MAX ) ) - 0.5 ) );
+			this->initialPositions[i].z = 1000.0*double( 1.0 * ( xor128()/( double( ULONG_MAX ) ) - 0.5 ) );
 		}
-		
+
 		this->initialVelocities[i].x=0.0;
 		this->initialVelocities[i].y=0.0;
 		this->initialVelocities[i].z=0.0;
 		this->initialVelocities[i].w=0.0;
-		
+
 		this->physicalProperties[i].Mass = mass;
 		this->physicalProperties[i].Radius = 0.0;
 		this->physicalProperties[i].AbsoluteMagnitude = 0.0;
 		this->physicalProperties[i].RelativisticParameter = 0.0;
 		this->physicalProperties[i].index = i;
-			
-		for(size_t charIndex =0;charIndex < 32;charIndex++)
+
+		for( size_t charIndex =0; charIndex < 32; charIndex++ )
 		{
 			wxChar ch = 0;
-			if(charIndex < name.Len())
+			if( charIndex < name.Len() )
 			{
-				ch = name.GetChar(charIndex);
+				ch = name.GetChar( charIndex );
 			}
 			this->physicalProperties[i].Name[charIndex] = ch;
 		}

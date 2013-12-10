@@ -30,59 +30,59 @@
 
 class Frame: public wxFrame
 {
-	public:
-		Frame(wxFrame *frame, const wxString& title, const wxPoint& pos, const wxSize& size, long style = wxDEFAULT_FRAME_STYLE | wxMAXIMIZE);
-		virtual ~Frame();
-		void InitFrame(bool doubleBuffer, bool smooth, bool lighting, bool stereo, int numParticles, int numGrav, bool useLastDevice, char *desiredPlatform, bool tryForCPUFirst);
+public:
+	Frame( wxFrame *frame, const wxString& title, const wxPoint& pos, const wxSize& size, long style = wxDEFAULT_FRAME_STYLE | wxMAXIMIZE );
+	virtual ~Frame();
+	void InitFrame( bool doubleBuffer, bool smooth, bool lighting, bool stereo, int numParticles, int numGrav, bool useLastDevice, char *desiredPlatform, bool tryForCPUFirst );
 
-	private:
+private:
 #if wxUSE_GLCANVAS
-		GLCanvas *glCanvas;
-		CLModel *clModel;
+	GLCanvas *glCanvas;
+	CLModel *clModel;
 #endif
-		wxTimer *timer;
-		bool clModelOk;
-		char *desiredPlatform;
-		bool useLastDevice;
-		bool tryForCPUFirst;
-		bool runOnIdle;
-		int numParticles;
-		int numGrav;
-		InitialState *initialState;
-		double stopDateJdn;
-		bool goingToDate;
-		wxStopWatch stopWatch;
-		wxConfigBase  *config;
-		void UpdateStatusBar(wxLongLong timeTaken);
-		void ResetAll();
-		void UpdateMenuItems();
-		void Start();
-		void Stop();
-		void DoStep();
-		void ChooseDevice(wxConfigBase  *config);
+	wxTimer *timer;
+	bool clModelOk;
+	char *desiredPlatform;
+	bool useLastDevice;
+	bool tryForCPUFirst;
+	bool runOnIdle;
+	int numParticles;
+	int numGrav;
+	InitialState *initialState;
+	double stopDateJdn;
+	bool goingToDate;
+	wxStopWatch stopWatch;
+	wxConfigBase  *config;
+	void UpdateStatusBar( wxLongLong timeTaken );
+	void ResetAll();
+	void UpdateMenuItems();
+	void Start();
+	void Stop();
+	void DoStep();
+	void ChooseDevice( wxConfigBase  *config );
 
-		void OnExit(wxCommandEvent& event);
-		void OnAbout(wxCommandEvent& event);
-		void OnStart(wxCommandEvent& event);
-		void OnStop(wxCommandEvent& event);
-		void OnReset(wxCommandEvent& event);
-		void OnSetIntegrator(wxCommandEvent& event);
-		void OnSetDeltaTime(wxCommandEvent& event);
-		void OnSetNum(wxCommandEvent& event);
-		void OnSetGrav(wxCommandEvent& event);
-		void OnSetCenter(wxCommandEvent& event);
-		void OnImportSlf(wxCommandEvent& event);
-		void OnExportSlf(wxCommandEvent& event);
-		void OnSetAcceleration(wxCommandEvent& event);
-		void OnSaveInitialState(wxCommandEvent& event);
-		void OnLoadInitialState(wxCommandEvent& event);
-		void OnReadToInitialState(wxCommandEvent& event);
-		void OnBlending(wxCommandEvent& event);
-		void OnTimer(wxTimerEvent& event);
-		void OnClose(wxCloseEvent& event);
-		void OnIdle(wxIdleEvent& event);
+	void OnExit( wxCommandEvent& event );
+	void OnAbout( wxCommandEvent& event );
+	void OnStart( wxCommandEvent& event );
+	void OnStop( wxCommandEvent& event );
+	void OnReset( wxCommandEvent& event );
+	void OnSetIntegrator( wxCommandEvent& event );
+	void OnSetDeltaTime( wxCommandEvent& event );
+	void OnSetNum( wxCommandEvent& event );
+	void OnSetGrav( wxCommandEvent& event );
+	void OnSetCenter( wxCommandEvent& event );
+	void OnImportSlf( wxCommandEvent& event );
+	void OnExportSlf( wxCommandEvent& event );
+	void OnSetAcceleration( wxCommandEvent& event );
+	void OnSaveInitialState( wxCommandEvent& event );
+	void OnLoadInitialState( wxCommandEvent& event );
+	void OnReadToInitialState( wxCommandEvent& event );
+	void OnBlending( wxCommandEvent& event );
+	void OnTimer( wxTimerEvent& event );
+	void OnClose( wxCloseEvent& event );
+	void OnIdle( wxIdleEvent& event );
 
-		DECLARE_EVENT_TABLE()
+	DECLARE_EVENT_TABLE()
 };
 
 #endif // #ifndef Frame_H_

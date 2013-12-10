@@ -18,85 +18,85 @@
 
 class CLModel
 {
-	public:
-		CLModel();
-		~CLModel();
-		void CompileProgramAndCreateKernels();
-		bool FindDeviceAndCreateContext(cl_uint desiredDeviceVendorId, cl_device_type deviceType, char *desiredPlatformName);
-		void CreateBufferObjects(GLuint *vbo,int numParticles, int numGrav);
-		void SetInitalState(cl_double4 *initalPositions, cl_double4 *initalVelocities);
-		void ReadToInitialState(cl_double4 *initalPositions, cl_double4 *initalVelocities);
-		void SetKernelArgumentsAndGroupSize();
-		void ExecuteKernels();
-		int CleanUpCL();
-		void UpdateDisplay();
-		void RequestUpdate();
-		wxString ErrorMessage(cl_int status);
-		wxString *deviceName;
-		wxString *deviceCLVersion;
-		wxString *platformName;
-		wxString *adamsBashforthKernelName; //Bashforth
-		wxString *adamsMoultonKernelName;
-		wxString *accelerationKernelName;
-		double deviceCLVersionNumber;
-		cl_double delT;                      /**< dT (timestep) */
-		cl_double espSqr;                    /**< Softening Factor*/
-		cl_double julianDate;
-		cl_double time;
-		cl_int numGrav;
-		cl_int maxNumGrav;
-		cl_int step;
-		cl_int centerBody;
-		cl_uint deviceVendorId;
+public:
+	CLModel();
+	~CLModel();
+	void CompileProgramAndCreateKernels();
+	bool FindDeviceAndCreateContext( cl_uint desiredDeviceVendorId, cl_device_type deviceType, char *desiredPlatformName );
+	void CreateBufferObjects( GLuint *vbo,int numParticles, int numGrav );
+	void SetInitalState( cl_double4 *initalPositions, cl_double4 *initalVelocities );
+	void ReadToInitialState( cl_double4 *initalPositions, cl_double4 *initalVelocities );
+	void SetKernelArgumentsAndGroupSize();
+	void ExecuteKernels();
+	int CleanUpCL();
+	void UpdateDisplay();
+	void RequestUpdate();
+	wxString ErrorMessage( cl_int status );
+	wxString *deviceName;
+	wxString *deviceCLVersion;
+	wxString *platformName;
+	wxString *adamsBashforthKernelName; //Bashforth
+	wxString *adamsMoultonKernelName;
+	wxString *accelerationKernelName;
+	double deviceCLVersionNumber;
+	cl_double delT;                      /**< dT (timestep) */
+	cl_double espSqr;                    /**< Softening Factor*/
+	cl_double julianDate;
+	cl_double time;
+	cl_int numGrav;
+	cl_int maxNumGrav;
+	cl_int step;
+	cl_int centerBody;
+	cl_uint deviceVendorId;
 
-	private:
-		cl_device_id deviceId;
-		cl_context context;                 /**< CL context */
-		cl_device_id *devices;              /**< CL device list */
-		cl_command_queue commandQueue;      /**< CL command queue */
-		cl_program program;                 /**< CL program */
-		cl_kernel accKernel;                /**< CL kernel */
-		cl_kernel adamsBashforthKernel;
-		cl_kernel adamsMoultonKernel;
-		cl_kernel startupKernel;
-		cl_kernel copyToDisplayKernel;
-		
-		size_t maxWorkGroupSize;            /**< Max allowed work-items in a group */
-		cl_uint maxDimensions;              /**< Max group dimensions allowed */
-		size_t* maxWorkItemSizes;           /**< Max work-items sizes in each dimensions */
-		cl_ulong totalLocalMemory;          /**< Max local memory allowed */
-		cl_ulong maxConstantBufferSize;
-		size_t accKernelWorkGroupSize;      /**< Group size returned by kernel */
-		size_t adamsBashforthKernelWorkGroupSize;    /**< Group size returned by kernel */
-		size_t adamsMoultonKernelWorkGroupSize; 
-		size_t startupKernelWorkGroupSize;    /**< Group size returned by kernel */
-		size_t copyToDisplayKernelWorkGroupSize;    /**< Group size returned by kernel */
-		size_t groupSize;                   /**< Work-Group size */
+private:
+	cl_device_id deviceId;
+	cl_context context;                 /**< CL context */
+	cl_device_id *devices;              /**< CL device list */
+	cl_command_queue commandQueue;      /**< CL command queue */
+	cl_program program;                 /**< CL program */
+	cl_kernel accKernel;                /**< CL kernel */
+	cl_kernel adamsBashforthKernel;
+	cl_kernel adamsMoultonKernel;
+	cl_kernel startupKernel;
+	cl_kernel copyToDisplayKernel;
 
-		cl_int numParticles;
-		cl_int stage;
-		cl_int numStages;
+	size_t maxWorkGroupSize;            /**< Max allowed work-items in a group */
+	cl_uint maxDimensions;              /**< Max group dimensions allowed */
+	size_t* maxWorkItemSizes;           /**< Max work-items sizes in each dimensions */
+	cl_ulong totalLocalMemory;          /**< Max local memory allowed */
+	cl_ulong maxConstantBufferSize;
+	size_t accKernelWorkGroupSize;      /**< Group size returned by kernel */
+	size_t adamsBashforthKernelWorkGroupSize;    /**< Group size returned by kernel */
+	size_t adamsMoultonKernelWorkGroupSize;
+	size_t startupKernelWorkGroupSize;    /**< Group size returned by kernel */
+	size_t copyToDisplayKernelWorkGroupSize;    /**< Group size returned by kernel */
+	size_t groupSize;                   /**< Work-Group size */
 
-		cl_mem dispPos;
-		cl_mem currPos;						/**< Position of partciles */
-		cl_mem currVel;						/**< Velocity of partciles */
-		cl_mem gravPos;
-		cl_mem acc;
-		cl_mem newPos;						/**< Position of partciles */
-		cl_mem newVel;						/**< Velocity of partciles */
-		cl_mem posLast;
-		cl_mem velLast;
-		cl_mem velHistory;
-		cl_mem accHistory;
+	cl_int numParticles;
+	cl_int stage;
+	cl_int numStages;
 
-		bool updateDisplay;
-		bool initialisedOk;
-		bool gotKhrFp64;
-		bool gotAmdFp64;
-		bool gotKhrGlSharing;
-		bool gotAppleGlSharing;
-		void SetAdamsKernelArgs(cl_kernel adamsKernel);
-		bool IsDeviceSuitable(cl_device_id deviceIdToCheck);
+	cl_mem dispPos;
+	cl_mem currPos;						/**< Position of partciles */
+	cl_mem currVel;						/**< Velocity of partciles */
+	cl_mem gravPos;
+	cl_mem acc;
+	cl_mem newPos;						/**< Position of partciles */
+	cl_mem newVel;						/**< Velocity of partciles */
+	cl_mem posLast;
+	cl_mem velLast;
+	cl_mem velHistory;
+	cl_mem accHistory;
+
+	bool updateDisplay;
+	bool initialisedOk;
+	bool gotKhrFp64;
+	bool gotAmdFp64;
+	bool gotKhrGlSharing;
+	bool gotAppleGlSharing;
+	void SetAdamsKernelArgs( cl_kernel adamsKernel );
+	bool IsDeviceSuitable( cl_device_id deviceIdToCheck );
 };
 
 #endif // CLMODEL_H

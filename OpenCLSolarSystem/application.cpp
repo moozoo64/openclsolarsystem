@@ -18,51 +18,51 @@
 
 
 // Parses the arguments passed on the command line
-bool Application::Args(int argc, wxChar **argv)
+bool Application::Args( int argc, wxChar **argv )
 {
 	this->numParticles = 2560;
 	this->numGrav=16;
 	this->useLastDevice = true;
 	this->tryForCPUFirst = false;
 	this->desiredPlatform = NULL;
-			
-	for (int i = 1; i < argc; i++)
+
+	for ( int i = 1; i < argc; i++ )
 	{
-		if (wxStrcmp(argv[i], wxT("-sb")) == 0)
+		if ( wxStrcmp( argv[i], wxT( "-sb" ) ) == 0 )
 		{
 			this->doubleBuffer = false;
 		}
-		else if (wxStrcmp(argv[i], wxT("-db")) == 0)
+		else if ( wxStrcmp( argv[i], wxT( "-db" ) ) == 0 )
 		{
 			this->doubleBuffer = true;
 		}
-		else if (wxStrcmp(argv[i], wxT("-stereo")) == 0)
+		else if ( wxStrcmp( argv[i], wxT( "-stereo" ) ) == 0 )
 		{
 			this->stereo = true;
 		}
-		else if (wxStrcmp(argv[i], wxT("-cpu")) == 0)
+		else if ( wxStrcmp( argv[i], wxT( "-cpu" ) ) == 0 )
 		{
 			this->tryForCPUFirst = true;
 			this->useLastDevice = false;
 		}
-		else if (wxStrcmp(argv[i], wxT("-nvidia")) == 0)
+		else if ( wxStrcmp( argv[i], wxT( "-nvidia" ) ) == 0 )
 		{
-			this->desiredPlatform =(char*)"NVIDIA Corporation";
+			this->desiredPlatform =( char* )"NVIDIA Corporation";
 			this->useLastDevice = false;
 		}
-		else if (wxStrcmp(argv[i], wxT("-amd")) == 0)
+		else if ( wxStrcmp( argv[i], wxT( "-amd" ) ) == 0 )
 		{
-			this->desiredPlatform =(char*)"Advanced Micro Devices, Inc.";
+			this->desiredPlatform =( char* )"Advanced Micro Devices, Inc.";
 			this->useLastDevice = false;
 		}
-		else if (wxStrcmp(argv[i], wxT("-intel")) == 0)
+		else if ( wxStrcmp( argv[i], wxT( "-intel" ) ) == 0 )
 		{
-			this->desiredPlatform =(char*)"Intel(R) Corporation";
+			this->desiredPlatform =( char* )"Intel(R) Corporation";
 			this->useLastDevice = false;
 		}
 		else
 		{
-			wxLogError(wxT("Bad option: %s"),argv[i]);
+			wxLogError( wxT( "Bad option: %s" ),argv[i] );
 			return false;
 		}
 	}
@@ -70,7 +70,7 @@ bool Application::Args(int argc, wxChar **argv)
 	return true;
 }
 
-IMPLEMENT_APP(Application)
+IMPLEMENT_APP( Application )
 
 Application::Application()
 {
@@ -86,9 +86,9 @@ Application::Application()
 	this->desiredPlatform = NULL;
 
 #ifdef _WIN32
-	// Attach the Console so that opencl printf's will go to it. 
-	AttachConsole((DWORD)-1);
-#endif	
+	// Attach the Console so that opencl printf's will go to it.
+	AttachConsole( ( DWORD )-1 );
+#endif
 
 }
 
@@ -97,34 +97,34 @@ bool Application::OnInit()
 {
 	bool success = false;
 	this->frame = NULL;
-	
+
 	try
 	{
-		this->frame = new Frame(NULL, wxT("Solar System Simulation"), wxDefaultPosition, wxDefaultSize);
+		this->frame = new Frame( NULL, wxT( "Solar System Simulation" ), wxDefaultPosition, wxDefaultSize );
 
 #if defined(__WXDEBUG__ )
 		//If debugging send log to a windows
 		//This is attached to the Frame so that it closes with it.
-		wxLogWindow *logWindow = new wxLogWindow(this->frame, wxT("Debug Log"),true,true);
-		wxLog::SetActiveTarget(logWindow);
-		wxLogDebug(wxT("Application::OnInit threadId: %ld"),wxThread::GetCurrentId());
+		wxLogWindow *logWindow = new wxLogWindow( this->frame, wxT( "Debug Log" ),true,true );
+		wxLog::SetActiveTarget( logWindow );
+		wxLogDebug( wxT( "Application::OnInit threadId: %ld" ),wxThread::GetCurrentId() );
 #endif
 
 		// Process the command line arguments
-		this->Args(argc, argv);
-		this->frame->InitFrame(this->doubleBuffer, this->smooth, this->lighting,this->stereo, this->numParticles, this->numGrav,this->useLastDevice,this->desiredPlatform, this->tryForCPUFirst);
+		this->Args( argc, argv );
+		this->frame->InitFrame( this->doubleBuffer, this->smooth, this->lighting,this->stereo, this->numParticles, this->numGrav,this->useLastDevice,this->desiredPlatform, this->tryForCPUFirst );
 		success = true;
-		wxLogDebug(wxT("Application::OnInit Done"));
+		wxLogDebug( wxT( "Application::OnInit Done" ) );
 	}
-	catch( int ex)
+	catch( int ex )
 	{
 		success = false;
-		if(this->frame != NULL)
+		if( this->frame != NULL )
 		{
 			this->frame->Destroy();
 		}
 	}
-	
+
 	return success;
 }
 

@@ -16,38 +16,38 @@
 #include "global.hpp"
 #include "glcanvas.hpp"
 
-void GLCanvas::SetFrustum(void)
+void GLCanvas::SetFrustum( void )
 {
-    double top = this->nearClippingPlane*tan(DTR*this->fieldOfViewYAxis/2);
-    double right = this->aspectRatio*top;
-    double frustumshift = (this->intraocularDistance/2)*this->nearClippingPlane/this->screenProjectionPlane;
+	double top = this->nearClippingPlane*tan( DTR*this->fieldOfViewYAxis/2 );
+	double right = this->aspectRatio*top;
+	double frustumshift = ( this->intraocularDistance/2 )*this->nearClippingPlane/this->screenProjectionPlane;
 
-    this->centerCam.topfrustum = top;
-    this->centerCam.bottomfrustum = -top;
-    this->centerCam.leftfrustum = -right;
-    this->centerCam.rightfrustum = right;
-    this->centerCam.modeltranslation = 0.0f;
-	
-    this->leftCam.topfrustum = top;
-    this->leftCam.bottomfrustum = -top;
-    this->leftCam.leftfrustum = -right + frustumshift;
-    this->leftCam.rightfrustum = right + frustumshift;
-    this->leftCam.modeltranslation = this->intraocularDistance/2;
+	this->centerCam.topfrustum = top;
+	this->centerCam.bottomfrustum = -top;
+	this->centerCam.leftfrustum = -right;
+	this->centerCam.rightfrustum = right;
+	this->centerCam.modeltranslation = 0.0f;
 
-    this->rightCam.topfrustum = top;
-    this->rightCam.bottomfrustum = -top;
-    this->rightCam.leftfrustum = -right - frustumshift;
-    this->rightCam.rightfrustum = right - frustumshift;
-    this->rightCam.modeltranslation = -this->intraocularDistance/2;
-	
+	this->leftCam.topfrustum = top;
+	this->leftCam.bottomfrustum = -top;
+	this->leftCam.leftfrustum = -right + frustumshift;
+	this->leftCam.rightfrustum = right + frustumshift;
+	this->leftCam.modeltranslation = this->intraocularDistance/2;
+
+	this->rightCam.topfrustum = top;
+	this->rightCam.bottomfrustum = -top;
+	this->rightCam.leftfrustum = -right - frustumshift;
+	this->rightCam.rightfrustum = right - frustumshift;
+	this->rightCam.modeltranslation = -this->intraocularDistance/2;
+
 	this->updateFrustum = false;
 }
 
-static int *makeGLAttrib(bool doubleBuffer, bool stereo)
+static int *makeGLAttrib( bool doubleBuffer, bool stereo )
 {
 	int index =0;
 	static int gl_attrib[32];
-	
+
 	gl_attrib[index++] = WX_GL_RGBA;
 	gl_attrib[index++] = WX_GL_MIN_RED;
 	gl_attrib[index++] = 1;
@@ -60,13 +60,13 @@ static int *makeGLAttrib(bool doubleBuffer, bool stereo)
 
 	//gl_attrib[index++] = WX_GL_SAMPLE_BUFFERS;
 	//gl_attrib[index++] = GL_TRUE;
-	
-	if(doubleBuffer)
+
+	if( doubleBuffer )
 	{
 		gl_attrib[index++] = WX_GL_DOUBLEBUFFER;
 	}
 
-	if(stereo)
+	if( stereo )
 	{
 		gl_attrib[index++] = WX_GL_STEREO;
 	}
@@ -80,27 +80,27 @@ static int *makeGLAttrib(bool doubleBuffer, bool stereo)
  * GLCanvas implementation
  */
 
-BEGIN_EVENT_TABLE(GLCanvas, wxGLCanvas)
-	EVT_SIZE(GLCanvas::OnSize)
-	EVT_PAINT(GLCanvas::OnPaint)
-	EVT_CHAR(GLCanvas::OnChar)
-	EVT_MOUSE_EVENTS(GLCanvas::OnMouseEvent)
-	EVT_ERASE_BACKGROUND(GLCanvas::OnEraseBackground)
+BEGIN_EVENT_TABLE( GLCanvas, wxGLCanvas )
+	EVT_SIZE( GLCanvas::OnSize )
+	EVT_PAINT( GLCanvas::OnPaint )
+	EVT_CHAR( GLCanvas::OnChar )
+	EVT_MOUSE_EVENTS( GLCanvas::OnMouseEvent )
+	EVT_ERASE_BACKGROUND( GLCanvas::OnEraseBackground )
 END_EVENT_TABLE()
 
-GLCanvas::GLCanvas(wxWindow *parent, wxWindowID id,
-                   const wxPoint& pos, const wxSize& size, long style,
-                   const wxString& name,
-                   bool doubleBuffer, bool smooth, bool lighting, bool stereo)
-	: wxGLCanvas(parent, id,makeGLAttrib(doubleBuffer,stereo), pos, size, style|wxFULL_REPAINT_ON_RESIZE, name, wxNullPalette)
+GLCanvas::GLCanvas( wxWindow *parent, wxWindowID id,
+                    const wxPoint& pos, const wxSize& size, long style,
+                    const wxString& name,
+                    bool doubleBuffer, bool smooth, bool lighting, bool stereo )
+	: wxGLCanvas( parent, id,makeGLAttrib( doubleBuffer,stereo ), pos, size, style|wxFULL_REPAINT_ON_RESIZE, name, wxNullPalette )
 
 {
 #ifdef __WXDEBUG__
-	wxLogDebug(wxT("GLCanvas Create threadId: %ld"),wxThread::GetCurrentId());
+	wxLogDebug( wxT( "GLCanvas Create threadId: %ld" ),wxThread::GetCurrentId() );
 #endif
 
-	this->glContext = new wxGLContext(this);
-	
+	this->glContext = new wxGLContext( this );
+
 	this->numParticles = 0;
 	this->xrot = 0.0f;
 	this->yrot = 0.0f;
@@ -130,215 +130,218 @@ GLCanvas::GLCanvas(wxWindow *parent, wxWindowID id,
 
 GLCanvas::~GLCanvas()
 {
-	wxLogDebug(wxT("Cleaning up GLCanvas"));
+	wxLogDebug( wxT( "Cleaning up GLCanvas" ) );
 	GLCanvas::CleanUpGL();
 	delete glContext;
 }
 
-void GLCanvas::OnPaint( wxPaintEvent& WXUNUSED(event) )
+void GLCanvas::OnPaint( wxPaintEvent& WXUNUSED( event ) )
 {
-	
+
 #ifdef __WXDEBUG__
-	wxLogDebug(wxT("GLCanvas::OnPaint Start threadId: %ld"),wxThread::GetCurrentId());
+	wxLogDebug( wxT( "GLCanvas::OnPaint Start threadId: %ld" ),wxThread::GetCurrentId() );
 #endif
 
 	GLenum errCode;
 	const GLubyte *errString;
-	if(!IsShown() || !this->active)
+	if( !IsShown() || !this->active )
 	{
 		return;
 	}
-	
-    if(!this->vboCreated)
+
+	if( !this->vboCreated )
 	{
-		wxLogError(wxT("OnPaint before vboCreated"));
+		wxLogError( wxT( "OnPaint before vboCreated" ) );
 	}
-	
-    wxGLCanvas::SetCurrent(*this->glContext);
-	
+
+	wxGLCanvas::SetCurrent( *this->glContext );
+
 	// Check if got stereo
-	if(this->stereo && this->checkStereo)
+	if( this->stereo && this->checkStereo )
 	{
 		GLboolean  supportsStereo = GL_FALSE;
-		glGetBooleanv(GL_STEREO,&supportsStereo);
-		this->stereo = (supportsStereo == GL_TRUE);
-		wxLogDebug(wxT("Stereo %s"),this->stereo?"enabled":"disabled");
+		glGetBooleanv( GL_STEREO,&supportsStereo );
+		this->stereo = ( supportsStereo == GL_TRUE );
+		wxLogDebug( wxT( "Stereo %s" ),this->stereo?"enabled":"disabled" );
 		this->checkStereo = false;
 	}
-	
+
 	// check if projection and model view need to be set
 	// This will happen on the first OnPaint after creation or a resize
-	if(this->updateViewPort)
+	if( this->updateViewPort )
 	{
 		this->SetupProjectionAndModelView();
 
 	}
-	
-	if(this->updateFrustum)
+
+	if( this->updateFrustum )
 	{
 		this->SetFrustum();
 	}
-	
-	if(this->updateShadeModel)
+
+	if( this->updateShadeModel )
 	{
-		if (this->smooth)
+		if ( this->smooth )
 		{
-			glShadeModel(GL_SMOOTH);
+			glShadeModel( GL_SMOOTH );
 		}
 		else
 		{
-			glShadeModel(GL_FLAT);
+			glShadeModel( GL_FLAT );
 		}
 		this->updateShadeModel = false;
 	}
-	
-	if(this->updateLighting)
+
+	if( this->updateLighting )
 	{
-		if (this->lighting)
+		if ( this->lighting )
 		{
-			glEnable(GL_LIGHTING);
+			glEnable( GL_LIGHTING );
 		}
 		else
 		{
-			glDisable(GL_LIGHTING);
+			glDisable( GL_LIGHTING );
 		}
 		this->updateLighting = false;
 	}
 
-	wxPaintDC(this);
-	glDrawBuffer(GL_BACK);
+	wxPaintDC( this );
+	glDrawBuffer( GL_BACK );
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-				
-	for(int eye = 0 ; eye < (this->stereo?2:1); eye++)
+
+	for( int eye = 0 ; eye < ( this->stereo?2:1 ); eye++ )
 	{
-		if(this->stereo)
+		if( this->stereo )
 		{
-			if(eye == 0)
+			if( eye == 0 )
 			{
-				wxLogDebug(wxT("Rendering Left Eye Camera"));
-				glMatrixMode(GL_PROJECTION);
+				wxLogDebug( wxT( "Rendering Left Eye Camera" ) );
+				glMatrixMode( GL_PROJECTION );
 				glLoadIdentity();
-				glFrustum(this->leftCam.leftfrustum, this->leftCam.rightfrustum, this->leftCam.bottomfrustum, this->leftCam.topfrustum, this->nearClippingPlane, this->farClippingPlane);
-				glTranslatef(this->leftCam.modeltranslation, 0.0, 0.0);
-				glMatrixMode(GL_MODELVIEW);
+				glFrustum( this->leftCam.leftfrustum, this->leftCam.rightfrustum, this->leftCam.bottomfrustum, this->leftCam.topfrustum, this->nearClippingPlane, this->farClippingPlane );
+				glTranslatef( this->leftCam.modeltranslation, 0.0, 0.0 );
+				glMatrixMode( GL_MODELVIEW );
 				glLoadIdentity();
-				glDrawBuffer(GL_BACK_LEFT);
+				glDrawBuffer( GL_BACK_LEFT );
 			}
 			else
 			{
-				wxLogDebug(wxT("Rendering Right Eye Camera"));
-				glMatrixMode(GL_PROJECTION);
+				wxLogDebug( wxT( "Rendering Right Eye Camera" ) );
+				glMatrixMode( GL_PROJECTION );
 				glLoadIdentity();
-				glFrustum(this->rightCam.leftfrustum, this->rightCam.rightfrustum, this->rightCam.bottomfrustum, this->rightCam.topfrustum, this->nearClippingPlane, this->farClippingPlane);
-				glTranslatef(this->rightCam.modeltranslation, 0.0, 0.0);
-				glMatrixMode(GL_MODELVIEW);
+				glFrustum( this->rightCam.leftfrustum, this->rightCam.rightfrustum, this->rightCam.bottomfrustum, this->rightCam.topfrustum, this->nearClippingPlane, this->farClippingPlane );
+				glTranslatef( this->rightCam.modeltranslation, 0.0, 0.0 );
+				glMatrixMode( GL_MODELVIEW );
 				glLoadIdentity();
-				glDrawBuffer(GL_BACK_RIGHT);
+				glDrawBuffer( GL_BACK_RIGHT );
 			}
 		}
 		else
 		{
-				wxLogDebug(wxT("Center Camera"));
-				glMatrixMode(GL_PROJECTION);
-				glLoadIdentity();
-				glFrustum(this->centerCam.leftfrustum, this->centerCam.rightfrustum, this->centerCam.bottomfrustum, this->centerCam.topfrustum, this->nearClippingPlane, this->farClippingPlane);
-				glTranslatef(this->centerCam.modeltranslation, 0.0, 0.0);
-				glMatrixMode(GL_MODELVIEW);
-				glLoadIdentity();
+			wxLogDebug( wxT( "Center Camera" ) );
+			glMatrixMode( GL_PROJECTION );
+			glLoadIdentity();
+			glFrustum( this->centerCam.leftfrustum, this->centerCam.rightfrustum, this->centerCam.bottomfrustum, this->centerCam.topfrustum, this->nearClippingPlane, this->farClippingPlane );
+			glTranslatef( this->centerCam.modeltranslation, 0.0, 0.0 );
+			glMatrixMode( GL_MODELVIEW );
+			glLoadIdentity();
 		}
-		
+
 		glPushMatrix();
-		glTranslatef( this->xDist, this->yDist, this->zDist);
+		glTranslatef( this->xDist, this->yDist, this->zDist );
 		glRotatef( this->yrot, 0.0f, 1.0f, 0.0f );
 		glRotatef( this->xrot, 1.0f, 0.0f, 0.0f );
 
 
-		glBindBuffer(GL_ARRAY_BUFFER, this->vbo[0]);
-		glVertexPointer(3, GL_FLOAT, 4*sizeof(GLfloat), 0);
-		glBindBuffer(GL_ARRAY_BUFFER, this->vbo[1]);
-		glColorPointer(4, GL_UNSIGNED_BYTE, 0, 0);
-		
-		glEnable(GL_POINT_SMOOTH);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glEnableClientState(GL_COLOR_ARRAY);
+		glBindBuffer( GL_ARRAY_BUFFER, this->vbo[0] );
+		glVertexPointer( 3, GL_FLOAT, 4*sizeof( GLfloat ), 0 );
+		glBindBuffer( GL_ARRAY_BUFFER, this->vbo[1] );
+		glColorPointer( 4, GL_UNSIGNED_BYTE, 0, 0 );
+
+		glEnable( GL_POINT_SMOOTH );
+		glEnable( GL_BLEND );
+		glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+
+		glEnableClientState( GL_VERTEX_ARRAY );
+		glEnableClientState( GL_COLOR_ARRAY );
 
 		// Draw the Sun as a large point
-		glPointSize(3);
-		glDrawArrays(GL_POINTS, 0, 1);
-		
+		glPointSize( 3 );
+		glDrawArrays( GL_POINTS, 0, 1 );
+
 		// Draw the first 16 "planets"
-		glPointSize(2);
-		glDrawArrays(GL_POINTS, 1, 16);
-		
+		glPointSize( 2 );
+		glDrawArrays( GL_POINTS, 1, 16 );
+
 		// Draw the rest as single pixels
-		if(!this->blending){
-			glDisable(GL_BLEND);
+		if( !this->blending )
+		{
+			glDisable( GL_BLEND );
 		}
-		glPointSize(1);
-		glDisable(GL_POINT_SMOOTH);
-		glDrawArrays(GL_POINTS, 16, this->numParticles-16);
+		glPointSize( 1 );
+		glDisable( GL_POINT_SMOOTH );
+		glDrawArrays( GL_POINTS, 16, this->numParticles-16 );
 
-		glDisableClientState(GL_COLOR_ARRAY);
-		glDisableClientState(GL_VERTEX_ARRAY);
+		glDisableClientState( GL_COLOR_ARRAY );
+		glDisableClientState( GL_VERTEX_ARRAY );
 
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindBuffer( GL_ARRAY_BUFFER, 0 );
 		glPopMatrix();
 	}
 
-	wxLogDebug(wxT("GLCanvas::OnPaint glFinish()"));
+	wxLogDebug( wxT( "GLCanvas::OnPaint glFinish()" ) );
 	glFinish();
 	this->SwapBuffers();
 
-	
-	if ((errCode = glGetError()) != GL_NO_ERROR) {
-		errString = gluErrorString(errCode);
-	   wxLogError(wxT("GLCanvas::OnPaint Fatal OpenGL Error: %d %s"), errCode, errString);
-	   this->Close(true);
+
+	if ( ( errCode = glGetError() ) != GL_NO_ERROR )
+	{
+		errString = gluErrorString( errCode );
+		wxLogError( wxT( "GLCanvas::OnPaint Fatal OpenGL Error: %d %s" ), errCode, errString );
+		this->Close( true );
 	}
 
-	wxLogDebug(wxT("GLCanvas::OnPaint Done"));
+	wxLogDebug( wxT( "GLCanvas::OnPaint Done" ) );
 }
 
-void GLCanvas::SetColours(GLubyte *colorData)
+void GLCanvas::SetColours( GLubyte *colorData )
 {
 	GLenum errCode;
 	const GLubyte *errString;
-	
-	if(!this->vboCreated)
+
+	if( !this->vboCreated )
 	{
-		wxLogError(wxT("SetColours before vboCreated"));
+		wxLogError( wxT( "SetColours before vboCreated" ) );
 	}
-	
-	unsigned int colorSize = this->numParticles * 4 * sizeof(GLubyte);
-	wxGLCanvas::SetCurrent(*this->glContext);
-	glBindBuffer(GL_ARRAY_BUFFER, this->vbo[1]);
-	glBufferData(GL_ARRAY_BUFFER, colorSize, colorData, GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	unsigned int colorSize = this->numParticles * 4 * sizeof( GLubyte );
+	wxGLCanvas::SetCurrent( *this->glContext );
+	glBindBuffer( GL_ARRAY_BUFFER, this->vbo[1] );
+	glBufferData( GL_ARRAY_BUFFER, colorSize, colorData, GL_STATIC_DRAW );
+	glBindBuffer( GL_ARRAY_BUFFER, 0 );
 	glFinish();
-	
-	if ((errCode = glGetError()) != GL_NO_ERROR) {
-		errString = gluErrorString(errCode);
-	   wxLogError(wxT("GLCanvas::SetColours Fatal OpenGL Error: %s"), errString);
-	   this->Close(true);
+
+	if ( ( errCode = glGetError() ) != GL_NO_ERROR )
+	{
+		errString = gluErrorString( errCode );
+		wxLogError( wxT( "GLCanvas::SetColours Fatal OpenGL Error: %s" ), errString );
+		this->Close( true );
 	}
-	
-	wxLogDebug(wxT("GLCanvas::SetColours glFinish()"));
+
+	wxLogDebug( wxT( "GLCanvas::SetColours glFinish()" ) );
 }
 
 // Called when the window is resized
-void GLCanvas::OnSize(wxSizeEvent& event)
+void GLCanvas::OnSize( wxSizeEvent& event )
 {
-	if(!IsShown())
+	if( !IsShown() )
 	{
 		return;
 	}
-	
-	if(!this->vboCreated)
+
+	if( !this->vboCreated )
 	{
-		wxLogError(wxT("OnSize before vboCreated"));
+		wxLogError( wxT( "OnSize before vboCreated" ) );
 	}
 	this->updateViewPort = true;
 }
@@ -346,208 +349,209 @@ void GLCanvas::OnSize(wxSizeEvent& event)
 // sets up the Projection and Model View
 void GLCanvas::SetupProjectionAndModelView()
 {
-	wxLogDebug(wxT("GLCanvas::SetupProjectionAndModelView"));
+	wxLogDebug( wxT( "GLCanvas::SetupProjectionAndModelView" ) );
 	GLenum errCode;
 	const GLubyte *errString;
 
 	int w, h;
-	this->GetClientSize(&w, &h);
-	this->SetCurrent(*this->glContext);
-	glViewport(0, 0, (GLint) w, (GLint) h);
-	
+	this->GetClientSize( &w, &h );
+	this->SetCurrent( *this->glContext );
+	glViewport( 0, 0, ( GLint ) w, ( GLint ) h );
+
 	float width,height;
-	
-	if (w > h)
-    {
-		width = (float)w/(float)h;
+
+	if ( w > h )
+	{
+		width = ( float )w/( float )h;
 		height = 1.0;
-    }
-    else
-    {
-        height = (float)h/(float)w;
-        width = 1.0;
-    }
+	}
+	else
+	{
+		height = ( float )h/( float )w;
+		width = 1.0;
+	}
 	this->aspectRatio = width/height;
 	this->SetFrustum();
 	this->updateViewPort = false;
-	
-	if ((errCode = glGetError()) != GL_NO_ERROR) {
-		errString = gluErrorString(errCode);
-		wxLogError(wxT("GLCanvas::SetupProjectionAndModelView Fatal OpenGL Error: %s"), errString);
-		this->Close(true);
+
+	if ( ( errCode = glGetError() ) != GL_NO_ERROR )
+	{
+		errString = gluErrorString( errCode );
+		wxLogError( wxT( "GLCanvas::SetupProjectionAndModelView Fatal OpenGL Error: %s" ), errString );
+		this->Close( true );
 	}
 }
 
 // Handle Key press events
-void GLCanvas::OnChar(wxKeyEvent& event)
+void GLCanvas::OnChar( wxKeyEvent& event )
 {
-	if(!IsShown())
+	if( !IsShown() )
 	{
 		return;
 	}
-	
-	if(!this->vboCreated)
+
+	if( !this->vboCreated )
 	{
-		wxLogError(wxT("OnChar before vboCreated"));
+		wxLogError( wxT( "OnChar before vboCreated" ) );
 	}
-	
+
 	switch( event.GetKeyCode() )
 	{
-		case WXK_ESCAPE:
-			wxTheApp->ExitMainLoop();
-			return;
+	case WXK_ESCAPE:
+		wxTheApp->ExitMainLoop();
+		return;
 
-		case WXK_LEFT:
-			this->xDist -= 0.01*1000.0f;
-			//this->yrot -= 15.0;
-			break;
+	case WXK_LEFT:
+		this->xDist -= 0.01*1000.0f;
+		//this->yrot -= 15.0;
+		break;
 
-		case WXK_RIGHT:
-			this->xDist += 0.01*1000.0f;
-			//this->yrot += 15.0;
-			break;
+	case WXK_RIGHT:
+		this->xDist += 0.01*1000.0f;
+		//this->yrot += 15.0;
+		break;
 
-		case WXK_UP:
-			this->yDist += 0.01*1000.0f;
-			//this->xrot += 15.0;
-			break;
+	case WXK_UP:
+		this->yDist += 0.01*1000.0f;
+		//this->xrot += 15.0;
+		break;
 
-		case WXK_DOWN:
-			this->yDist -= 0.01*1000.0f;
-			//this->xrot -= 15.0;
-			break;
+	case WXK_DOWN:
+		this->yDist -= 0.01*1000.0f;
+		//this->xrot -= 15.0;
+		break;
 
-		case 's':
-		case 'S':
-			this->smooth = !this->smooth;
-			this->updateShadeModel = true;
-			break;
+	case 's':
+	case 'S':
+		this->smooth = !this->smooth;
+		this->updateShadeModel = true;
+		break;
 
-		case 'l':
-		case 'L':
-			this->lighting = !this->lighting;
-			this->updateLighting = true;
-			break;
+	case 'l':
+	case 'L':
+		this->lighting = !this->lighting;
+		this->updateLighting = true;
+		break;
 
-		case 'z':
-			this->zDist += 10.0f;
-			wxLogDebug(wxT("GLCanvas::OnChar zDist %f"),this->zDist);
-			break;
-			
-		case 'Z':
-			this->zDist += -10.0f;
-			wxLogDebug(wxT("GLCanvas::OnChar zDist %f"),this->zDist);
-			break;
-			
-		case 'c':
-		case 'C':
-			this->yDist = 0.0f;
-			this->xDist = 0.0f;
-			break;
+	case 'z':
+		this->zDist += 10.0f;
+		wxLogDebug( wxT( "GLCanvas::OnChar zDist %f" ),this->zDist );
+		break;
 
-		case 'r':
-		case 'R':
-			this->yDist = 0.0f;
-			this->xDist = 0.0f;
-			this->xrot = 0.0f;
-			this->yrot = 0.0f;
-			this->zDist = -2600.0f;
-			this->fieldOfViewYAxis = 45;
-			this->nearClippingPlane = 1000.0;
-			this->farClippingPlane = 600000.0;
-			this->screenProjectionPlane = 2600.0;
-			this->intraocularDistance = 400.0f;
-			break;
+	case 'Z':
+		this->zDist += -10.0f;
+		wxLogDebug( wxT( "GLCanvas::OnChar zDist %f" ),this->zDist );
+		break;
 
-		case 't':
-			this->zDist = this->zDist*0.1;
-			//this->screenProjectionPlane = - this->zDist;
-			this->nearClippingPlane = -this->zDist/2.0;
-			wxLogDebug(wxT("GLCanvas::OnChar zDist %f, nearClippingPlane %f, screenProjectionPlane %f"),this->zDist,this->nearClippingPlane,this->screenProjectionPlane);
-			break;
-			
-		case 'T':
-			this->zDist = this->zDist*10.0;
-			//this->screenProjectionPlane = -this->zDist;
-			this->nearClippingPlane = -this->zDist/2.0;
-			wxLogDebug(wxT("GLCanvas::OnChar zDist %f, nearClippingPlane %f, screenProjectionPlane %f"),this->zDist,this->nearClippingPlane,this->screenProjectionPlane);
-			break;
-			
-		case 'i':
-			this->intraocularDistance += 100.0f;
-			this->updateFrustum = true;
-			break;
-			
-		case 'I':
-			this->intraocularDistance += -100.0f;
-			this->intraocularDistance = (this->intraocularDistance < 0) ? 0 : this->intraocularDistance;
-			this->updateFrustum = true;
-			break;
-			
-		case 'n':
-			this->nearClippingPlane = this->nearClippingPlane*0.1f;
-			this->updateFrustum = true;
-			wxLogDebug(wxT("GLCanvas::OnChar nearClippingPlane %f"),this->nearClippingPlane);
-			break;
-			
-		case 'N':
-			this->nearClippingPlane = this->nearClippingPlane*10.0f;
-			this->nearClippingPlane = (this->nearClippingPlane < 0) ? 0 : this->nearClippingPlane;
-			this->updateFrustum = true;
-			wxLogDebug(wxT("GLCanvas::OnChar nearClippingPlane %f"),this->nearClippingPlane);
-			break;
+	case 'c':
+	case 'C':
+		this->yDist = 0.0f;
+		this->xDist = 0.0f;
+		break;
 
-		default:
-			event.Skip();
-			return;
+	case 'r':
+	case 'R':
+		this->yDist = 0.0f;
+		this->xDist = 0.0f;
+		this->xrot = 0.0f;
+		this->yrot = 0.0f;
+		this->zDist = -2600.0f;
+		this->fieldOfViewYAxis = 45;
+		this->nearClippingPlane = 1000.0;
+		this->farClippingPlane = 600000.0;
+		this->screenProjectionPlane = 2600.0;
+		this->intraocularDistance = 400.0f;
+		break;
+
+	case 't':
+		this->zDist = this->zDist*0.1;
+		//this->screenProjectionPlane = - this->zDist;
+		this->nearClippingPlane = -this->zDist/2.0;
+		wxLogDebug( wxT( "GLCanvas::OnChar zDist %f, nearClippingPlane %f, screenProjectionPlane %f" ),this->zDist,this->nearClippingPlane,this->screenProjectionPlane );
+		break;
+
+	case 'T':
+		this->zDist = this->zDist*10.0;
+		//this->screenProjectionPlane = -this->zDist;
+		this->nearClippingPlane = -this->zDist/2.0;
+		wxLogDebug( wxT( "GLCanvas::OnChar zDist %f, nearClippingPlane %f, screenProjectionPlane %f" ),this->zDist,this->nearClippingPlane,this->screenProjectionPlane );
+		break;
+
+	case 'i':
+		this->intraocularDistance += 100.0f;
+		this->updateFrustum = true;
+		break;
+
+	case 'I':
+		this->intraocularDistance += -100.0f;
+		this->intraocularDistance = ( this->intraocularDistance < 0 ) ? 0 : this->intraocularDistance;
+		this->updateFrustum = true;
+		break;
+
+	case 'n':
+		this->nearClippingPlane = this->nearClippingPlane*0.1f;
+		this->updateFrustum = true;
+		wxLogDebug( wxT( "GLCanvas::OnChar nearClippingPlane %f" ),this->nearClippingPlane );
+		break;
+
+	case 'N':
+		this->nearClippingPlane = this->nearClippingPlane*10.0f;
+		this->nearClippingPlane = ( this->nearClippingPlane < 0 ) ? 0 : this->nearClippingPlane;
+		this->updateFrustum = true;
+		wxLogDebug( wxT( "GLCanvas::OnChar nearClippingPlane %f" ),this->nearClippingPlane );
+		break;
+
+	default:
+		event.Skip();
+		return;
 	}
 
-	this->Refresh(false);
+	this->Refresh( false );
 }
 
 // Handle Mouse events
-void GLCanvas::OnMouseEvent(wxMouseEvent& event)
+void GLCanvas::OnMouseEvent( wxMouseEvent& event )
 {
 	static int dragging = 0;
 	static float last_x, last_y;
 
-	if(!this->vboCreated)
+	if( !this->vboCreated )
 	{
-		wxLogError(wxT("OnMouseEvent before vboCreated"));
+		wxLogError( wxT( "OnMouseEvent before vboCreated" ) );
 	}
-	
+
 	//printf("%f %f %d\n", event.GetX(), event.GetY(), (int)event.LeftIsDown());
-	if(event.LeftIsDown())
+	if( event.LeftIsDown() )
 	{
-		if(!dragging)
+		if( !dragging )
 		{
 			dragging = 1;
 		}
 		else
 		{
-			this->yrot += (event.GetX() - last_x)*1.0;
-			this->xrot += (event.GetY() - last_y)*1.0;
-			this->Refresh(false);
+			this->yrot += ( event.GetX() - last_x )*1.0;
+			this->xrot += ( event.GetY() - last_y )*1.0;
+			this->Refresh( false );
 		}
 		last_x = event.GetX();
 		last_y = event.GetY();
 	}
 	else
 		dragging = 0;
-	
-	if(event.GetWheelRotation() > 0)
+
+	if( event.GetWheelRotation() > 0 )
 	{
 		this->zDist += 0.1*1000.0f;
-		this->Refresh(false);
+		this->Refresh( false );
 	}
-	else if(event.GetWheelRotation()<0)
+	else if( event.GetWheelRotation()<0 )
 	{
 		this->zDist += -0.1*1000.0f;
-		this->Refresh(false);
+		this->Refresh( false );
 	}
 }
 
-void GLCanvas::OnEraseBackground( wxEraseEvent& WXUNUSED(event) )
+void GLCanvas::OnEraseBackground( wxEraseEvent& WXUNUSED( event ) )
 {
 	// Do nothing, to avoid flashing.
 }
@@ -559,74 +563,74 @@ GLuint* GLCanvas::getVbo()
 	GLenum errCode;
 	const GLubyte *errString;
 
-	if(!this->vboCreated)
+	if( !this->vboCreated )
 	{
-		wxLogDebug(wxT("GLCanvas::getVbo creating vbo's"));
-		wxGLCanvas::SetCurrent(*this->glContext);
-		
+		wxLogDebug( wxT( "GLCanvas::getVbo creating vbo's" ) );
+		wxGLCanvas::SetCurrent( *this->glContext );
+
 		// use float4 for 128 bit alignment
-		unsigned int size = this->numParticles * 4 * sizeof(GLfloat);
-		GLfloat *data = (GLfloat *)malloc(size);
-		memset(data,0x1,size);
+		unsigned int size = this->numParticles * 4 * sizeof( GLfloat );
+		GLfloat *data = ( GLfloat * )malloc( size );
+		memset( data,0x1,size );
 
-		unsigned int colorSize = this->numParticles * 4 * sizeof(GLubyte);
-		GLubyte *colorData = (GLubyte *) malloc(colorSize);
+		unsigned int colorSize = this->numParticles * 4 * sizeof( GLubyte );
+		GLubyte *colorData = ( GLubyte * ) malloc( colorSize );
 
-		wxLogDebug(wxT("Initialising %d particles"),this->numParticles);
+		wxLogDebug( wxT( "Initialising %d particles" ),this->numParticles );
 
-		for (int i = 0; i<this->numParticles; i++)
+		for ( int i = 0; i<this->numParticles; i++ )
 		{
 			colorData[i*4+0] = 64;
 			colorData[i*4+1] = 64;
 			colorData[i*4+2] = 92;
 			colorData[i*4+3] = 255;
 		}
-		
-		// Create the vbos and initialise them
-		glGenBuffers(2, &(this->vbo[0]));
-		glBindBuffer(GL_ARRAY_BUFFER, this->vbo[0]);
-		glBufferData(GL_ARRAY_BUFFER, size, data, GL_DYNAMIC_DRAW);
 
-		glBindBuffer(GL_ARRAY_BUFFER, this->vbo[1]);
-		glBufferData(GL_ARRAY_BUFFER, colorSize, colorData, GL_STATIC_DRAW);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		// Create the vbos and initialise them
+		glGenBuffers( 2, &( this->vbo[0] ) );
+		glBindBuffer( GL_ARRAY_BUFFER, this->vbo[0] );
+		glBufferData( GL_ARRAY_BUFFER, size, data, GL_DYNAMIC_DRAW );
+
+		glBindBuffer( GL_ARRAY_BUFFER, this->vbo[1] );
+		glBufferData( GL_ARRAY_BUFFER, colorSize, colorData, GL_STATIC_DRAW );
+		glBindBuffer( GL_ARRAY_BUFFER, 0 );
 
 		glFinish();
-		wxLogDebug(wxT("GLCanvas::getVbo glFinish()"));
+		wxLogDebug( wxT( "GLCanvas::getVbo glFinish()" ) );
 
-		if ((errCode = glGetError()) != GL_NO_ERROR)
+		if ( ( errCode = glGetError() ) != GL_NO_ERROR )
 		{
-			errString = gluErrorString(errCode);
-			wxLogError(wxT("GLCanvas::getVbo Fatal OpenGL Error: %s"), errString);
-			this->Close(true);
+			errString = gluErrorString( errCode );
+			wxLogError( wxT( "GLCanvas::getVbo Fatal OpenGL Error: %s" ), errString );
+			this->Close( true );
 		}
-	
-		free(data);
-		free(colorData);
+
+		free( data );
+		free( colorData );
 		this->vboCreated = true;
 	}
-	
-	wxLogDebug(wxT("GLCanvas::getVbo returning vbo's"));
+
+	wxLogDebug( wxT( "GLCanvas::getVbo returning vbo's" ) );
 	return this->vbo;
 }
 
-bool GLCanvas::VSync(bool vsync)
+bool GLCanvas::VSync( bool vsync )
 {
 	int interval = vsync ? 1 : 0;
 	bool success = false;
-	
-	if(!this->active)
+
+	if( !this->active )
 	{
-		wxLogError(wxT("GLCanvas::VSync before opengl is setup"));
+		wxLogError( wxT( "GLCanvas::VSync before opengl is setup" ) );
 		return success;
 	}
-	
-#ifdef _WIN32	
-	if(wglewIsSupported("WGL_EXT_swap_control"))
+
+#ifdef _WIN32
+	if( wglewIsSupported( "WGL_EXT_swap_control" ) )
 	{
-		if(!wglSwapIntervalEXT(interval))
+		if( !wglSwapIntervalEXT( interval ) )
 		{
-			wxLogDebug(wxT("Failed to set vsync"));
+			wxLogDebug( wxT( "Failed to set vsync" ) );
 		}
 		else
 		{
@@ -635,16 +639,16 @@ bool GLCanvas::VSync(bool vsync)
 	}
 	else
 	{
-		wxLogDebug(wxT("WGL_EXT_swap_control not supported"));
+		wxLogDebug( wxT( "WGL_EXT_swap_control not supported" ) );
 	}
 #endif
 
 #ifdef __linux__
-	if(glxewIsSupported ("GLX_SGI_swap_control"))
+	if( glxewIsSupported ( "GLX_SGI_swap_control" ) )
 	{
-		if(glXSwapIntervalSGI(interval) != 0)
+		if( glXSwapIntervalSGI( interval ) != 0 )
 		{
-			wxLogDebug(wxT("Failed to set vsync"));
+			wxLogDebug( wxT( "Failed to set vsync" ) );
 		}
 		else
 		{
@@ -653,14 +657,14 @@ bool GLCanvas::VSync(bool vsync)
 	}
 	else
 	{
-		wxLogDebug(wxT("GLX_SGI_swap_control not supported"));
+		wxLogDebug( wxT( "GLX_SGI_swap_control not supported" ) );
 	}
 #endif
 
 #ifdef __APPLE__
-	if(CGLSetParameter(CGLGetCurrentContext(), kCGLCPSwapInterval, &interval) !=0)
+	if( CGLSetParameter( CGLGetCurrentContext(), kCGLCPSwapInterval, &interval ) !=0 )
 	{
-			wxLogDebug(wxT("Failed to set vsync"));
+		wxLogDebug( wxT( "Failed to set vsync" ) );
 	}
 	else
 	{
@@ -669,9 +673,9 @@ bool GLCanvas::VSync(bool vsync)
 #endif
 
 #ifdef __WXDEBUG__
-	if(success)
+	if( success )
 	{
-		wxLogDebug(wxT("Set vsync %s"), vsync ? "true" : "false");
+		wxLogDebug( wxT( "Set vsync %s" ), vsync ? "true" : "false" );
 	}
 #endif
 
@@ -679,73 +683,72 @@ bool GLCanvas::VSync(bool vsync)
 }
 
 // Creates the OpenGL Context
-bool GLCanvas::CreateOpenGlContext(int numParticles, int numGrav)
+bool GLCanvas::CreateOpenGlContext( int numParticles, int numGrav )
 {
 
 #ifdef __WXDEBUG__
-	wxLogDebug(wxT("GLCanvas::CreateOpenGlContext Start threadId: %ld"),wxThread::GetCurrentId());
+	wxLogDebug( wxT( "GLCanvas::CreateOpenGlContext Start threadId: %ld" ),wxThread::GetCurrentId() );
 #endif
 
 	GLenum errCode;
 	const GLubyte *errString;
-	
+
 	this->numParticles = numParticles;
 	this->numGrav = numGrav;
 
-	if(!IsShown())
+	if( !IsShown() )
 	{
-		return false;
-	} 
-    
-    wxGLCanvas::SetCurrent(*this->glContext);
-	GLenum err = glewInit();
-	if (GLEW_OK != err)
-	{
-		wxLogError(wxT("Problem with glew Error:%s\n"),glewGetErrorString(err));
 		return false;
 	}
-	
-	if (!glewIsSupported("GL_VERSION_2_0 GL_ARB_pixel_buffer_object"))
+
+	wxGLCanvas::SetCurrent( *this->glContext );
+	GLenum err = glewInit();
+	if ( GLEW_OK != err )
 	{
-		wxLogError(wxT("Problem with GL version\n"));
+		wxLogError( wxT( "Problem with glew Error:%s\n" ),glewGetErrorString( err ) );
+		return false;
+	}
+
+	if ( !glewIsSupported( "GL_VERSION_2_0 GL_ARB_pixel_buffer_object" ) )
+	{
+		wxLogError( wxT( "Problem with GL version\n" ) );
 		return false;
 	}
 
 	this->active=true;
-	this->VSync(false);
+	this->VSync( false );
 	this->vboCreated = false;
 	this->updateViewPort = true;
 
-	if ((errCode = glGetError()) != GL_NO_ERROR)
+	if ( ( errCode = glGetError() ) != GL_NO_ERROR )
 	{
-		errString = gluErrorString(errCode);
-		wxLogError(wxT("GLCanvas::CreateOpenGlContext Fatal OpenGL Error: %s"), errString);
-		this->Close(true);
+		errString = gluErrorString( errCode );
+		wxLogError( wxT( "GLCanvas::CreateOpenGlContext Fatal OpenGL Error: %s" ), errString );
+		this->Close( true );
 	}
-		
-	wxLogDebug(wxT("GLCanvas::CreateOpenGlContext Done"));
+
+	wxLogDebug( wxT( "GLCanvas::CreateOpenGlContext Done" ) );
 	return true;
 }
 
 bool GLCanvas::CleanUpGL()
 {
-	wxLogDebug(wxT("GLCanvas::CleanUpGL"));
+	wxLogDebug( wxT( "GLCanvas::CleanUpGL" ) );
 	GLenum errCode;
 	const GLubyte *errString;
-	
+
 	this->active = false;
-	glDeleteBuffers(2, &(this->vbo[0]));
+	glDeleteBuffers( 2, &( this->vbo[0] ) );
 	glFinish();
-	wxLogDebug(wxT("GLCanvas::CleanUpGL glFinish()"));
+	wxLogDebug( wxT( "GLCanvas::CleanUpGL glFinish()" ) );
 	this->vboCreated = false;
-	wxLogDebug(wxT("GLCanvas::CleanUpGL Done"));
-	if ((errCode = glGetError()) != GL_NO_ERROR)
+	wxLogDebug( wxT( "GLCanvas::CleanUpGL Done" ) );
+	if ( ( errCode = glGetError() ) != GL_NO_ERROR )
 	{
-		errString = gluErrorString(errCode);
-		wxLogError(wxT("GLCanvas::CleanUpGL Fatal OpenGL Error: %s"), errString);
-		this->Close(true);
+		errString = gluErrorString( errCode );
+		wxLogError( wxT( "GLCanvas::CleanUpGL Fatal OpenGL Error: %s" ), errString );
+		this->Close( true );
 		return false;
 	}
 	return true;
 }
-

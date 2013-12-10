@@ -43,10 +43,10 @@ public:
 	void DeAllocate();
 	bool Allocate();
 	void SetDefaultBodyColours();
-	bool ImportSLF(wxString fileName);
-	bool ExportSLF(wxString fileName);
-	bool LoadInitialState(wxString fileName);
-	bool SaveInitialState(wxString fileName);
+	bool ImportSLF( wxString fileName );
+	bool ExportSLF( wxString fileName );
+	bool LoadInitialState( wxString fileName );
+	bool SaveInitialState( wxString fileName );
 	bool CreateRandomInitialConfig();
 };
 

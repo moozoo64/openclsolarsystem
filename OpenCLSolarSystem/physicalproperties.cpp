@@ -23,4 +23,3 @@ PhysicalProperties::PhysicalProperties()
 PhysicalProperties::~PhysicalProperties()
 {
 }
-

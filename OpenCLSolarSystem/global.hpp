@@ -25,7 +25,7 @@
 
 #ifdef __linux__
 #include <GL/glxew.h>
-#endif 
+#endif
 
 #include "wx/wx.h"
 #include "wx/timer.h"
@@ -60,5 +60,3 @@
 #endif
 
 #include <CL/cl_gl.h>
-
-

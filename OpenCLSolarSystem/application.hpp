@@ -28,24 +28,24 @@
 
 class Application: public wxApp
 {
-	public:
-		virtual bool OnInit();
-		virtual int OnExit();
-		Application();
+public:
+	virtual bool OnInit();
+	virtual int OnExit();
+	Application();
 
-	private:
-		bool doubleBuffer;
-		bool smooth;
-		bool lighting;
-		bool stereo;
-		char *desiredPlatform;
-		int numParticles;
-		int numGrav;
-		bool useLastDevice;
-		bool tryForCPUFirst;
+private:
+	bool doubleBuffer;
+	bool smooth;
+	bool lighting;
+	bool stereo;
+	char *desiredPlatform;
+	int numParticles;
+	int numGrav;
+	bool useLastDevice;
+	bool tryForCPUFirst;
 
-		Frame *frame;
-		bool Args(int argc, wxChar **argv);
+	Frame *frame;
+	bool Args( int argc, wxChar **argv );
 };
 
 #endif // #ifndef APPLICATION_H_
