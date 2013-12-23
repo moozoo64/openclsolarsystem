@@ -567,32 +567,15 @@ GLuint* GLCanvas::getVbo()
 	{
 		wxLogDebug( wxT( "GLCanvas::getVbo creating vbo's" ) );
 		wxGLCanvas::SetCurrent( *this->glContext );
-
-		// use float4 for 128 bit alignment
 		unsigned int size = this->numParticles * 4 * sizeof( GLfloat );
-		GLfloat *data = ( GLfloat * )malloc( size );
-		memset( data,0x1,size );
-
 		unsigned int colorSize = this->numParticles * 4 * sizeof( GLubyte );
-		GLubyte *colorData = ( GLubyte * ) malloc( colorSize );
 
-		wxLogDebug( wxT( "Initialising %d particles" ),this->numParticles );
-
-		for ( int i = 0; i<this->numParticles; i++ )
-		{
-			colorData[i*4+0] = 64;
-			colorData[i*4+1] = 64;
-			colorData[i*4+2] = 92;
-			colorData[i*4+3] = 255;
-		}
-
-		// Create the vbos and initialise them
+		// Create the vbos
 		glGenBuffers( 2, &( this->vbo[0] ) );
 		glBindBuffer( GL_ARRAY_BUFFER, this->vbo[0] );
-		glBufferData( GL_ARRAY_BUFFER, size, data, GL_DYNAMIC_DRAW );
-
+		glBufferData( GL_ARRAY_BUFFER, size, NULL, GL_DYNAMIC_DRAW );
 		glBindBuffer( GL_ARRAY_BUFFER, this->vbo[1] );
-		glBufferData( GL_ARRAY_BUFFER, colorSize, colorData, GL_STATIC_DRAW );
+		glBufferData( GL_ARRAY_BUFFER, colorSize, NULL, GL_STATIC_DRAW );
 		glBindBuffer( GL_ARRAY_BUFFER, 0 );
 
 		glFinish();
@@ -605,8 +588,6 @@ GLuint* GLCanvas::getVbo()
 			this->Close( true );
 		}
 
-		free( data );
-		free( colorData );
 		this->vboCreated = true;
 	}
 
@@ -683,7 +664,7 @@ bool GLCanvas::VSync( bool vsync )
 }
 
 // Creates the OpenGL Context
-bool GLCanvas::CreateOpenGlContext( int numParticles, int numGrav )
+bool GLCanvas::CreateOpenGlContext( int numParticlesIn, int numGravIn )
 {
 
 #ifdef __WXDEBUG__
@@ -693,9 +674,9 @@ bool GLCanvas::CreateOpenGlContext( int numParticles, int numGrav )
 	GLenum errCode;
 	const GLubyte *errString;
 
-	this->numParticles = numParticles;
-	this->numGrav = numGrav;
-
+	this->numParticles = numParticlesIn;
+	this->numGrav = numGravIn;
+	
 	if( !IsShown() )
 	{
 		return false;
