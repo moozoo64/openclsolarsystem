@@ -440,7 +440,7 @@ bool InitialState::ImportSLF( wxString fileName )
 
 	progressBar.Update( 0,wxT( "Loading" ) );
 
-	long bodiesReadCount = 0L;
+	int bodiesReadCount = 0;
 	wxString FirstLine = initialConditions.ReadLine();
 	double time;
 	FirstLine.ToDouble( &time );
@@ -649,7 +649,16 @@ bool InitialState::ImportSLF( wxString fileName )
 			this->initialPositions[i].x = xPos;
 			this->initialPositions[i].y = yPos;
 			this->initialPositions[i].z = zPos;
-			this->initialPositions[i].w = mass * 6.67384E-08;
+			//this->initialPositions[i].w = mass * 6.67384E-08;
+			
+			if( mass < 1.0E-30f )
+			{
+				this->initialPositions[i].w = 2.83E-09 * 6.67384E-08;
+			}
+			else
+			{
+				this->initialPositions[i].w = mass * 6.67384E-08;
+			}
 
 			this->initialVelocities[i].x = xVel;
 			this->initialVelocities[i].y = yVel;
@@ -673,7 +682,8 @@ bool InitialState::ImportSLF( wxString fileName )
 			}
 			this->physicalProperties[i].Name[31] =0;
 
-			wxLogDebug( wxT( "Read %ld,%s,%f,%f,%f,%f,%f,%f,%f" ),bodiesReadCount++,this->physicalProperties[i].Name,mass,xPos,yPos,zPos,xVel,yVel,zVel );
+			wxLogDebug( wxT( "Read %ld,%s,%e,%e,%f,%f,%f,%f,%f,%f" ),bodiesReadCount,this->physicalProperties[i].Name,mass,this->initialPositions[i].w,xPos,yPos,zPos,xVel,yVel,zVel );
+			bodiesReadCount++;
 		}
 		else
 		{
