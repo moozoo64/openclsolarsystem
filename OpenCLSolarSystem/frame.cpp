@@ -860,16 +860,15 @@ void Frame::UpdateMenuItems()
 
 void Frame::OnImportSlf( wxCommandEvent& WXUNUSED( event ) )
 {
+	this->Stop();
 	wxLogDebug( wxT( "Importing Solex SFL file" ) );
 	wxFileDialog fileDialog( this, wxT( "Choose Solex SLF file to Import" ), wxT( "" ), wxT( "" ), wxT( "*.SLF;*.slf" ), wxFD_OPEN );
 	if( fileDialog.ShowModal() == wxID_OK )
 	{
 		if( this->initialState->ImportSLF( fileDialog.GetPath() ) )
 		{
-			if( this->numParticles > this->initialState->initialNumParticles )
-			{
-				this->numParticles = this->initialState->initialNumParticles;
-			}
+			this->numParticles = this->initialState->initialNumParticles;
+			this->numGrav = this->initialState->initialNumGrav > this->clModel->maxNumGrav ? this->clModel->maxNumGrav : this->initialState->initialNumGrav;
 			this->ResetAll();
 		}
 	}
@@ -919,6 +918,7 @@ void Frame::OnSetNum( wxCommandEvent& event )
 	switch( event.GetId() )
 	{
 	case ID_SETNUMVSMALL:
+		//this->numParticles = 256*2 < this->initialState->initialNumParticles ? 256*2 : this->initialState->initialNumParticles;
 		this->numParticles = 256*10 < this->initialState->initialNumParticles ? 256*10 : this->initialState->initialNumParticles;
 		break;
 	case ID_SETNUMSMALL:
