@@ -297,7 +297,7 @@ void GLCanvas::OnPaint( wxPaintEvent& WXUNUSED( event ) )
 	if ( ( errCode = glGetError() ) != GL_NO_ERROR )
 	{
 		errString = gluErrorString( errCode );
-		wxLogError( wxT( "GLCanvas::OnPaint Fatal OpenGL Error: %d %s" ), errCode, errString );
+		wxLogError( wxT( "GLCanvas::OnPaint Fatal OpenGL Error: %d %s" ), errCode, wxString(errString) );
 		this->Close( true );
 	}
 
@@ -324,7 +324,7 @@ void GLCanvas::SetColours( GLubyte *colorData )
 	if ( ( errCode = glGetError() ) != GL_NO_ERROR )
 	{
 		errString = gluErrorString( errCode );
-		wxLogError( wxT( "GLCanvas::SetColours Fatal OpenGL Error: %s" ), errString );
+		wxLogError( wxT( "GLCanvas::SetColours Fatal OpenGL Error: %s" ), wxString(errString) );
 		this->Close( true );
 	}
 
@@ -377,7 +377,7 @@ void GLCanvas::SetupProjectionAndModelView()
 	if ( ( errCode = glGetError() ) != GL_NO_ERROR )
 	{
 		errString = gluErrorString( errCode );
-		wxLogError( wxT( "GLCanvas::SetupProjectionAndModelView Fatal OpenGL Error: %s" ), errString );
+		wxLogError( wxT( "GLCanvas::SetupProjectionAndModelView Fatal OpenGL Error: %s" ), wxString(errString) );
 		this->Close( true );
 	}
 }
@@ -541,12 +541,20 @@ void GLCanvas::OnMouseEvent( wxMouseEvent& event )
 
 	if( event.GetWheelRotation() > 0 )
 	{
-		this->zDist += 0.1*1000.0f;
+		//this->zDist += 0.1*1000.0f;
+		this->zDist *= 0.6666666666667;
+		this->nearClippingPlane *= 0.6666666666667;
+		this->farClippingPlane *= 0.6666666666667;
+		this->updateFrustum = true;
 		this->Refresh( false );
 	}
 	else if( event.GetWheelRotation()<0 )
 	{
-		this->zDist += -0.1*1000.0f;
+		//this->zDist += -0.1*1000.0f;
+		this->zDist *= 1.5;
+		this->nearClippingPlane *= 1.5;
+		this->farClippingPlane *= 1.5;
+		this->updateFrustum = true;
 		this->Refresh( false );
 	}
 }
@@ -584,7 +592,7 @@ GLuint* GLCanvas::getVbo()
 		if ( ( errCode = glGetError() ) != GL_NO_ERROR )
 		{
 			errString = gluErrorString( errCode );
-			wxLogError( wxT( "GLCanvas::getVbo Fatal OpenGL Error: %s" ), errString );
+			wxLogError( wxT( "GLCanvas::getVbo Fatal OpenGL Error: %s" ), wxString(errString) );
 			this->Close( true );
 		}
 
@@ -704,7 +712,7 @@ bool GLCanvas::CreateOpenGlContext( int numParticlesIn, int numGravIn )
 	if ( ( errCode = glGetError() ) != GL_NO_ERROR )
 	{
 		errString = gluErrorString( errCode );
-		wxLogError( wxT( "GLCanvas::CreateOpenGlContext Fatal OpenGL Error: %s" ), errString );
+		wxLogError( wxT( "GLCanvas::CreateOpenGlContext Fatal OpenGL Error: %s" ), wxString(errString) );
 		this->Close( true );
 	}
 
@@ -727,7 +735,7 @@ bool GLCanvas::CleanUpGL()
 	if ( ( errCode = glGetError() ) != GL_NO_ERROR )
 	{
 		errString = gluErrorString( errCode );
-		wxLogError( wxT( "GLCanvas::CleanUpGL Fatal OpenGL Error: %s" ), errString );
+		wxLogError( wxT( "GLCanvas::CleanUpGL Fatal OpenGL Error: %s" ), wxString(errString) );
 		this->Close( true );
 		return false;
 	}
