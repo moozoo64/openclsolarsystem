@@ -45,6 +45,7 @@ public:
 	cl_double time;
 	cl_int numGrav;
 	cl_int maxNumGrav;
+	cl_int maxNumParticles;
 	cl_int step;
 	cl_int centerBody;
 	cl_uint deviceVendorId;
@@ -72,6 +73,9 @@ private:
 	size_t startupKernelWorkGroupSize;    /**< Group size returned by kernel */
 	size_t copyToDisplayKernelWorkGroupSize;    /**< Group size returned by kernel */
 	size_t groupSize;                   /**< Work-Group size */
+	cl_ulong globalMemorySize;
+	cl_ulong maxMemoryAlloc;
+	
 
 	cl_int numParticles;
 	cl_int stage;

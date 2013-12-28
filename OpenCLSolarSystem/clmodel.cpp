@@ -38,6 +38,8 @@ CLModel::CLModel()
 	this->adamsMoultonKernelWorkGroupSize = 0;
 	this->startupKernelWorkGroupSize = 0;
 	this->groupSize = 64;
+	this->maxMemoryAlloc = 0;
+	this->globalMemorySize = 0;
 
 	this->dispPos = NULL;
 	this->currPos = NULL;
@@ -497,7 +499,27 @@ bool CLModel::FindDeviceAndCreateContext( cl_uint desiredDeviceVendorId, cl_devi
 		{
 			this->numGrav = this->maxNumGrav;
 		}
+		
+		status = clGetDeviceInfo( this->deviceId,CL_DEVICE_GLOBAL_MEM_SIZE,sizeof( cl_ulong ),( void * )&this->globalMemorySize,	NULL );
+		if( status != CL_SUCCESS )
+		{
+			wxLogError( wxT( "clGetDeviceInfo failed to get CL_DEVICE_GLOBAL_MEM_SIZE %s" ),this->ErrorMessage( status ) );
+			throw status;
+		}
+		
+		status = clGetDeviceInfo( this->deviceId,CL_DEVICE_MAX_MEM_ALLOC_SIZE,sizeof( cl_ulong ),( void * )&this->maxMemoryAlloc,	NULL );
+		if( status != CL_SUCCESS )
+		{
+			wxLogError( wxT( "clGetDeviceInfo failed to get CL_DEVICE_MAX_MEM_ALLOC_SIZE %s" ),this->ErrorMessage( status ) );
+			throw status;
+		}
 
+		int maxHistory = this->maxMemoryAlloc/(16 * sizeof( cl_double4 ));
+		int maxGlobal = this->globalMemorySize/((2* 16 * sizeof( cl_double4 ))+(4 * sizeof( cl_double4 )));
+		this->maxNumParticles = maxGlobal < maxHistory?maxGlobal:maxHistory;
+		wxLogDebug( wxT( "max hsitory particles %d" ), maxHistory);
+		wxLogDebug( wxT( "max global particles %d" ), maxGlobal);
+		
 		success = true;
 	}
 	catch ( int ex )
