@@ -128,54 +128,71 @@ void InitialState::SetDefaultBodyColours()
 
 		if( i > this->initialNumGrav )
 		{
-			this->initialColorData[i*4+0] = 64;
-			this->initialColorData[i*4+1] = 64;
-			this->initialColorData[i*4+2] = 92;
-			this->initialColorData[i*4+3] = 128;
+			if( name.Contains( wxT( "InnerOort" ) ) )
+			{
+				this->initialColorData[i*4+0] = 192;
+				this->initialColorData[i*4+1] = 64;
+				this->initialColorData[i*4+2] = 64;
+				this->initialColorData[i*4+3] = 255;
+			}
+			else if( name.Contains( wxT( "OuterOort" ) ) )
+			{
+				this->initialColorData[i*4+0] = 64;
+				this->initialColorData[i*4+1] = 192;
+				this->initialColorData[i*4+2] = 64;
+				this->initialColorData[i*4+3] = 255;
+			}
+			else
+			{
+				this->initialColorData[i*4+0] = 64;
+				this->initialColorData[i*4+1] = 64;
+				this->initialColorData[i*4+2] = 92;
+				this->initialColorData[i*4+3] = 128;
+			}
 		}
-		else if( name.IsSameAs( wxT( "Sun" ),false ) )
+		else if( name.Contains( wxT( "Sun" ) ) )
 		{
 			this->initialColorData[i*4+0] = 255;
 			this->initialColorData[i*4+1] = 255;
 			this->initialColorData[i*4+2] = 255;
 			this->initialColorData[i*4+3] = 255;
 		}
-		else if( name.IsSameAs( wxT( "RogueStar" ),false ) )
+		else if( name.Contains( wxT( "RogueStar" ) ) )
 		{
 			this->initialColorData[i*4+0] = 255;
 			this->initialColorData[i*4+1] = 255;
 			this->initialColorData[i*4+2] = 255;
 			this->initialColorData[i*4+3] = 255;
 		}
-		else if( name.IsSameAs( wxT( "RogueDwarf" ),false ) )
+		else if( name.Contains( wxT( "RogueDwarf" ) ) )
 		{
 			this->initialColorData[i*4+0] = 255;
 			this->initialColorData[i*4+1] = 192;
 			this->initialColorData[i*4+2] = 192;
 			this->initialColorData[i*4+3] = 255;
 		}
-		else if( name.IsSameAs( wxT( "RoguePlanet" ),false ) )
+		else if( name.Contains( wxT( "RoguePlanet" ) ) )
 		{
 			this->initialColorData[i*4+0] = 255;
 			this->initialColorData[i*4+1] = 255;
 			this->initialColorData[i*4+2] = 128;
 			this->initialColorData[i*4+3] = 255;
 		}
-		else if( name.IsSameAs( wxT( "Mercury" ),false ) )
+		else if( name.Contains( wxT( "Mercury" ) ) )
 		{
 			this->initialColorData[i*4+0] = 255;
 			this->initialColorData[i*4+1] = 128;
 			this->initialColorData[i*4+2] = 128;
 			this->initialColorData[i*4+3] = 255;
 		}
-		else if( name.IsSameAs( wxT( "Venus" ) ) )
+		else if( name.Contains( wxT( "Venus" ) ) )
 		{
 			this->initialColorData[i*4+0] = 192;
 			this->initialColorData[i*4+1] = 192;
 			this->initialColorData[i*4+2] = 192;
 			this->initialColorData[i*4+3] = 255;
 		}
-		else if( name.IsSameAs( wxT( "Earth" ) ) )
+		else if( name.Contains( wxT( "Earth" ) ) )
 		{
 			this->initialColorData[i*4+0] = 64;
 			this->initialColorData[i*4+1] = 128;
@@ -183,7 +200,7 @@ void InitialState::SetDefaultBodyColours()
 			this->initialColorData[i*4+3] = 255;
 
 		}
-		else if( name.IsSameAs( wxT( "Moon" ) ) )
+		else if( name.Contains( wxT( "Moon" ) ) )
 		{
 			this->initialColorData[i*4+0] = 128;
 			this->initialColorData[i*4+1] = 128;
@@ -191,77 +208,77 @@ void InitialState::SetDefaultBodyColours()
 			this->initialColorData[i*4+3] = 255;
 
 		}
-		else if( name.IsSameAs( wxT( "Mars" ) ) )
+		else if( name.Contains( wxT( "Mars" ) ) )
 		{
 			this->initialColorData[i*4+0] = 255;
 			this->initialColorData[i*4+1] = 64;
 			this->initialColorData[i*4+2] = 64;
 			this->initialColorData[i*4+3] = 255;
 		}
-		else if( name.IsSameAs( wxT( "Jupiter" ) ) )
+		else if( name.Contains( wxT( "Jupiter" ) ) )
 		{
 			this->initialColorData[i*4+0] = 255;
 			this->initialColorData[i*4+1] = 255;
 			this->initialColorData[i*4+2] = 128;
 			this->initialColorData[i*4+3] = 255;
 		}
-		else if( name.IsSameAs( wxT( "Saturn" ) ) )
+		else if( name.Contains( wxT( "Saturn" ) ) )
 		{
 			this->initialColorData[i*4+0] = 255;
 			this->initialColorData[i*4+1] = 255;
 			this->initialColorData[i*4+2] = 128;
 			this->initialColorData[i*4+3] = 255;
 		}
-		else if( name.IsSameAs( wxT( "Uranus" ) ) )
+		else if( name.Contains( wxT( "Uranus" ) ) )
 		{
 			this->initialColorData[i*4+0] = 128;
 			this->initialColorData[i*4+1] = 128;
 			this->initialColorData[i*4+2] = 255;
 			this->initialColorData[i*4+3] = 255;
 		}
-		else if( name.IsSameAs( wxT( "Neptune" ) ) )
+		else if( name.Contains( wxT( "Neptune" ) ) )
 		{
 			this->initialColorData[i*4+0] = 128;
 			this->initialColorData[i*4+1] = 128;
 			this->initialColorData[i*4+2] = 255;
 			this->initialColorData[i*4+3] = 255;
 		}
-		else if( name.IsSameAs( wxT( "Pluto" ) ) )
+		else if( name.Contains( wxT( "Pluto" ) ) )
 		{
 			this->initialColorData[i*4+0] = 128;
 			this->initialColorData[i*4+1] = 128;
 			this->initialColorData[i*4+2] = 128;
 			this->initialColorData[i*4+3] = 255;
 		}
-		else if( name.IsSameAs( wxT( "Ceres" ) ) )
+		else if( name.Contains( wxT( "Ceres" ) ) )
 		{
 			this->initialColorData[i*4+0] = 128;
 			this->initialColorData[i*4+1] = 128;
 			this->initialColorData[i*4+2] = 255;
 			this->initialColorData[i*4+3] = 255;
 		}
-		else if( name.IsSameAs( wxT( "Pallas" ) ) )
+		else if( name.Contains( wxT( "Pallas" ) ) )
 		{
 			this->initialColorData[i*4+0] = 128;
 			this->initialColorData[i*4+1] = 128;
 			this->initialColorData[i*4+2] = 255;
 			this->initialColorData[i*4+3] = 255;
 		}
-		else if( name.IsSameAs( wxT( "Vesta" ) ) )
+		else if( name.Contains( wxT( "Vesta" ) ) )
 		{
 			this->initialColorData[i*4+0] = 128;
 			this->initialColorData[i*4+1] = 128;
 			this->initialColorData[i*4+2] = 255;
 			this->initialColorData[i*4+3] = 255;
 		}
-		else if( name.IsSameAs( wxT( "Juno" ) ) )
+		else if( name.Contains( wxT( "Juno" ) ) )
 		{
 			this->initialColorData[i*4+0] = 128;
 			this->initialColorData[i*4+1] = 128;
 			this->initialColorData[i*4+2] = 255;
 			this->initialColorData[i*4+3] = 255;
 		}
-		else if( name.IsSameAs( wxT( "C2013A1" ) ) )
+		else if( name.Contains( wxT( "C2013A1" ) ) )
 		{
 			this->initialColorData[i*4+0] = 128;
 			this->initialColorData[i*4+1] = 128;
@@ -416,7 +433,7 @@ bool InitialState::ExportSLF( wxString fileName )
 // imports a Solex SLF formated file
 bool InitialState::ImportSLF( wxString fileName )
 {
-	this->initialNumParticles = 1000000;
+	this->initialNumParticles = 2000000;
 	this->initialNumGrav = 16;
 
 	wxString message;
@@ -650,7 +667,7 @@ bool InitialState::ImportSLF( wxString fileName )
 			this->initialPositions[i].y = yPos;
 			this->initialPositions[i].z = zPos;
 			//this->initialPositions[i].w = mass * 6.67384E-08;
-			
+
 			if( mass < 1.0E-30f )
 			{
 				this->initialPositions[i].w = 2.83E-09 * 6.67384E-08;
