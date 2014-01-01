@@ -125,32 +125,141 @@ void InitialState::SetDefaultBodyColours()
 	for( int i=0; i<this->initialNumParticles; i++ )
 	{
 		wxString name = wxString( this->physicalProperties[i].Name );
+		
 
-		if( i > this->initialNumGrav )
+		if( name.Contains( wxT( "InnerOort" ) ) )
 		{
-			if( name.Contains( wxT( "InnerOort" ) ) )
-			{
-				this->initialColorData[i*4+0] = 192;
-				this->initialColorData[i*4+1] = 64;
-				this->initialColorData[i*4+2] = 64;
-				this->initialColorData[i*4+3] = 255;
-			}
-			else if( name.Contains( wxT( "OuterOort" ) ) )
-			{
-				this->initialColorData[i*4+0] = 64;
-				this->initialColorData[i*4+1] = 192;
-				this->initialColorData[i*4+2] = 64;
-				this->initialColorData[i*4+3] = 255;
-			}
-			else
-			{
-				this->initialColorData[i*4+0] = 64;
-				this->initialColorData[i*4+1] = 64;
-				this->initialColorData[i*4+2] = 92;
-				this->initialColorData[i*4+3] = 128;
-			}
+			this->initialColorData[i*4+0] = 192;
+			this->initialColorData[i*4+1] = 64;
+			this->initialColorData[i*4+2] = 64;
+			this->initialColorData[i*4+3] = 255;
 		}
-		else if( name.Contains( wxT( "Sun" ) ) )
+		else if( name.Contains( wxT( "OuterOort" ) ) )
+		{
+			this->initialColorData[i*4+0] = 64;
+			this->initialColorData[i*4+1] = 192;
+			this->initialColorData[i*4+2] = 64;
+			this->initialColorData[i*4+3] = 255;
+		}
+		else if( name.Contains( wxT( "[JTrojan]" ) ) )
+		{
+			this->initialColorData[i*4+0] = 92;
+			this->initialColorData[i*4+1] = 64;
+			this->initialColorData[i*4+2] = 92;
+			this->initialColorData[i*4+3] = 255;
+		}
+		else if( name.Contains( wxT( "[Scattered]" ) ) )
+		{
+			this->initialColorData[i*4+0] = 64;
+			this->initialColorData[i*4+1] = 64;
+			this->initialColorData[i*4+2] = 92;
+			this->initialColorData[i*4+3] = 255;
+		}
+		else if( name.Contains( wxT( "[TNO]" ) ) )
+		{
+			this->initialColorData[i*4+0] = 64;
+			this->initialColorData[i*4+1] = 92;
+			this->initialColorData[i*4+2] = 92;
+			this->initialColorData[i*4+3] = 255;
+		}
+		else if( name.Contains( wxT( "[Centaur]" ) ) )
+		{
+			this->initialColorData[i*4+0] = 92;
+			this->initialColorData[i*4+1] = 92;
+			this->initialColorData[i*4+2] = 64;
+			this->initialColorData[i*4+3] = 255;
+		}
+		else if( name.Contains( wxT( "[Aten]" ) ) )
+		{
+			this->initialColorData[i*4+0] = 92;
+			this->initialColorData[i*4+1] = 64;
+			this->initialColorData[i*4+2] = 64;
+			this->initialColorData[i*4+3] = 255;
+		}
+		else if( name.Contains( wxT( "[Apollo]" ) ) )
+		{
+			this->initialColorData[i*4+0] = 92;
+			this->initialColorData[i*4+1] = 32;
+			this->initialColorData[i*4+2] = 64;
+			this->initialColorData[i*4+3] = 255;
+		}
+		else if( name.Contains( wxT( "[Amor]" ) ) )
+		{
+			this->initialColorData[i*4+0] = 92;
+			this->initialColorData[i*4+1] = 64;
+			this->initialColorData[i*4+2] = 32;
+			this->initialColorData[i*4+3] = 255;
+		}
+		else if( name.Contains( wxT( "[QLess1665]" ) ) )
+		{
+			this->initialColorData[i*4+0] = 92;
+			this->initialColorData[i*4+1] = 32;
+			this->initialColorData[i*4+2] = 16;
+			this->initialColorData[i*4+3] = 255;
+		}
+		else if( name.Contains( wxT( "[Hungaria]" ) ) )
+		{
+			this->initialColorData[i*4+0] = 16;
+			this->initialColorData[i*4+1] = 92;
+			this->initialColorData[i*4+2] = 16;
+			this->initialColorData[i*4+3] = 255;
+		}
+		else if( name.Contains( wxT( "[Phocaea]" ) ) )
+		{
+			this->initialColorData[i*4+0] = 92;
+			this->initialColorData[i*4+1] = 92;
+			this->initialColorData[i*4+2] = 16;
+			this->initialColorData[i*4+3] = 255;
+		}
+		else if( name.Contains( wxT( "[Hilda]" ) ) )
+		{
+			this->initialColorData[i*4+0] = 92;
+			this->initialColorData[i*4+1] = 16;
+			this->initialColorData[i*4+2] = 92;
+			this->initialColorData[i*4+3] = 255;
+		}
+		else if( name.Contains( wxT( "[Plutino]" ) ) )
+		{
+			this->initialColorData[i*4+0] = 92;
+			this->initialColorData[i*4+1] = 64;
+			this->initialColorData[i*4+2] = 92;
+			this->initialColorData[i*4+3] = 255;
+		}
+		else if( name.Contains( wxT( "[Cubewano]" ) ) )
+		{
+			this->initialColorData[i*4+0] = 92;
+			this->initialColorData[i*4+1] = 64;
+			this->initialColorData[i*4+2] = 64;
+			this->initialColorData[i*4+3] = 255;
+		}
+		else if( name.Contains( wxT( "[NEO!]" ) ) )
+		{
+			this->initialColorData[i*4+0] = 128;
+			this->initialColorData[i*4+1] = 64;
+			this->initialColorData[i*4+2] = 64;
+			this->initialColorData[i*4+3] = 255;
+		}
+		else if( name.Contains( wxT( "[NEO]" ) ) )
+		{
+			this->initialColorData[i*4+0] = 92;
+			this->initialColorData[i*4+1] = 32;
+			this->initialColorData[i*4+2] = 32;
+			this->initialColorData[i*4+3] = 255;
+		}
+		else if( name.Contains( wxT( "2004BL86" ) )
+			|| name.Contains( wxT( "1999AN10" ) )
+			|| name.Contains( wxT( "2001WN5[" ) ) 
+			|| name.Contains( wxT( "1997XF11[" ) )
+			|| name.Contains( wxT( "2006SU49[" ) )
+			|| name.Contains( wxT( "2011FQ21[" ) )
+			|| name.Contains( wxT( "Apophis" ) ))
+		{
+			this->initialColorData[i*4+0] = 255;
+			this->initialColorData[i*4+1] = 64;
+			this->initialColorData[i*4+2] = 64;
+			this->initialColorData[i*4+3] = 255;
+		}
+    	else if( name.Contains( wxT( "Sun" ) ) )
 		{
 			this->initialColorData[i*4+0] = 255;
 			this->initialColorData[i*4+1] = 255;
@@ -284,6 +393,13 @@ void InitialState::SetDefaultBodyColours()
 			this->initialColorData[i*4+1] = 128;
 			this->initialColorData[i*4+2] = 128;
 			this->initialColorData[i*4+3] = 255;
+		}
+		else if(i > this->initialNumGrav)
+		{
+			this->initialColorData[i*4+0] = 64;
+			this->initialColorData[i*4+1] = 64;
+			this->initialColorData[i*4+2] = 92;
+			this->initialColorData[i*4+3] = 128;
 		}
 		else
 		{
@@ -686,7 +802,7 @@ bool InitialState::ImportSLF( wxString fileName )
 			this->physicalProperties[i].Radius = radius;
 			this->physicalProperties[i].AbsoluteMagnitude = absoluteMagnitude;
 			this->physicalProperties[i].RelativisticParameter = relativisticParameter;
-			this->physicalProperties[i].index = i;
+			this->physicalProperties[i].Index = i;
 
 			for( size_t charIndex =0; charIndex < 32; charIndex++ )
 			{
@@ -778,7 +894,7 @@ bool InitialState::CreateRandomInitialConfig()
 		this->physicalProperties[i].Radius = 0.0;
 		this->physicalProperties[i].AbsoluteMagnitude = 0.0;
 		this->physicalProperties[i].RelativisticParameter = 0.0;
-		this->physicalProperties[i].index = i;
+		this->physicalProperties[i].Index = i;
 
 		for( size_t charIndex =0; charIndex < 32; charIndex++ )
 		{

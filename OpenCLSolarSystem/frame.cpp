@@ -23,20 +23,27 @@ enum
     ID_START,
     ID_STOP,
     ID_RESET,
+    ID_RESETCOLOURS,
     ID_IMPORTSLF,
     ID_SETDELTAT15,
     ID_SETDELTATHR,
+    ID_SETDELTAT12HR,
     ID_SETDELTATFOURHR,
     ID_SETDELTATDAY,
     ID_SETDELTATMINUS15,
     ID_SETDELTATMINUSHR,
+    ID_SETDELTATMINUS12HR,
     ID_SETDELTATMINUSFOURHR,
     ID_SETDELTATMINUSDAY,
-    ID_SETNUMVSMALL,
-    ID_SETNUMSMALL,
-    ID_SETNUMSMEDIUM,
-    ID_SETNUMMEDIUM,
-    ID_SETNUMLARGE,
+    ID_SETNUM2048,
+    ID_SETNUM4096,
+    ID_SETNUM8192,
+    ID_SETNUM16384,
+    ID_SETNUM32768,
+    ID_SETNUM65535,
+    ID_SETNUM131072,
+    ID_SETNUM262144,
+    ID_SETNUM524288,
     ID_SETNUMMAX,
     ID_SETGRAV16,
     ID_SETGRAV32,
@@ -71,7 +78,14 @@ enum
     ID_SETCENTER7,
     ID_SETCENTER8,
     ID_SETCENTER9,
-    ID_SETCENTER10
+    ID_SETCENTER10,
+    ID_SETCENTER11,
+    ID_SETCENTER12,
+    ID_SETCENTER13,
+    ID_SETCENTER14,
+    ID_SETCENTER15,
+    ID_SETCENTER16,
+    ID_LOGENCOUNTERS
 };
 
 // mapping of UI event ids to functions
@@ -81,6 +95,7 @@ BEGIN_EVENT_TABLE( Frame, wxFrame )
 	EVT_MENU( ID_START, Frame::OnStart )
 	EVT_MENU( ID_STOP, Frame::OnStop )
 	EVT_MENU( ID_RESET, Frame::OnReset )
+	EVT_MENU( ID_RESETCOLOURS, Frame::OnResetColours )
 	EVT_MENU( ID_IMPORTSLF, Frame::OnImportSlf )
 	EVT_MENU( ID_SETADAMS4, Frame::OnSetIntegrator )
 	EVT_MENU( ID_SETADAMS8, Frame::OnSetIntegrator )
@@ -90,17 +105,23 @@ BEGIN_EVENT_TABLE( Frame, wxFrame )
 	EVT_MENU( ID_SETADAMS16, Frame::OnSetIntegrator )
 	EVT_MENU( ID_SETDELTATMINUS15, Frame::OnSetDeltaTime )
 	EVT_MENU( ID_SETDELTATMINUSHR, Frame::OnSetDeltaTime )
+	EVT_MENU( ID_SETDELTATMINUS12HR, Frame::OnSetDeltaTime )
 	EVT_MENU( ID_SETDELTATMINUSFOURHR, Frame::OnSetDeltaTime )
 	EVT_MENU( ID_SETDELTATMINUSDAY, Frame::OnSetDeltaTime )
 	EVT_MENU( ID_SETDELTAT15, Frame::OnSetDeltaTime )
 	EVT_MENU( ID_SETDELTATHR, Frame::OnSetDeltaTime )
+	EVT_MENU( ID_SETDELTAT12HR, Frame::OnSetDeltaTime )
 	EVT_MENU( ID_SETDELTATFOURHR, Frame::OnSetDeltaTime )
 	EVT_MENU( ID_SETDELTATDAY, Frame::OnSetDeltaTime )
-	EVT_MENU( ID_SETNUMVSMALL, Frame::OnSetNum )
-	EVT_MENU( ID_SETNUMSMALL, Frame::OnSetNum )
-	EVT_MENU( ID_SETNUMSMEDIUM, Frame::OnSetNum )
-	EVT_MENU( ID_SETNUMMEDIUM, Frame::OnSetNum )
-	EVT_MENU( ID_SETNUMLARGE, Frame::OnSetNum )
+	EVT_MENU( ID_SETNUM2048, Frame::OnSetNum )
+	EVT_MENU( ID_SETNUM4096, Frame::OnSetNum )
+	EVT_MENU( ID_SETNUM8192, Frame::OnSetNum )
+	EVT_MENU( ID_SETNUM16384, Frame::OnSetNum )
+	EVT_MENU( ID_SETNUM32768, Frame::OnSetNum )
+	EVT_MENU( ID_SETNUM65535, Frame::OnSetNum )
+	EVT_MENU( ID_SETNUM131072, Frame::OnSetNum )
+	EVT_MENU( ID_SETNUM262144, Frame::OnSetNum )
+	EVT_MENU( ID_SETNUM524288, Frame::OnSetNum )
 	EVT_MENU( ID_SETNUMMAX, Frame::OnSetNum )
 	EVT_MENU( ID_SETGRAV16, Frame::OnSetGrav )
 	EVT_MENU( ID_SETGRAV32, Frame::OnSetGrav )
@@ -122,6 +143,12 @@ BEGIN_EVENT_TABLE( Frame, wxFrame )
 	EVT_MENU( ID_SETCENTER8, Frame::OnSetCenter )
 	EVT_MENU( ID_SETCENTER9, Frame::OnSetCenter )
 	EVT_MENU( ID_SETCENTER10, Frame::OnSetCenter )
+	EVT_MENU( ID_SETCENTER11, Frame::OnSetCenter )
+	EVT_MENU( ID_SETCENTER12, Frame::OnSetCenter )
+	EVT_MENU( ID_SETCENTER13, Frame::OnSetCenter )
+	EVT_MENU( ID_SETCENTER14, Frame::OnSetCenter )
+	EVT_MENU( ID_SETCENTER15, Frame::OnSetCenter )
+	EVT_MENU( ID_SETCENTER16, Frame::OnSetCenter )
 	EVT_MENU( ID_SETNEWTONIAN, Frame::OnSetAcceleration )
 	EVT_MENU( ID_SETRELATIVISTIC, Frame::OnSetAcceleration )
 	EVT_MENU( ID_SETRELATIVISTICL, Frame::OnSetAcceleration )
@@ -130,6 +157,7 @@ BEGIN_EVENT_TABLE( Frame, wxFrame )
 	EVT_MENU( ID_READSTATE, Frame::OnReadToInitialState )
 	EVT_MENU( ID_EXPORTSLF, Frame::OnExportSlf )
 	EVT_MENU( ID_BLENDING, Frame::OnBlending )
+	EVT_MENU( ID_LOGENCOUNTERS, Frame::OnLogEncounters )
 	EVT_TIMER( ID_TIMER, Frame::OnTimer )
 	EVT_IDLE( Frame::OnIdle )
 	EVT_CLOSE( Frame::OnClose )
@@ -145,12 +173,14 @@ Frame::Frame( wxFrame *frame, const wxString& title, const wxPoint& pos, const w
 	this->timer = new wxTimer( this,ID_TIMER );
 	this->initialState = new InitialState();
 	this->stopDateJdn = 2456430.5;
+	this->encounterDistance = 5*0.35;
 	this->goingToDate = false;
 	this->runOnIdle = false;
 	this->clModelOk = false;
 	this->desiredPlatform = NULL;
 	this->useLastDevice = false;
 	this->tryForCPUFirst = false;
+	this->checkForEncounters = false;
 	this->numParticles = 0;
 	this->numGrav = 0;
 	this->config = NULL;
@@ -215,6 +245,7 @@ void Frame::InitFrame( bool doubleBuffer, bool smooth, bool lighting, bool stere
 		menuFile->Append( ID_READSTATE, wxT( "Set Initial" ) );
 		menuFile->Append( ID_IMPORTSLF, wxT( "&Import .SLF File" ) );
 		menuFile->Append( ID_EXPORTSLF, wxT( "&Export .SLF File" ) );
+		menuFile->Append( ID_RESETCOLOURS, wxT( "Reset Colours" ) );
 		menuFile->Append( wxID_EXIT, wxT( "E&xit" ) );
 
 		// Create a menu that lets the user control the running of the simulation
@@ -245,20 +276,26 @@ void Frame::InitFrame( bool doubleBuffer, bool smooth, bool lighting, bool stere
 		menuDeltaT->AppendRadioItem( ID_SETDELTAT15, wxT( "15 Mins" ) );
 		menuDeltaT->AppendRadioItem( ID_SETDELTATHR, wxT( "1 Hour" ) );
 		menuDeltaT->AppendRadioItem( ID_SETDELTATFOURHR, wxT( "4 Hours" ) );
+		menuDeltaT->AppendRadioItem( ID_SETDELTAT12HR, wxT( "12 Hours" ) );
 		menuDeltaT->AppendRadioItem( ID_SETDELTATDAY, wxT( "1 Day" ) );
 		menuDeltaT->AppendRadioItem( ID_SETDELTATMINUS15, wxT( "-15 Mins" ) );
 		menuDeltaT->AppendRadioItem( ID_SETDELTATMINUSHR, wxT( "-1 Hour" ) );
 		menuDeltaT->AppendRadioItem( ID_SETDELTATMINUSFOURHR, wxT( "-4 Hours" ) );
+		menuDeltaT->AppendRadioItem( ID_SETDELTATMINUS12HR, wxT( "-12 Hours" ) );
 		menuDeltaT->AppendRadioItem( ID_SETDELTATMINUSDAY, wxT( "-1 Day" ) );
 
 		// Create a menu that lets the user choose the number of bodies/particles.
 		// Only one option can be chosen at any time
 		wxMenu *menuNum = new wxMenu;
-		menuNum->AppendRadioItem( ID_SETNUMVSMALL, wxT( "2560" ) );
-		menuNum->AppendRadioItem( ID_SETNUMSMALL, wxT( "8192" ) );
-		menuNum->AppendRadioItem( ID_SETNUMSMEDIUM, wxT( "65536" ) );
-		menuNum->AppendRadioItem( ID_SETNUMMEDIUM, wxT( "309760" ) );
-		menuNum->AppendRadioItem( ID_SETNUMLARGE, wxT( "594688" ) );
+		menuNum->AppendRadioItem( ID_SETNUM2048, wxT( "2048" ) );
+		menuNum->AppendRadioItem( ID_SETNUM4096, wxT( "4096" ) );
+		menuNum->AppendRadioItem( ID_SETNUM8192, wxT( "8192" ) );
+		menuNum->AppendRadioItem( ID_SETNUM16384, wxT( "16384" ) );
+		menuNum->AppendRadioItem( ID_SETNUM32768, wxT( "32768" ) );
+		menuNum->AppendRadioItem( ID_SETNUM65535, wxT( "65536" ) );
+		menuNum->AppendRadioItem( ID_SETNUM131072, wxT( "131072" ) );
+		menuNum->AppendRadioItem( ID_SETNUM262144, wxT( "262144" ) );
+		menuNum->AppendRadioItem( ID_SETNUM524288, wxT( "524288" ) );
 		menuNum->AppendRadioItem( ID_SETNUMMAX, wxT( "Maximum" ) );
 
 		// Create a menu that lets the user choose the number of bodies/particles with gravitional effects
@@ -277,21 +314,29 @@ void Frame::InitFrame( bool doubleBuffer, bool smooth, bool lighting, bool stere
 		// Create a menu that lets the user choose a body to center the display on.
 		// Only one option can be chosen at any time
 		wxMenu *menuCenterOn = new wxMenu;
-		menuCenterOn->AppendRadioItem( ID_SETCENTER0, wxT( "0" ) );
-		menuCenterOn->AppendRadioItem( ID_SETCENTER1, wxT( "1" ) );
-		menuCenterOn->AppendRadioItem( ID_SETCENTER2, wxT( "2" ) );
-		menuCenterOn->AppendRadioItem( ID_SETCENTER3, wxT( "3" ) );
-		menuCenterOn->AppendRadioItem( ID_SETCENTER4, wxT( "4" ) );
-		menuCenterOn->AppendRadioItem( ID_SETCENTER5, wxT( "5" ) );
-		menuCenterOn->AppendRadioItem( ID_SETCENTER6, wxT( "6" ) );
-		menuCenterOn->AppendRadioItem( ID_SETCENTER7, wxT( "7" ) );
-		menuCenterOn->AppendRadioItem( ID_SETCENTER8, wxT( "8" ) );
-		menuCenterOn->AppendRadioItem( ID_SETCENTER9, wxT( "9" ) );
-		menuCenterOn->AppendRadioItem( ID_SETCENTER10, wxT( "10" ) );
+		menuCenterOn->AppendRadioItem( ID_SETCENTER0, this->initialState->physicalProperties[0].Name );
+		menuCenterOn->AppendRadioItem( ID_SETCENTER1, this->initialState->physicalProperties[1].Name );
+		menuCenterOn->AppendRadioItem( ID_SETCENTER2, this->initialState->physicalProperties[2].Name );
+		menuCenterOn->AppendRadioItem( ID_SETCENTER3, this->initialState->physicalProperties[3].Name );
+		menuCenterOn->AppendRadioItem( ID_SETCENTER4, this->initialState->physicalProperties[4].Name );
+		menuCenterOn->AppendRadioItem( ID_SETCENTER5, this->initialState->physicalProperties[5].Name );
+		menuCenterOn->AppendRadioItem( ID_SETCENTER6, this->initialState->physicalProperties[6].Name );
+		menuCenterOn->AppendRadioItem( ID_SETCENTER7, this->initialState->physicalProperties[7].Name );
+		menuCenterOn->AppendRadioItem( ID_SETCENTER8, this->initialState->physicalProperties[8].Name );
+		menuCenterOn->AppendRadioItem( ID_SETCENTER9, this->initialState->physicalProperties[9].Name );
+		menuCenterOn->AppendRadioItem( ID_SETCENTER10, this->initialState->physicalProperties[10].Name );
+		menuCenterOn->AppendRadioItem( ID_SETCENTER11, this->initialState->physicalProperties[11].Name );
+		menuCenterOn->AppendRadioItem( ID_SETCENTER12, this->initialState->physicalProperties[12].Name );
+		menuCenterOn->AppendRadioItem( ID_SETCENTER13, this->initialState->physicalProperties[13].Name );
+		menuCenterOn->AppendRadioItem( ID_SETCENTER14, this->initialState->physicalProperties[14].Name );
+		menuCenterOn->AppendRadioItem( ID_SETCENTER15, this->initialState->physicalProperties[15].Name );
+		menuCenterOn->AppendRadioItem( ID_SETCENTER16, this->initialState->physicalProperties[16].Name );
+
 
 		// Create a menu that lets the user choose how asteroids are displayed.
 		wxMenu *menuOptions = new wxMenu;
 		menuOptions->AppendCheckItem( ID_BLENDING, wxT( "Blending" ) );
+		menuOptions->AppendCheckItem( ID_LOGENCOUNTERS, wxT( "Detect Close Encounters" ) );
 
 		// Add the menus to the windows menu bar
 		wxMenuBar *menuBar = new wxMenuBar;
@@ -376,7 +421,7 @@ void Frame::UpdateStatusBar( wxLongLong timeTaken )
 	dateTime.Set( jdn );
 
 	wxString message;
-	message.Printf( "Julian Day: %f Date: %10s %8s step: %d fps: %.2f",jdn,dateTime.FormatISODate().c_str(),dateTime.FormatISOTime().c_str(), this->clModel->step, frameRate );
+	message.Printf( "Center: %s Julian Day: %f Date: %10s %8s step: %d fps: %.2f",this->initialState->physicalProperties[this->clModel->centerBody].Name,jdn,dateTime.FormatISODate().c_str(),dateTime.FormatISOTime().c_str(), this->clModel->step, frameRate );
 	this->SetStatusText( message );
 }
 
@@ -494,6 +539,50 @@ void Frame::DoStep()
 	}
 
 	this->UpdateStatusBar( this->stopWatch.TimeInMicro() );
+
+	if( this->checkForEncounters )
+	{
+		static int moonIndex = -1;
+		this->Stop();
+		this->clModel->ReadToInitialState( this->initialState->initialPositions,this->initialState->initialVelocities );
+		this->initialState->initialJulianDate = this->clModel->julianDate + ( this->clModel->time )*1/( 60*60*24 );
+		this->initialState->initialNumParticles = this->numParticles;
+
+		double bodyX = this->initialState->initialPositions[this->clModel->centerBody].x;
+		double bodyY = this->initialState->initialPositions[this->clModel->centerBody].y;
+		double bodyZ = this->initialState->initialPositions[this->clModel->centerBody].z;
+		double encounterDistanceSquared = this->encounterDistance * this->encounterDistance;
+		bool hadEncounter = false;
+		wxString message;
+		for( int index = 0; index < this->numParticles; index++ )
+		{
+			if( index == this->clModel->centerBody || index == moonIndex )
+			{
+				continue;
+			}
+
+			double distanceFromCenterSquared = ( this->initialState->initialPositions[index].x - bodyX ) * ( this->initialState->initialPositions[index].x - bodyX );
+			distanceFromCenterSquared += ( this->initialState->initialPositions[index].y - bodyY ) * ( this->initialState->initialPositions[index].y - bodyY );
+			distanceFromCenterSquared += ( this->initialState->initialPositions[index].z - bodyZ ) * ( this->initialState->initialPositions[index].z - bodyZ );
+			if( distanceFromCenterSquared < encounterDistanceSquared )
+			{
+				hadEncounter = true;
+				if( moonIndex == -1 )
+				{
+					wxString name = wxString( this->initialState->physicalProperties[index].Name );
+					if( name.Contains( wxT( "Moon" ) ) )
+					{
+						moonIndex = index;
+					}
+				}
+				wxDateTime dateTime;
+				dateTime.Set( this->initialState->initialJulianDate );
+				wxLogMessage( wxT( "Encounter %s %s %f" ), this->initialState->physicalProperties[index].Name,dateTime.FormatISOCombined(), sqrt( distanceFromCenterSquared ) );
+			}
+		}
+		this->Start();
+	}
+
 	this->stopWatch.Start( 0 );
 
 	// check if going a date
@@ -517,6 +606,8 @@ void Frame::DoStep()
 			}
 		}
 	}
+
+
 }
 
 // Run when Idle
@@ -612,6 +703,9 @@ void Frame::OnSetDeltaTime( wxCommandEvent& event )
 	case ID_SETDELTATDAY:
 		this->clModel->delT = 24*60*60.0f;
 		break;
+	case ID_SETDELTAT12HR:
+		this->clModel->delT = 12*60*60.0f;
+		break;
 	case ID_SETDELTATMINUS15:
 		this->clModel->delT = -15*60.0f;
 		break;
@@ -620,6 +714,9 @@ void Frame::OnSetDeltaTime( wxCommandEvent& event )
 		break;
 	case ID_SETDELTATMINUSFOURHR:
 		this->clModel->delT = -4*60*60.0f;
+		break;
+	case ID_SETDELTATMINUS12HR:
+		this->clModel->delT = -12*60*60.0f;
 		break;
 	case ID_SETDELTATMINUSDAY:
 		this->clModel->delT = -24*60*60.0f;
@@ -672,12 +769,31 @@ void Frame::OnSetCenter( wxCommandEvent& event )
 	case ID_SETCENTER10:
 		this->clModel->centerBody = 10;
 		break;
+	case ID_SETCENTER11:
+		this->clModel->centerBody = 11;
+		break;
+	case ID_SETCENTER12:
+		this->clModel->centerBody = 12;
+		break;
+	case ID_SETCENTER13:
+		this->clModel->centerBody = 13;
+		break;
+	case ID_SETCENTER14:
+		this->clModel->centerBody = 14;
+		break;
+	case ID_SETCENTER15:
+		this->clModel->centerBody = 15;
+		break;
+	case ID_SETCENTER16:
+		this->clModel->centerBody = 16;
+		break;
 	default:
 		this->clModel->centerBody = 0;
 		break;
 	}
 	wxLogDebug( wxT( "set centerBody to %d day" ),this->clModel->centerBody );
 	this->clModel->UpdateDisplay();
+	this->UpdateStatusBar( 0 );
 	this->Refresh( true );
 }
 
@@ -782,24 +898,40 @@ void Frame::UpdateMenuItems()
 
 		switch( this->numParticles )
 		{
-		case 256*10:
-			menuItem = menuBar->FindItem( ID_SETNUMVSMALL );
+		case 2*1024:
+			menuItem = menuBar->FindItem( ID_SETNUM2048 );
 			menuItem->Check( true );
 			break;
-		case 256*32:
-			menuItem = menuBar->FindItem( ID_SETNUMSMALL );
+		case 4*1024:
+			menuItem = menuBar->FindItem( ID_SETNUM4096 );
 			menuItem->Check( true );
 			break;
-		case 256*4*64:
-			menuItem = menuBar->FindItem( ID_SETNUMSMEDIUM );
+		case 8*1024:
+			menuItem = menuBar->FindItem( ID_SETNUM8192 );
 			menuItem->Check( true );
 			break;
-		case 256*1210:
-			menuItem = menuBar->FindItem( ID_SETNUMMEDIUM );
+		case 16*1024:
+			menuItem = menuBar->FindItem( ID_SETNUM16384 );
 			menuItem->Check( true );
 			break;
-		case 256*2323:
-			menuItem = menuBar->FindItem( ID_SETNUMLARGE );
+		case 32*1024:
+			menuItem = menuBar->FindItem( ID_SETNUM32768 );
+			menuItem->Check( true );
+			break;
+		case 64*1024:
+			menuItem = menuBar->FindItem( ID_SETNUM65535 );
+			menuItem->Check( true );
+			break;
+		case 128*1024:
+			menuItem = menuBar->FindItem( ID_SETNUM131072 );
+			menuItem->Check( true );
+			break;
+		case 256*1024:
+			menuItem = menuBar->FindItem( ID_SETNUM262144 );
+			menuItem->Check( true );
+			break;
+		case 512*1024:
+			menuItem = menuBar->FindItem( ID_SETNUM524288 );
 			menuItem->Check( true );
 			break;
 		default:
@@ -822,6 +954,10 @@ void Frame::UpdateMenuItems()
 			menuItem = menuBar->FindItem( ID_SETDELTATFOURHR );
 			menuItem->Check( true );
 			break;
+		case 12*60*60:
+			menuItem = menuBar->FindItem( ID_SETDELTAT12HR );
+			menuItem->Check( true );
+			break;
 		case 24*60*60:
 			menuItem = menuBar->FindItem( ID_SETDELTATDAY );
 			menuItem->Check( true );
@@ -836,6 +972,10 @@ void Frame::UpdateMenuItems()
 			break;
 		case -4*60*60:
 			menuItem = menuBar->FindItem( ID_SETDELTATMINUSFOURHR );
+			menuItem->Check( true );
+			break;
+		case -12*60*60:
+			menuItem = menuBar->FindItem( ID_SETDELTATMINUS12HR );
 			menuItem->Check( true );
 			break;
 		case -24*60*60:
@@ -855,6 +995,9 @@ void Frame::UpdateMenuItems()
 			menuItem->Check( false );
 			break;
 		}
+
+		menuItem = menuBar->FindItem( ID_LOGENCOUNTERS );
+		menuItem->Check( this->checkForEncounters );
 	}
 }
 
@@ -917,21 +1060,32 @@ void Frame::OnSetNum( wxCommandEvent& event )
 {
 	switch( event.GetId() )
 	{
-	case ID_SETNUMVSMALL:
-		//this->numParticles = 256*2 < this->initialState->initialNumParticles ? 256*2 : this->initialState->initialNumParticles;
-		this->numParticles = 256*10 < this->initialState->initialNumParticles ? 256*10 : this->initialState->initialNumParticles;
+	case ID_SETNUM2048:
+		this->numParticles = 2*1024 < this->initialState->initialNumParticles ? 2*1024 : this->initialState->initialNumParticles;
 		break;
-	case ID_SETNUMSMALL:
-		this->numParticles = 256*32 < this->initialState->initialNumParticles ? 256*32 : this->initialState->initialNumParticles;
+	case ID_SETNUM4096:
+		this->numParticles = 4*1024 < this->initialState->initialNumParticles ? 4*1024 : this->initialState->initialNumParticles;
 		break;
-	case ID_SETNUMSMEDIUM:
-		this->numParticles = 256*4*64 < this->initialState->initialNumParticles ? 256*4*64 : this->initialState->initialNumParticles;
+	case ID_SETNUM8192:
+		this->numParticles = 8*1024 < this->initialState->initialNumParticles ? 8*1024 : this->initialState->initialNumParticles;
 		break;
-	case ID_SETNUMMEDIUM:
-		this->numParticles = 256*1210 < this->initialState->initialNumParticles ? 256*1210 : this->initialState->initialNumParticles;
+	case ID_SETNUM16384:
+		this->numParticles = 16*1024 < this->initialState->initialNumParticles ? 16*1024 : this->initialState->initialNumParticles;
 		break;
-	case ID_SETNUMLARGE:
-		this->numParticles = 256*2323 < this->initialState->initialNumParticles ? 256*2323 : this->initialState->initialNumParticles;
+	case ID_SETNUM32768:
+		this->numParticles = 32*1024 < this->initialState->initialNumParticles ? 32*1024 : this->initialState->initialNumParticles;
+		break;
+	case ID_SETNUM65535:
+		this->numParticles = 64*1024 < this->initialState->initialNumParticles ? 64*1024 : this->initialState->initialNumParticles;
+		break;
+	case ID_SETNUM131072:
+		this->numParticles = 128*1024 < this->initialState->initialNumParticles ? 128*1024 : this->initialState->initialNumParticles;
+		break;
+	case ID_SETNUM262144:
+		this->numParticles = 256*1024 < this->initialState->initialNumParticles ? 256*1024 : this->initialState->initialNumParticles;
+		break;
+	case ID_SETNUM524288:
+		this->numParticles = 512*1024 < this->initialState->initialNumParticles ? 512*1024 : this->initialState->initialNumParticles;
 		break;
 	case ID_SETNUMMAX:
 		this->numParticles = this->initialState->initialNumParticles;
@@ -1071,4 +1225,15 @@ void Frame::OnAbout( wxCommandEvent& WXUNUSED( event ) )
 	message.Printf( wxT( "Solar System Simulation\n (c) 2013 Michael Simmons\nbody count:%d\nWith Mass:%d\nMax Count Possible:%d\nPredictor %s\nCorrector %s\nPlatform: %s\nDevice: %s\nCL Version: %s\nWeb: https://sourceforge.net/projects/openclsolarsyst/" ),
 	                this->numParticles, this->numGrav, this->clModel->maxNumParticles, this->clModel->adamsBashforthKernelName->c_str(),this->clModel->adamsMoultonKernelName->c_str(), this->clModel->platformName->c_str(), this->clModel->deviceName->c_str(),this->clModel->deviceCLVersion->c_str() );
 	wxMessageBox( message, wxT( "About NBody" ), wxOK | wxICON_INFORMATION );
+}
+void Frame::OnLogEncounters( wxCommandEvent& event )
+{
+	this->checkForEncounters = !this->checkForEncounters;
+	this->Refresh( true );
+}
+void Frame::OnResetColours( wxCommandEvent& event )
+{
+	this->initialState->SetDefaultBodyColours();
+	this->glCanvas->SetColours( this->initialState->initialColorData );
+	this->Refresh( true );
 }

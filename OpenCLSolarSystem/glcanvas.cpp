@@ -266,11 +266,11 @@ void GLCanvas::OnPaint( wxPaintEvent& WXUNUSED( event ) )
 		glEnableClientState( GL_COLOR_ARRAY );
 
 		// Draw the Sun as a large point
-		glPointSize( 3 );
+		glPointSize( 4 );
 		glDrawArrays( GL_POINTS, 0, 1 );
 
 		// Draw the first 16 "planets"
-		glPointSize( 2 );
+		glPointSize( 3 );
 		glDrawArrays( GL_POINTS, 1, 16 );
 
 		// Draw the rest as single pixels

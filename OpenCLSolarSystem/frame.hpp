@@ -46,10 +46,12 @@ private:
 	bool useLastDevice;
 	bool tryForCPUFirst;
 	bool runOnIdle;
+	bool checkForEncounters;
 	int numParticles;
 	int numGrav;
 	InitialState *initialState;
 	double stopDateJdn;
+	double encounterDistance;
 	bool goingToDate;
 	wxStopWatch stopWatch;
 	wxConfigBase  *config;
@@ -66,6 +68,7 @@ private:
 	void OnStart( wxCommandEvent& event );
 	void OnStop( wxCommandEvent& event );
 	void OnReset( wxCommandEvent& event );
+	void OnResetColours( wxCommandEvent& event );
 	void OnSetIntegrator( wxCommandEvent& event );
 	void OnSetDeltaTime( wxCommandEvent& event );
 	void OnSetNum( wxCommandEvent& event );
@@ -78,6 +81,7 @@ private:
 	void OnLoadInitialState( wxCommandEvent& event );
 	void OnReadToInitialState( wxCommandEvent& event );
 	void OnBlending( wxCommandEvent& event );
+	void OnLogEncounters( wxCommandEvent& event );
 	void OnTimer( wxTimerEvent& event );
 	void OnClose( wxCloseEvent& event );
 	void OnIdle( wxIdleEvent& event );

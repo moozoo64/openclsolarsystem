@@ -21,7 +21,7 @@ class PhysicalProperties
 public:
 	PhysicalProperties();
 	~PhysicalProperties();
-	int index;
+	int Index;
 	wxChar Name[32];
 	double Mass;
 	double Radius;

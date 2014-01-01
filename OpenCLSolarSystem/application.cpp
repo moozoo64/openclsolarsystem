@@ -102,13 +102,13 @@ bool Application::OnInit()
 	{
 		this->frame = new Frame( NULL, wxT( "Solar System Simulation" ), wxDefaultPosition, wxDefaultSize );
 
-#if defined(__WXDEBUG__ )
+//#if defined(__WXDEBUG__ )
 		//If debugging send log to a windows
 		//This is attached to the Frame so that it closes with it.
-		wxLogWindow *logWindow = new wxLogWindow( this->frame, wxT( "Debug Log" ),true,true );
+		wxLogWindow *logWindow = new wxLogWindow( this->frame, wxT( "Debug Log" ),true,false );
 		wxLog::SetActiveTarget( logWindow );
-		wxLogDebug( wxT( "Application::OnInit threadId: %ld" ),wxThread::GetCurrentId() );
-#endif
+		wxLogMessage( wxT( "Application::OnInit threadId: %ld" ),wxThread::GetCurrentId() );
+//#endif
 
 		// Process the command line arguments
 		this->Args( argc, argv );
