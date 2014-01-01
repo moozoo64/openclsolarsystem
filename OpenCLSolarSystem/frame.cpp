@@ -270,6 +270,7 @@ void Frame::InitFrame( bool doubleBuffer, bool smooth, bool lighting, bool stere
 		menuGravity->AppendRadioItem( ID_SETNEWTONIAN, wxT( "Newtonian" ) );
 		menuGravity->AppendRadioItem( ID_SETRELATIVISTIC, wxT( "With Relativistic corrections" ) );
 		menuGravity->AppendRadioItem( ID_SETRELATIVISTICL, wxT( "With Relativistic corrections using Local Memory" ) );
+
 		// Create a menu that lets the user choose the time step size.
 		// Only one option can be chosen at any time
 		wxMenu *menuDeltaT = new wxMenu;
@@ -998,6 +999,41 @@ void Frame::UpdateMenuItems()
 
 		menuItem = menuBar->FindItem( ID_LOGENCOUNTERS );
 		menuItem->Check( this->checkForEncounters );
+
+		menuItem = menuBar->FindItem( ID_SETCENTER0 );
+		menuItem->SetItemLabel( this->initialState->physicalProperties[0].Name );
+		menuItem = menuBar->FindItem( ID_SETCENTER1 );
+		menuItem->SetItemLabel( this->initialState->physicalProperties[1].Name );
+		menuItem = menuBar->FindItem( ID_SETCENTER2 );
+		menuItem->SetItemLabel( this->initialState->physicalProperties[2].Name );
+		menuItem = menuBar->FindItem( ID_SETCENTER3 );
+		menuItem->SetItemLabel( this->initialState->physicalProperties[3].Name );
+		menuItem = menuBar->FindItem( ID_SETCENTER4 );
+		menuItem->SetItemLabel( this->initialState->physicalProperties[4].Name );
+		menuItem = menuBar->FindItem( ID_SETCENTER5 );
+		menuItem->SetItemLabel( this->initialState->physicalProperties[5].Name );
+		menuItem = menuBar->FindItem( ID_SETCENTER6 );
+		menuItem->SetItemLabel( this->initialState->physicalProperties[6].Name );
+		menuItem = menuBar->FindItem( ID_SETCENTER7 );
+		menuItem->SetItemLabel( this->initialState->physicalProperties[7].Name );
+		menuItem = menuBar->FindItem( ID_SETCENTER8 );
+		menuItem->SetItemLabel( this->initialState->physicalProperties[8].Name );
+		menuItem = menuBar->FindItem( ID_SETCENTER9 );
+		menuItem->SetItemLabel( this->initialState->physicalProperties[9].Name );
+		menuItem = menuBar->FindItem( ID_SETCENTER10 );
+		menuItem->SetItemLabel( this->initialState->physicalProperties[10].Name );
+		menuItem = menuBar->FindItem( ID_SETCENTER11 );
+		menuItem->SetItemLabel( this->initialState->physicalProperties[11].Name );
+		menuItem = menuBar->FindItem( ID_SETCENTER12 );
+		menuItem->SetItemLabel( this->initialState->physicalProperties[12].Name );
+		menuItem = menuBar->FindItem( ID_SETCENTER13 );
+		menuItem->SetItemLabel( this->initialState->physicalProperties[13].Name );
+		menuItem = menuBar->FindItem( ID_SETCENTER14 );
+		menuItem->SetItemLabel( this->initialState->physicalProperties[14].Name );
+		menuItem = menuBar->FindItem( ID_SETCENTER15 );
+		menuItem->SetItemLabel( this->initialState->physicalProperties[15].Name );
+		menuItem = menuBar->FindItem( ID_SETCENTER16 );
+		menuItem->SetItemLabel( this->initialState->physicalProperties[16].Name );
 	}
 }
 
