@@ -934,6 +934,8 @@ namespace OrbToSlf
 
             if (neoFirst)
             {
+                Console.WriteLine("Adding asteroids of type NEO and NEO! first");
+
                 // Add all NEO and NEO! types
                 foreach (var body in bodysByType["NEO"])
                 {
