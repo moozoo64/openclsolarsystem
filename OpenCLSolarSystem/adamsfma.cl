@@ -71,7 +71,7 @@ __global double4* acc)
 	unsigned int gid = get_global_id(0); 
 	double4 myPos = pos[gid];
 	double4 myVel = vel[gid];
-	double4 newAcc = (double4)(0.0f, 0.0f, 0.0f, 0.0f);
+	double4 sumAcc = (double4)(0.0f, 0.0f, 0.0f, 0.0f);
 	double4 r;
 	double distSqr;
 	double invDist;
@@ -87,8 +87,9 @@ __global double4* acc)
 	s = gravPos[0].w * invDistCube;
 	s = s * (1.0 + myVel.w + (relativisticC1*invDist));
 	double4 accSun= s * r;
-
+	
     //Do the rest
+	double4 compensation = (double4)(0.0f, 0.0f, 0.0f, 0.0f);
 	for(int gravBody = 1; gravBody < numGrav; gravBody++)
 	{
 		r = gravPos[gravBody] - myPos;
@@ -96,11 +97,15 @@ __global double4* acc)
 		distSqr = r.x * r.x + r.y * r.y + r.z * r.z;
 		invDist = rsqrt(distSqr + epsSqr); 
 		invDistCube = invDist * invDist * invDist; 
-		s = gravPos[gravBody].w * invDistCube; 
-		newAcc += s * r; 
+		s = gravPos[gravBody].w * invDistCube;
+		
+		double4 thisAcc = (s * r) - compensation;
+		double4 total = sumAcc + thisAcc;
+		compensation = (total - sumAcc ) - thisAcc;
+		sumAcc = total; 
 	}
 	
-	acc[gid] = newAcc + accSun;
+	acc[gid] = sumAcc + accSun;
 }
 
 __kernel
