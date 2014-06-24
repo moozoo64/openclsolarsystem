@@ -5,22 +5,22 @@
 ## Release
 ProjectName            :=OpenCLSolarSystem
 ConfigurationName      :=Release
-WorkspacePath          := "C:\SDK\OpenCLSolarSystem\trunk"
-ProjectPath            := "C:\SDK\OpenCLSolarSystem\trunk\OpenCLSolarSystem"
+WorkspacePath          := "C:\SDK\OpenCLSolarSystem"
+ProjectPath            := "C:\SDK\OpenCLSolarSystem\OpenCLSolarSystem"
 IntermediateDirectory  :=./Release
 OutDir                 := $(IntermediateDirectory)
 CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
-User                   :=Michael
-Date                   :=01/01/14
-CodeLitePath           :="C:\SDK\CodeLite"
-LinkerName             :=g++
-SharedObjectLinkerName :=g++ -shared -fPIC
+User                   :=00025202
+Date                   :=06/24/14
+CodeLitePath           :="C:\Program Files (x86)\CodeLite"
+LinkerName             :=C:\MinGW-4.8.1\bin\g++.exe 
+SharedObjectLinkerName :=C:\MinGW-4.8.1\bin\g++.exe -shared -fPIC
 ObjectSuffix           :=.o
 DependSuffix           :=.o.d
-PreprocessSuffix       :=.o.i
-DebugSwitch            :=-gstab
+PreprocessSuffix       :=.i
+DebugSwitch            :=-g 
 IncludeSwitch          :=-I
 LibrarySwitch          :=-l
 OutputSwitch           :=-o 
@@ -31,12 +31,12 @@ OutputFile             :=$(IntermediateDirectory)/$(ProjectName)
 Preprocessors          :=
 ObjectSwitch           :=-o 
 ArchiveOutputSwitch    := 
-PreprocessOnlySwitch   :=-E 
+PreprocessOnlySwitch   :=-E
 ObjectsFileList        :="OpenCLSolarSystem.txt"
 PCHCompileFlags        :=
 MakeDirCommand         :=makedir
 RcCmpOptions           := $(shell wx-config --rcflags)
-RcCompilerName         :=windres
+RcCompilerName         :=C:\MinGW-4.8.1\bin\windres.exe 
 LinkOptions            :=  -mwindows -s $(shell wx-config --debug=no --libs --unicode=yes --libs gl)
 IncludePath            :=  $(IncludeSwitch). $(IncludeSwitch)/SDK/Khronos/opencl1.2/include $(IncludeSwitch)/SDK/glew-1.9.0/include 
 IncludePCH             := 
@@ -49,24 +49,24 @@ LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)/SDK/Khronos
 ## Common variables
 ## AR, CXX, CC, AS, CXXFLAGS and CFLAGS can be overriden using an environment variables
 ##
-AR       := ar rcus
-CXX      := g++
-CC       := gcc
+AR       := C:\MinGW-4.8.1\bin\ar.exe rcu
+CXX      := C:\MinGW-4.8.1\bin\g++.exe 
+CC       := C:\MinGW-4.8.1\bin\gcc.exe 
 CXXFLAGS :=  -O2 -Wall -DwxDEBUG_LEVEL=0 $(shell wx-config --cxxflags --unicode=yes --debug=no) $(Preprocessors)
 CFLAGS   :=  -O2 -Wall -DwxDEBUG_LEVEL=0 $(shell wx-config --cxxflags --unicode=yes --debug=no) $(Preprocessors)
 ASFLAGS  := 
-AS       := as
+AS       := C:\MinGW-4.8.1\bin\as.exe 
 
 
 ##
 ## User defined environment variables
 ##
-CodeLiteDir:=C:\SDK\CodeLite
-WXWIN:=C:\SDK\wxWidgets-2.9.5
-PATH:=$(WXWIN)\lib\gcc_dll;C:\SDK\glew-1.9.0\bin;$(PATH)
+CodeLiteDir:=C:\Program Files (x86)\CodeLite
+WXWIN:=C:\wxWidgets-3.0.0
+PATH:=$(WXWIN)\lib\gcc_dll;H:\SDK\glew-1.9.0\bin;C:\SDK\glew-1.9.0\lib;$(PATH)
 WXCFG:=gcc_dll\mswu
-UNIT_TEST_PP_SRC_DIR:=C:\SDK\CodeLite\UnitTest++-1.3
-Objects0=$(IntermediateDirectory)/global$(ObjectSuffix) $(IntermediateDirectory)/initialstate$(ObjectSuffix) $(IntermediateDirectory)/physicalproperties$(ObjectSuffix) $(IntermediateDirectory)/glcanvas$(ObjectSuffix) $(IntermediateDirectory)/clmodel$(ObjectSuffix) $(IntermediateDirectory)/frame$(ObjectSuffix) $(IntermediateDirectory)/application$(ObjectSuffix) 
+UNIT_TEST_PP_SRC_DIR:=C:\UnitTest++-1.3
+Objects0=$(IntermediateDirectory)/global.cpp$(ObjectSuffix) $(IntermediateDirectory)/initialstate.cpp$(ObjectSuffix) $(IntermediateDirectory)/physicalproperties.cpp$(ObjectSuffix) $(IntermediateDirectory)/glcanvas.cpp$(ObjectSuffix) $(IntermediateDirectory)/clmodel.cpp$(ObjectSuffix) $(IntermediateDirectory)/frame.cpp$(ObjectSuffix) $(IntermediateDirectory)/application.cpp$(ObjectSuffix) 
 
 
 
@@ -97,61 +97,61 @@ PreBuild:
 ##
 ## Objects
 ##
-$(IntermediateDirectory)/global$(ObjectSuffix): global.cpp $(IntermediateDirectory)/global$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "C:/SDK/OpenCLSolarSystem/trunk/OpenCLSolarSystem/global.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/global$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/global$(DependSuffix): global.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/global$(ObjectSuffix) -MF$(IntermediateDirectory)/global$(DependSuffix) -MM "global.cpp"
+$(IntermediateDirectory)/global.cpp$(ObjectSuffix): global.cpp $(IntermediateDirectory)/global.cpp$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "C:/SDK/OpenCLSolarSystem/OpenCLSolarSystem/global.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/global.cpp$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/global.cpp$(DependSuffix): global.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/global.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/global.cpp$(DependSuffix) -MM "global.cpp"
 
-$(IntermediateDirectory)/global$(PreprocessSuffix): global.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/global$(PreprocessSuffix) "global.cpp"
+$(IntermediateDirectory)/global.cpp$(PreprocessSuffix): global.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/global.cpp$(PreprocessSuffix) "global.cpp"
 
-$(IntermediateDirectory)/initialstate$(ObjectSuffix): initialstate.cpp $(IntermediateDirectory)/initialstate$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "C:/SDK/OpenCLSolarSystem/trunk/OpenCLSolarSystem/initialstate.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/initialstate$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/initialstate$(DependSuffix): initialstate.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/initialstate$(ObjectSuffix) -MF$(IntermediateDirectory)/initialstate$(DependSuffix) -MM "initialstate.cpp"
+$(IntermediateDirectory)/initialstate.cpp$(ObjectSuffix): initialstate.cpp $(IntermediateDirectory)/initialstate.cpp$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "C:/SDK/OpenCLSolarSystem/OpenCLSolarSystem/initialstate.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/initialstate.cpp$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/initialstate.cpp$(DependSuffix): initialstate.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/initialstate.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/initialstate.cpp$(DependSuffix) -MM "initialstate.cpp"
 
-$(IntermediateDirectory)/initialstate$(PreprocessSuffix): initialstate.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/initialstate$(PreprocessSuffix) "initialstate.cpp"
+$(IntermediateDirectory)/initialstate.cpp$(PreprocessSuffix): initialstate.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/initialstate.cpp$(PreprocessSuffix) "initialstate.cpp"
 
-$(IntermediateDirectory)/physicalproperties$(ObjectSuffix): physicalproperties.cpp $(IntermediateDirectory)/physicalproperties$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "C:/SDK/OpenCLSolarSystem/trunk/OpenCLSolarSystem/physicalproperties.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/physicalproperties$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/physicalproperties$(DependSuffix): physicalproperties.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/physicalproperties$(ObjectSuffix) -MF$(IntermediateDirectory)/physicalproperties$(DependSuffix) -MM "physicalproperties.cpp"
+$(IntermediateDirectory)/physicalproperties.cpp$(ObjectSuffix): physicalproperties.cpp $(IntermediateDirectory)/physicalproperties.cpp$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "C:/SDK/OpenCLSolarSystem/OpenCLSolarSystem/physicalproperties.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/physicalproperties.cpp$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/physicalproperties.cpp$(DependSuffix): physicalproperties.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/physicalproperties.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/physicalproperties.cpp$(DependSuffix) -MM "physicalproperties.cpp"
 
-$(IntermediateDirectory)/physicalproperties$(PreprocessSuffix): physicalproperties.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/physicalproperties$(PreprocessSuffix) "physicalproperties.cpp"
+$(IntermediateDirectory)/physicalproperties.cpp$(PreprocessSuffix): physicalproperties.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/physicalproperties.cpp$(PreprocessSuffix) "physicalproperties.cpp"
 
-$(IntermediateDirectory)/glcanvas$(ObjectSuffix): glcanvas.cpp $(IntermediateDirectory)/glcanvas$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "C:/SDK/OpenCLSolarSystem/trunk/OpenCLSolarSystem/glcanvas.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/glcanvas$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/glcanvas$(DependSuffix): glcanvas.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/glcanvas$(ObjectSuffix) -MF$(IntermediateDirectory)/glcanvas$(DependSuffix) -MM "glcanvas.cpp"
+$(IntermediateDirectory)/glcanvas.cpp$(ObjectSuffix): glcanvas.cpp $(IntermediateDirectory)/glcanvas.cpp$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "C:/SDK/OpenCLSolarSystem/OpenCLSolarSystem/glcanvas.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/glcanvas.cpp$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/glcanvas.cpp$(DependSuffix): glcanvas.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/glcanvas.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/glcanvas.cpp$(DependSuffix) -MM "glcanvas.cpp"
 
-$(IntermediateDirectory)/glcanvas$(PreprocessSuffix): glcanvas.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/glcanvas$(PreprocessSuffix) "glcanvas.cpp"
+$(IntermediateDirectory)/glcanvas.cpp$(PreprocessSuffix): glcanvas.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/glcanvas.cpp$(PreprocessSuffix) "glcanvas.cpp"
 
-$(IntermediateDirectory)/clmodel$(ObjectSuffix): clmodel.cpp $(IntermediateDirectory)/clmodel$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "C:/SDK/OpenCLSolarSystem/trunk/OpenCLSolarSystem/clmodel.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/clmodel$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/clmodel$(DependSuffix): clmodel.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/clmodel$(ObjectSuffix) -MF$(IntermediateDirectory)/clmodel$(DependSuffix) -MM "clmodel.cpp"
+$(IntermediateDirectory)/clmodel.cpp$(ObjectSuffix): clmodel.cpp $(IntermediateDirectory)/clmodel.cpp$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "C:/SDK/OpenCLSolarSystem/OpenCLSolarSystem/clmodel.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/clmodel.cpp$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/clmodel.cpp$(DependSuffix): clmodel.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/clmodel.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/clmodel.cpp$(DependSuffix) -MM "clmodel.cpp"
 
-$(IntermediateDirectory)/clmodel$(PreprocessSuffix): clmodel.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/clmodel$(PreprocessSuffix) "clmodel.cpp"
+$(IntermediateDirectory)/clmodel.cpp$(PreprocessSuffix): clmodel.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/clmodel.cpp$(PreprocessSuffix) "clmodel.cpp"
 
-$(IntermediateDirectory)/frame$(ObjectSuffix): frame.cpp $(IntermediateDirectory)/frame$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "C:/SDK/OpenCLSolarSystem/trunk/OpenCLSolarSystem/frame.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/frame$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/frame$(DependSuffix): frame.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/frame$(ObjectSuffix) -MF$(IntermediateDirectory)/frame$(DependSuffix) -MM "frame.cpp"
+$(IntermediateDirectory)/frame.cpp$(ObjectSuffix): frame.cpp $(IntermediateDirectory)/frame.cpp$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "C:/SDK/OpenCLSolarSystem/OpenCLSolarSystem/frame.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/frame.cpp$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/frame.cpp$(DependSuffix): frame.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/frame.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/frame.cpp$(DependSuffix) -MM "frame.cpp"
 
-$(IntermediateDirectory)/frame$(PreprocessSuffix): frame.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/frame$(PreprocessSuffix) "frame.cpp"
+$(IntermediateDirectory)/frame.cpp$(PreprocessSuffix): frame.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/frame.cpp$(PreprocessSuffix) "frame.cpp"
 
-$(IntermediateDirectory)/application$(ObjectSuffix): application.cpp $(IntermediateDirectory)/application$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "C:/SDK/OpenCLSolarSystem/trunk/OpenCLSolarSystem/application.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/application$(ObjectSuffix) $(IncludePath)
-$(IntermediateDirectory)/application$(DependSuffix): application.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/application$(ObjectSuffix) -MF$(IntermediateDirectory)/application$(DependSuffix) -MM "application.cpp"
+$(IntermediateDirectory)/application.cpp$(ObjectSuffix): application.cpp $(IntermediateDirectory)/application.cpp$(DependSuffix)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "C:/SDK/OpenCLSolarSystem/OpenCLSolarSystem/application.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/application.cpp$(ObjectSuffix) $(IncludePath)
+$(IntermediateDirectory)/application.cpp$(DependSuffix): application.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/application.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/application.cpp$(DependSuffix) -MM "application.cpp"
 
-$(IntermediateDirectory)/application$(PreprocessSuffix): application.cpp
-	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/application$(PreprocessSuffix) "application.cpp"
+$(IntermediateDirectory)/application.cpp$(PreprocessSuffix): application.cpp
+	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/application.cpp$(PreprocessSuffix) "application.cpp"
 
 
 -include $(IntermediateDirectory)/*$(DependSuffix)
@@ -159,27 +159,27 @@ $(IntermediateDirectory)/application$(PreprocessSuffix): application.cpp
 ## Clean
 ##
 clean:
-	$(RM) $(IntermediateDirectory)/global$(ObjectSuffix)
-	$(RM) $(IntermediateDirectory)/global$(DependSuffix)
-	$(RM) $(IntermediateDirectory)/global$(PreprocessSuffix)
-	$(RM) $(IntermediateDirectory)/initialstate$(ObjectSuffix)
-	$(RM) $(IntermediateDirectory)/initialstate$(DependSuffix)
-	$(RM) $(IntermediateDirectory)/initialstate$(PreprocessSuffix)
-	$(RM) $(IntermediateDirectory)/physicalproperties$(ObjectSuffix)
-	$(RM) $(IntermediateDirectory)/physicalproperties$(DependSuffix)
-	$(RM) $(IntermediateDirectory)/physicalproperties$(PreprocessSuffix)
-	$(RM) $(IntermediateDirectory)/glcanvas$(ObjectSuffix)
-	$(RM) $(IntermediateDirectory)/glcanvas$(DependSuffix)
-	$(RM) $(IntermediateDirectory)/glcanvas$(PreprocessSuffix)
-	$(RM) $(IntermediateDirectory)/clmodel$(ObjectSuffix)
-	$(RM) $(IntermediateDirectory)/clmodel$(DependSuffix)
-	$(RM) $(IntermediateDirectory)/clmodel$(PreprocessSuffix)
-	$(RM) $(IntermediateDirectory)/frame$(ObjectSuffix)
-	$(RM) $(IntermediateDirectory)/frame$(DependSuffix)
-	$(RM) $(IntermediateDirectory)/frame$(PreprocessSuffix)
-	$(RM) $(IntermediateDirectory)/application$(ObjectSuffix)
-	$(RM) $(IntermediateDirectory)/application$(DependSuffix)
-	$(RM) $(IntermediateDirectory)/application$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/global.cpp$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/global.cpp$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/global.cpp$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/initialstate.cpp$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/initialstate.cpp$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/initialstate.cpp$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/physicalproperties.cpp$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/physicalproperties.cpp$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/physicalproperties.cpp$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/glcanvas.cpp$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/glcanvas.cpp$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/glcanvas.cpp$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/clmodel.cpp$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/clmodel.cpp$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/clmodel.cpp$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/frame.cpp$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/frame.cpp$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/frame.cpp$(PreprocessSuffix)
+	$(RM) $(IntermediateDirectory)/application.cpp$(ObjectSuffix)
+	$(RM) $(IntermediateDirectory)/application.cpp$(DependSuffix)
+	$(RM) $(IntermediateDirectory)/application.cpp$(PreprocessSuffix)
 	$(RM) $(OutputFile)
 	$(RM) $(OutputFile).exe
 	$(RM) "../.build-release/OpenCLSolarSystem"
