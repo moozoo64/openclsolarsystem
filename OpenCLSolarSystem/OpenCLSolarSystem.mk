@@ -13,7 +13,7 @@ CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
 User                   :=00025202
-Date                   :=06/24/14
+Date                   :=06/27/14
 CodeLitePath           :="C:\Program Files (x86)\CodeLite"
 LinkerName             :=C:\MinGW-4.8.1\bin\g++.exe 
 SharedObjectLinkerName :=C:\MinGW-4.8.1\bin\g++.exe -shared -fPIC
@@ -38,12 +38,12 @@ MakeDirCommand         :=makedir
 RcCmpOptions           := $(shell wx-config --rcflags)
 RcCompilerName         :=C:\MinGW-4.8.1\bin\windres.exe 
 LinkOptions            :=  -mwindows -s $(shell wx-config --debug=no --libs --unicode=yes --libs gl)
-IncludePath            :=  $(IncludeSwitch). $(IncludeSwitch)/SDK/Khronos/opencl1.2/include $(IncludeSwitch)/SDK/glew-1.9.0/include 
+IncludePath            :=  $(IncludeSwitch). $(IncludeSwitch)/SDK/Khronos/opencl1.2/include $(IncludeSwitch)/SDK/glew-1.10.0/include 
 IncludePCH             := 
 RcIncludePath          := 
 Libs                   := $(LibrarySwitch)OpenCL $(LibrarySwitch)glew32 
 ArLibs                 :=  "OpenCL" "glew32" 
-LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)/SDK/Khronos/opencl1.2/lib/ $(LibraryPathSwitch)/SDK/glew-1.9.0/lib 
+LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)/SDK/Khronos/opencl1.2/lib/ $(LibraryPathSwitch)/SDK/glew-1.10.0/lib 
 
 ##
 ## Common variables
@@ -63,7 +63,7 @@ AS       := C:\MinGW-4.8.1\bin\as.exe
 ##
 CodeLiteDir:=C:\Program Files (x86)\CodeLite
 WXWIN:=C:\wxWidgets-3.0.0
-PATH:=$(WXWIN)\lib\gcc_dll;H:\SDK\glew-1.9.0\bin;C:\SDK\glew-1.9.0\lib;$(PATH)
+PATH:=$(WXWIN)\lib\gcc_dll;C:\SDK\glew-1.10.0\bin;C:\SDK\glew-1.10.0\lib;$(PATH)
 WXCFG:=gcc_dll\mswu
 UNIT_TEST_PP_SRC_DIR:=C:\UnitTest++-1.3
 Objects0=$(IntermediateDirectory)/global.cpp$(ObjectSuffix) $(IntermediateDirectory)/initialstate.cpp$(ObjectSuffix) $(IntermediateDirectory)/physicalproperties.cpp$(ObjectSuffix) $(IntermediateDirectory)/glcanvas.cpp$(ObjectSuffix) $(IntermediateDirectory)/clmodel.cpp$(ObjectSuffix) $(IntermediateDirectory)/frame.cpp$(ObjectSuffix) $(IntermediateDirectory)/application.cpp$(ObjectSuffix) 
