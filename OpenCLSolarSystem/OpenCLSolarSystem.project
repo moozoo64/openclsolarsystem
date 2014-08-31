@@ -50,6 +50,7 @@
     <File Name="astrorbsolexsmall.slf"/>
     <File Name="todo.txt"/>
     <File Name="adamsfma.cl"/>
+    <File Name="MakeGlewMingw.txt"/>
   </VirtualDirectory>
   <Settings Type="Executable">
     <GlobalSettings>
