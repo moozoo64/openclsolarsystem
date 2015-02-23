@@ -549,9 +549,9 @@ void Frame::DoStep()
 		this->initialState->initialJulianDate = this->clModel->julianDate + ( this->clModel->time )*1/( 60*60*24 );
 		this->initialState->initialNumParticles = this->numParticles;
 
-		double bodyX = this->initialState->initialPositions[this->clModel->centerBody].x;
-		double bodyY = this->initialState->initialPositions[this->clModel->centerBody].y;
-		double bodyZ = this->initialState->initialPositions[this->clModel->centerBody].z;
+		double bodyX = this->initialState->initialPositions[this->clModel->centerBody].s[0];
+		double bodyY = this->initialState->initialPositions[this->clModel->centerBody].s[1];
+		double bodyZ = this->initialState->initialPositions[this->clModel->centerBody].s[2];
 		double encounterDistanceSquared = this->encounterDistance * this->encounterDistance;
 		bool hadEncounter = false;
 		wxString message;
@@ -562,9 +562,9 @@ void Frame::DoStep()
 				continue;
 			}
 
-			double distanceFromCenterSquared = ( this->initialState->initialPositions[index].x - bodyX ) * ( this->initialState->initialPositions[index].x - bodyX );
-			distanceFromCenterSquared += ( this->initialState->initialPositions[index].y - bodyY ) * ( this->initialState->initialPositions[index].y - bodyY );
-			distanceFromCenterSquared += ( this->initialState->initialPositions[index].z - bodyZ ) * ( this->initialState->initialPositions[index].z - bodyZ );
+			double distanceFromCenterSquared = ( this->initialState->initialPositions[index].s[0] - bodyX ) * ( this->initialState->initialPositions[index].s[0] - bodyX );
+			distanceFromCenterSquared += ( this->initialState->initialPositions[index].s[1] - bodyY ) * ( this->initialState->initialPositions[index].s[1] - bodyY );
+			distanceFromCenterSquared += ( this->initialState->initialPositions[index].s[2] - bodyZ ) * ( this->initialState->initialPositions[index].s[2] - bodyZ );
 			if( distanceFromCenterSquared < encounterDistanceSquared )
 			{
 				hadEncounter = true;

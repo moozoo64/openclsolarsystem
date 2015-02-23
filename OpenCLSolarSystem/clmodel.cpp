@@ -1324,7 +1324,7 @@ void CLModel::SetKernelArgumentsAndGroupSize()
 		throw status;
 	}
 
-	wxLogDebug( wxT( "accKernel Work Group Size %lu" ),this->accKernelWorkGroupSize );
+	wxLogDebug( wxT( "accKernel Work Group Size %llu" ),this->accKernelWorkGroupSize );
 
 	if( this->groupSize > this->accKernelWorkGroupSize )
 	{
@@ -1339,7 +1339,7 @@ void CLModel::SetKernelArgumentsAndGroupSize()
 		throw status;
 	}
 
-	wxLogDebug( wxT( "startupKernel Work Group Size %lu" ),this->startupKernelWorkGroupSize );
+	wxLogDebug( wxT( "startupKernel Work Group Size %llu" ),this->startupKernelWorkGroupSize );
 
 	if( this->groupSize > this->startupKernelWorkGroupSize )
 	{
@@ -1354,7 +1354,7 @@ void CLModel::SetKernelArgumentsAndGroupSize()
 		throw status;
 	}
 
-	wxLogDebug( wxT( "adamsBashford Work Group Size %lu" ),this->adamsBashforthKernelWorkGroupSize );
+	wxLogDebug( wxT( "adamsBashford Work Group Size %llu" ),this->adamsBashforthKernelWorkGroupSize );
 
 	if( this->groupSize > this->adamsBashforthKernelWorkGroupSize )
 	{
@@ -1369,7 +1369,7 @@ void CLModel::SetKernelArgumentsAndGroupSize()
 		throw status;
 	}
 
-	wxLogDebug( wxT( "adamsKernel Work Group Size %lu" ),this->adamsMoultonKernelWorkGroupSize );
+	wxLogDebug( wxT( "adamsKernel Work Group Size %llu" ),this->adamsMoultonKernelWorkGroupSize );
 
 	if( this->groupSize > this->adamsMoultonKernelWorkGroupSize )
 	{
@@ -1384,7 +1384,7 @@ void CLModel::SetKernelArgumentsAndGroupSize()
 		throw status;
 	}
 
-	wxLogDebug( wxT( "copyToDisplayKernel Work Group Size %lu" ),this->copyToDisplayKernelWorkGroupSize );
+	wxLogDebug( wxT( "copyToDisplayKernel Work Group Size %llu" ),this->copyToDisplayKernelWorkGroupSize );
 
 	if( this->groupSize > this->copyToDisplayKernelWorkGroupSize )
 	{

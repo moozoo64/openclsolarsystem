@@ -65,11 +65,11 @@
     <Configuration Name="Debug" CompilerType="gnu g++" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
       <Compiler Options="-g;-O0;-Wall;$(shell wx-config --cxxflags --unicode=yes --debug=yes)" C_Options="-g;-O0;-Wall;$(shell wx-config --cxxflags --unicode=yes --debug=yes)" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
         <IncludePath Value="/SDK/Khronos/opencl1.2/include"/>
-        <IncludePath Value="/SDK/glew-1.11.0/include"/>
+        <IncludePath Value="/SDK/glew-1.12.0/include"/>
       </Compiler>
       <Linker Options="-mwindows;$(shell wx-config --debug=yes --libs --unicode=yes --libs gl)" Required="yes">
-        <LibraryPath Value="/SDK/Khronos/opencl1.2/lib/"/>
-        <LibraryPath Value="/SDK/glew-1.11.0/lib"/>
+        <LibraryPath Value="C:/Program Files (x86)/AMD APP SDK/3.0-0-Beta/lib/x86_64"/>
+        <LibraryPath Value="/SDK/glew-1.12.0/lib"/>
         <Library Value="OpenCL"/>
         <Library Value="glew32"/>
       </Linker>
@@ -84,6 +84,7 @@
         <StartupCommands/>
       </Debugger>
       <PreBuild>
+        <Command Enabled="yes">mkdir $(ConfigurationName)</Command>
         <Command Enabled="yes">copy adamsfma.cl $(ConfigurationName)</Command>
         <Command Enabled="yes">copy astrorbsolexsmall.slf $(ConfigurationName)</Command>
       </PreBuild>
@@ -112,11 +113,11 @@
     <Configuration Name="Release" CompilerType="gnu g++" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
       <Compiler Options="-O2;-Wall;-DwxDEBUG_LEVEL=0;$(shell wx-config --cxxflags --unicode=yes --debug=no)" C_Options="-O2;-Wall;-DwxDEBUG_LEVEL=0;$(shell wx-config --cxxflags --unicode=yes --debug=no)" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
         <IncludePath Value="/SDK/Khronos/opencl1.2/include"/>
-        <IncludePath Value="/SDK/glew-1.11.0/include"/>
+        <IncludePath Value="/SDK/glew-1.12.0/include"/>
       </Compiler>
       <Linker Options="-mwindows;-s;$(shell wx-config --debug=no --libs --unicode=yes --libs gl)" Required="yes">
-        <LibraryPath Value="/SDK/Khronos/opencl1.2/lib/"/>
-        <LibraryPath Value="/SDK/glew-1.11.0/lib"/>
+        <LibraryPath Value="C:/Program Files (x86)/AMD APP SDK/3.0-0-Beta/lib/x86_64"/>
+        <LibraryPath Value="/SDK/glew-1.12.0/lib"/>
         <Library Value="OpenCL"/>
         <Library Value="glew32"/>
       </Linker>
@@ -131,6 +132,7 @@
         <StartupCommands/>
       </Debugger>
       <PreBuild>
+        <Command Enabled="yes">mkdir $(ConfigurationName)</Command>
         <Command Enabled="yes">copy adamsfma.cl $(ConfigurationName)</Command>
         <Command Enabled="yes">copy astrorbsolexsmall.slf $(ConfigurationName)</Command>
       </PreBuild>

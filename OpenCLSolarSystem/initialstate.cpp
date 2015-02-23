@@ -513,21 +513,21 @@ bool InitialState::ExportSLF( wxString fileName )
 	for( int i=0; i< this->initialNumParticles; i++ )
 	{
 		name = wxString( this->physicalProperties[i].Name );
-		double x = this->initialPositions[i].x;
-		double y = this->initialPositions[i].y;
-		double z = this->initialPositions[i].z;
-		double vx = this->initialVelocities[i].x;
-		double vy = this->initialVelocities[i].y;
-		double vz = this->initialVelocities[i].z;
+		double x = this->initialPositions[i].s[0];
+		double y = this->initialPositions[i].s[1];
+		double z = this->initialPositions[i].s[2];
+		double vx = this->initialVelocities[i].s[0];
+		double vy = this->initialVelocities[i].s[1];
+		double vz = this->initialVelocities[i].s[2];
 
 		if( name.IsSameAs( wxT( "Moon" ) ) )
 		{
-			x = x - this->initialPositions[earth].x;
-			y = y - this->initialPositions[earth].y;
-			z = z - this->initialPositions[earth].z;
-			vx = vx - this->initialVelocities[earth].x;
-			vy = vy - this->initialVelocities[earth].y;
-			vz = vz - this->initialVelocities[earth].z;
+			x = x - this->initialPositions[earth].s[0];
+			y = y - this->initialPositions[earth].s[1];
+			z = z - this->initialPositions[earth].s[2];
+			vx = vx - this->initialVelocities[earth].s[0];
+			vy = vy - this->initialVelocities[earth].s[1];
+			vz = vz - this->initialVelocities[earth].s[2];
 		}
 
 		line.Printf( "%.16G %.16G %.16G %.16G# %s\n",this->physicalProperties[i].Mass,this->physicalProperties[i].Radius,this->physicalProperties[i].AbsoluteMagnitude,this->physicalProperties[i].RelativisticParameter,this->physicalProperties[i].Name );
@@ -585,15 +585,15 @@ bool InitialState::ImportSLF( wxString fileName )
 	int earth = -1;
 	for( int i=0; i< this->initialNumParticles; i++ )
 	{
-		this->initialPositions[i].w = 0.2 * double( xor128()/double( ULONG_MAX ) );
-		this->initialPositions[i].x = double( 1.0 * ( xor128()/( double( ULONG_MAX ) ) - 0.5 ) );
-		this->initialPositions[i].y = double( 1.0 * ( xor128()/( double( ULONG_MAX ) ) - 0.5 ) );
-		this->initialPositions[i].z = double( 1.0 * ( xor128()/( double( ULONG_MAX ) ) - 0.5 ) );
+		this->initialPositions[i].s[3] = 0.2 * double( xor128()/double( ULONG_MAX ) );
+		this->initialPositions[i].s[0] = double( 1.0 * ( xor128()/( double( ULONG_MAX ) ) - 0.5 ) );
+		this->initialPositions[i].s[1] = double( 1.0 * ( xor128()/( double( ULONG_MAX ) ) - 0.5 ) );
+		this->initialPositions[i].s[2] = double( 1.0 * ( xor128()/( double( ULONG_MAX ) ) - 0.5 ) );
 
-		this->initialVelocities[i].x=0.0;
-		this->initialVelocities[i].y=0.0;
-		this->initialVelocities[i].z=0.0;
-		this->initialVelocities[i].w=0.0;
+		this->initialVelocities[i].s[0]=0.0;
+		this->initialVelocities[i].s[1]=0.0;
+		this->initialVelocities[i].s[2]=0.0;
+		this->initialVelocities[i].s[3]=0.0;
 
 		if( !initialConditionsfileInputStream.Eof() )
 		{
@@ -779,24 +779,24 @@ bool InitialState::ImportSLF( wxString fileName )
 				return false;
 			}
 
-			this->initialPositions[i].x = xPos;
-			this->initialPositions[i].y = yPos;
-			this->initialPositions[i].z = zPos;
+			this->initialPositions[i].s[0] = xPos;
+			this->initialPositions[i].s[1] = yPos;
+			this->initialPositions[i].s[2] = zPos;
 			//this->initialPositions[i].w = mass * 6.67384E-08;
 
 			if( mass < 1.0E-30f )
 			{
-				this->initialPositions[i].w = 2.83E-09 * 6.67384E-08;
+				this->initialPositions[i].s[3] = 2.83E-09 * 6.67384E-08;
 			}
 			else
 			{
-				this->initialPositions[i].w = mass * 6.67384E-08;
+				this->initialPositions[i].s[3] = mass * 6.67384E-08;
 			}
 
-			this->initialVelocities[i].x = xVel;
-			this->initialVelocities[i].y = yVel;
-			this->initialVelocities[i].z = zVel;
-			this->initialVelocities[i].w = relativisticParameter;
+			this->initialVelocities[i].s[0] = xVel;
+			this->initialVelocities[i].s[1] = yVel;
+			this->initialVelocities[i].s[2] = zVel;
+			this->initialVelocities[i].s[3] = relativisticParameter;
 
 			this->physicalProperties[i].Mass = mass;
 			this->physicalProperties[i].Radius = radius;
@@ -815,7 +815,7 @@ bool InitialState::ImportSLF( wxString fileName )
 			}
 			this->physicalProperties[i].Name[31] =0;
 
-			wxLogDebug( wxT( "Read %ld,%s,%e,%e,%f,%f,%f,%f,%f,%f" ),bodiesReadCount,this->physicalProperties[i].Name,mass,this->initialPositions[i].w,xPos,yPos,zPos,xVel,yVel,zVel );
+			wxLogDebug( wxT( "Read %ld,%s,%e,%e,%f,%f,%f,%f,%f,%f" ),bodiesReadCount,this->physicalProperties[i].Name,mass,this->initialPositions[i].s[3],xPos,yPos,zPos,xVel,yVel,zVel );
 			bodiesReadCount++;
 		}
 		else
@@ -835,12 +835,12 @@ bool InitialState::ImportSLF( wxString fileName )
 	// In slf files the moon is in Geocentic (earth centered) co-ordinates. We need it in heliocentric
 	if( moon != -1 and earth != -1 )
 	{
-		this->initialPositions[moon].x += this->initialPositions[earth].x;
-		this->initialPositions[moon].y += this->initialPositions[earth].y;
-		this->initialPositions[moon].z += this->initialPositions[earth].z;
-		this->initialVelocities[moon].x += this->initialVelocities[earth].x;
-		this->initialVelocities[moon].y += this->initialVelocities[earth].y;
-		this->initialVelocities[moon].z += this->initialVelocities[earth].z;
+		this->initialPositions[moon].s[0] += this->initialPositions[earth].s[0];
+		this->initialPositions[moon].s[1] += this->initialPositions[earth].s[1];
+		this->initialPositions[moon].s[2] += this->initialPositions[earth].s[2];
+		this->initialVelocities[moon].s[0] += this->initialVelocities[earth].s[0];
+		this->initialVelocities[moon].s[1] += this->initialVelocities[earth].s[1];
+		this->initialVelocities[moon].s[2] += this->initialVelocities[earth].s[2];
 	}
 
 	progressBar.Close();
@@ -870,25 +870,25 @@ bool InitialState::CreateRandomInitialConfig()
 		this->initialColorData[i*4+3] = 255;
 
 		double mass = 0.2 * double( xor128()/double( ULONG_MAX ) );
-		this->initialPositions[i].w = mass;
+		this->initialPositions[i].s[3] = mass;
 
 		if( i == 0 )
 		{
-			this->initialPositions[i].x = 0.0;
-			this->initialPositions[i].y = 0.0;
-			this->initialPositions[i].z = 0.0;
+			this->initialPositions[i].s[0] = 0.0;
+			this->initialPositions[i].s[1] = 0.0;
+			this->initialPositions[i].s[2] = 0.0;
 		}
 		else
 		{
-			this->initialPositions[i].x = 1000.0*double( 1.0 * ( xor128()/( double( ULONG_MAX ) ) - 0.5 ) );
-			this->initialPositions[i].y = 1000.0*double( 1.0 * ( xor128()/( double( ULONG_MAX ) ) - 0.5 ) );
-			this->initialPositions[i].z = 1000.0*double( 1.0 * ( xor128()/( double( ULONG_MAX ) ) - 0.5 ) );
+			this->initialPositions[i].s[0] = 1000.0*double( 1.0 * ( xor128()/( double( ULONG_MAX ) ) - 0.5 ) );
+			this->initialPositions[i].s[1] = 1000.0*double( 1.0 * ( xor128()/( double( ULONG_MAX ) ) - 0.5 ) );
+			this->initialPositions[i].s[2] = 1000.0*double( 1.0 * ( xor128()/( double( ULONG_MAX ) ) - 0.5 ) );
 		}
 
-		this->initialVelocities[i].x=0.0;
-		this->initialVelocities[i].y=0.0;
-		this->initialVelocities[i].z=0.0;
-		this->initialVelocities[i].w=0.0;
+		this->initialVelocities[i].s[0]=0.0;
+		this->initialVelocities[i].s[1]=0.0;
+		this->initialVelocities[i].s[2]=0.0;
+		this->initialVelocities[i].s[3]=0.0;
 
 		this->physicalProperties[i].Mass = mass;
 		this->physicalProperties[i].Radius = 0.0;
