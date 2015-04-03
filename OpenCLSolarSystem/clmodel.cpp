@@ -187,7 +187,7 @@ bool CLModel::FindDeviceAndCreateContext( cl_uint desiredDeviceVendorId, cl_devi
 				throw status;
 			}
 			
-			// Now find the device
+			// Now search for the device
 			for ( unsigned j = 0; j < numberOfDevices; ++j )
 			{
 				cl_uint deviceVendorId;
