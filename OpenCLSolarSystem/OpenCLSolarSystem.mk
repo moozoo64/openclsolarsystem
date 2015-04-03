@@ -2,18 +2,18 @@
 ## Auto Generated makefile by CodeLite IDE
 ## any manual changes will be erased      
 ##
-## Release
+## Debug_x86_64
 ProjectName            :=OpenCLSolarSystem
-ConfigurationName      :=Release
+ConfigurationName      :=Debug_x86_64
 WorkspacePath          := "C:\Users\michael\Documents\CodeLite\OpenCLSolarSystem"
 ProjectPath            := "C:\Users\michael\Documents\CodeLite\OpenCLSolarSystem\OpenCLSolarSystem"
-IntermediateDirectory  :=./Release
+IntermediateDirectory  :=./$(ConfigurationName)
 OutDir                 := $(IntermediateDirectory)
 CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
 User                   :=michael
-Date                   :=02/23/15
+Date                   :=04/04/15
 CodeLitePath           :="C:\Program Files\CodeLite"
 LinkerName             :=C:/TDM-GCC-64/bin/g++.exe 
 SharedObjectLinkerName :=C:/TDM-GCC-64/bin/g++.exe -shared -fPIC
@@ -37,13 +37,13 @@ PCHCompileFlags        :=
 MakeDirCommand         :=makedir
 RcCmpOptions           := $(shell wx-config --rcflags)
 RcCompilerName         :=C:/TDM-GCC-64/bin/windres.exe 
-LinkOptions            :=  -mwindows -s $(shell wx-config --debug=no --libs --unicode=yes --libs gl)
-IncludePath            :=  $(IncludeSwitch). $(IncludeSwitch)/SDK/Khronos/opencl1.2/include $(IncludeSwitch)/SDK/glew-1.12.0/include 
+LinkOptions            :=  -mwindows $(shell wx-config --debug=yes --libs --unicode=yes --libs gl)
+IncludePath            :=  $(IncludeSwitch). $(IncludeSwitch)"$(AMDAPPSDKROOT)include" $(IncludeSwitch)/SDK/glew-1.12.0/include 
 IncludePCH             := 
 RcIncludePath          := 
 Libs                   := $(LibrarySwitch)OpenCL $(LibrarySwitch)glew32 
 ArLibs                 :=  "OpenCL" "glew32" 
-LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)"C:/Program Files (x86)/AMD APP SDK/3.0-0-Beta/lib/x86_64" $(LibraryPathSwitch)/SDK/glew-1.12.0/lib 
+LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)"$(AMDAPPSDKROOT)lib/x86_64" $(LibraryPathSwitch)/SDK/glew-1.12.0/lib 
 
 ##
 ## Common variables
@@ -52,8 +52,8 @@ LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)"C:/Program 
 AR       := C:/TDM-GCC-64/bin/ar.exe rcu
 CXX      := C:/TDM-GCC-64/bin/g++.exe 
 CC       := C:/TDM-GCC-64/bin/gcc.exe 
-CXXFLAGS :=  -O2 -Wall -DwxDEBUG_LEVEL=0 $(shell wx-config --cxxflags --unicode=yes --debug=no) $(Preprocessors)
-CFLAGS   :=  -O2 -Wall -DwxDEBUG_LEVEL=0 $(shell wx-config --cxxflags --unicode=yes --debug=no) $(Preprocessors)
+CXXFLAGS :=  -g -O0 -Wall $(shell wx-config --cxxflags --unicode=yes --debug=yes) $(Preprocessors)
+CFLAGS   :=  -g -O0 -Wall $(shell wx-config --cxxflags --unicode=yes --debug=yes) $(Preprocessors)
 ASFLAGS  := 
 AS       := C:/TDM-GCC-64/bin/as.exe 
 
@@ -83,7 +83,7 @@ $(OutputFile): $(IntermediateDirectory)/.d $(Objects)
 	$(LinkerName) $(OutputSwitch)$(OutputFile) @$(ObjectsFileList) $(LibPath) $(Libs) $(LinkOptions)
 
 $(IntermediateDirectory)/.d:
-	@$(MakeDirCommand) "./Release"
+	@$(MakeDirCommand) "./$(ConfigurationName)"
 
 PreBuild:
 	@echo Executing Pre Build commands ...
@@ -158,6 +158,6 @@ $(IntermediateDirectory)/application.cpp$(PreprocessSuffix): application.cpp
 ## Clean
 ##
 clean:
-	$(RM) -r ./Release/
+	$(RM) -r ./$(ConfigurationName)/
 
 

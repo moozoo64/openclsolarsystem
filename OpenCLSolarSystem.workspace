@@ -2,11 +2,11 @@
 <CodeLite_Workspace Name="OpenCLSolarSystem" Database="./OpenCLSolarSystem.tags">
   <Project Name="OpenCLSolarSystem" Path="OpenCLSolarSystem/OpenCLSolarSystem.project" Active="Yes"/>
   <BuildMatrix>
-    <WorkspaceConfiguration Name="Debug" Selected="no">
-      <Project Name="OpenCLSolarSystem" ConfigName="Debug"/>
+    <WorkspaceConfiguration Name="Release_x86_64" Selected="no">
+      <Project Name="OpenCLSolarSystem" ConfigName="Release_x86_64"/>
     </WorkspaceConfiguration>
-    <WorkspaceConfiguration Name="Release" Selected="yes">
-      <Project Name="OpenCLSolarSystem" ConfigName="Release"/>
+    <WorkspaceConfiguration Name="Debug_x86_64" Selected="yes">
+      <Project Name="OpenCLSolarSystem" ConfigName="Debug_x86_64"/>
     </WorkspaceConfiguration>
   </BuildMatrix>
 </CodeLite_Workspace>

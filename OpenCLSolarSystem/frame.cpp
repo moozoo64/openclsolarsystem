@@ -415,6 +415,7 @@ void Frame::UpdateStatusBar( wxLongLong timeTaken )
 	}
 
 	double frameRate = 1000000.0/movingAverageTimeTaken;
+	double timeRate = frameRate*this->clModel->delT/(60*60*24);
 
 	// compute the Julian day Number
 	double jdn = this->clModel->julianDate + ( this->clModel->time )*1/( 60*60*24 );
@@ -422,7 +423,14 @@ void Frame::UpdateStatusBar( wxLongLong timeTaken )
 	dateTime.Set( jdn );
 
 	wxString message;
-	message.Printf( "Center: %s Julian Day: %f Date: %10s %8s step: %d fps: %.2f",this->initialState->physicalProperties[this->clModel->centerBody].Name,jdn,dateTime.FormatISODate().c_str(),dateTime.FormatISOTime().c_str(), this->clModel->step, frameRate );
+	if(timeRate>=1.0f)
+	{
+		message.Printf( "Center: %s Julian Day: %f Date: %10s %8s step: %d fps: %.2f daysPerSec %.4f",this->initialState->physicalProperties[this->clModel->centerBody].Name,jdn,dateTime.FormatISODate().c_str(),dateTime.FormatISOTime().c_str(), this->clModel->step, frameRate,timeRate );
+	}
+	else
+	{
+		message.Printf( "Center: %s Julian Day: %f Date: %10s %8s step: %d fps: %.2f secsPerDay %.4f",this->initialState->physicalProperties[this->clModel->centerBody].Name,jdn,dateTime.FormatISODate().c_str(),dateTime.FormatISOTime().c_str(), this->clModel->step, frameRate,1.0f/timeRate );
+	}
 	this->SetStatusText( message );
 }
 

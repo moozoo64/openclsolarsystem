@@ -103,6 +103,7 @@ bool CLModel::FindDeviceAndCreateContext( cl_uint desiredDeviceVendorId, cl_devi
 
 	try
 	{
+		// Get a list of platforms
 		status = clGetPlatformIDs( 0, NULL, &numPlatforms );
 		if( status != CL_SUCCESS )
 		{
@@ -127,6 +128,7 @@ bool CLModel::FindDeviceAndCreateContext( cl_uint desiredDeviceVendorId, cl_devi
 			throw status;
 		}
 
+		// search the platforms
 		bool foundDevice = false;
 		for ( unsigned i = 0; i < numPlatforms; ++i )
 		{
@@ -149,6 +151,7 @@ bool CLModel::FindDeviceAndCreateContext( cl_uint desiredDeviceVendorId, cl_devi
 				throw status;
 			}
 
+			// is this the platform we are looking for
 			if ( desiredDeviceVendorId == 0 && desiredPlatformName != NULL )
 			{
 				if( strcmp( thePlatformName, desiredPlatformName ) != 0 )
@@ -157,6 +160,7 @@ bool CLModel::FindDeviceAndCreateContext( cl_uint desiredDeviceVendorId, cl_devi
 				}
 			}
 
+			// Get the id's of the devices under this platform
 			cl_uint numberOfDevices = 0;
 			status = clGetDeviceIDs( platform,deviceType,0,NULL,&numberOfDevices );
 			if( status != CL_SUCCESS )
@@ -175,7 +179,6 @@ bool CLModel::FindDeviceAndCreateContext( cl_uint desiredDeviceVendorId, cl_devi
 
 			wxLogDebug( wxT( "platform has %d devices" ),numberOfDevices );
 
-			// Now find the device
 			deviceIds = new cl_device_id[numberOfDevices];
 			status = clGetDeviceIDs( platform, deviceType, numberOfDevices, deviceIds, NULL );
 			if( status != CL_SUCCESS )
@@ -183,7 +186,8 @@ bool CLModel::FindDeviceAndCreateContext( cl_uint desiredDeviceVendorId, cl_devi
 				wxLogError( wxT( "clGetDeviceIDs failed to get devices %s" ),this->ErrorMessage( status ) );
 				throw status;
 			}
-
+			
+			// Now find the device
 			for ( unsigned j = 0; j < numberOfDevices; ++j )
 			{
 				cl_uint deviceVendorId;
