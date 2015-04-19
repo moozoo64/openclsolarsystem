@@ -284,7 +284,7 @@ bool CLModel::FindDeviceAndCreateContext( cl_uint desiredDeviceVendorId, cl_devi
 		this->deviceCLVersion = new wxString( deviceCLVersion,wxConvUTF8 );
 		delete[] deviceCLVersion;
 		deviceCLVersion = NULL;
-
+		
 		// Format of CL_DEVICE_VERSION is OpenCL<space><major_version.minor_version><space><vendor-specific information>
 		// Parse it and extract the major.minor version number as a double
 		if( this->deviceCLVersion!= NULL && this->deviceCLVersion->length()>0 )
@@ -315,6 +315,8 @@ bool CLModel::FindDeviceAndCreateContext( cl_uint desiredDeviceVendorId, cl_devi
 			}
 		}
 
+		wxLogDebug( wxT( "OpenCL version read as:%f" ), this->deviceCLVersionNumber);
+		
 		//this->deviceCLVersionNumber = 1.1;
 
 		// Get Extensions
@@ -521,7 +523,7 @@ bool CLModel::FindDeviceAndCreateContext( cl_uint desiredDeviceVendorId, cl_devi
 		int maxHistory = this->maxMemoryAlloc/(16 * sizeof( cl_double4 ));
 		int maxGlobal = this->globalMemorySize/((2* 16 * sizeof( cl_double4 ))+(4 * sizeof( cl_double4 )));
 		this->maxNumParticles = maxGlobal < maxHistory?maxGlobal:maxHistory;
-		wxLogDebug( wxT( "max hsitory particles %d" ), maxHistory);
+		wxLogDebug( wxT( "max history particles %d" ), maxHistory);
 		wxLogDebug( wxT( "max global particles %d" ), maxGlobal);
 		
 		success = true;
@@ -913,7 +915,7 @@ void CLModel::ExecuteKernels()
 	status = clFlush( this->commandQueue );
 	if( status != CL_SUCCESS )
 	{
-		wxLogError( wxT( "clFinish failed %s" ),this->ErrorMessage( status ) );
+		wxLogError( wxT( "clFlush failed %s" ),this->ErrorMessage( status ) );
 		throw status;
 	}
 
@@ -922,9 +924,10 @@ void CLModel::ExecuteKernels()
 		status = clEnqueueBarrierWithWaitList( this->commandQueue,0,NULL,NULL );
 		if( status != CL_SUCCESS )
 		{
-			wxLogError( wxT( "clFinish failed %s" ),this->ErrorMessage( status ) );
+			wxLogError( wxT( "clEnqueueBarrierWithWaitList failed %s" ),this->ErrorMessage( status ) );
 			throw status;
 		}
+		wxLogDebug( wxT( "CLModel::ExecuteKernels clEnqueueBarrierWithWaitList()" ) );
 	}
 	else
 	{
@@ -934,9 +937,8 @@ void CLModel::ExecuteKernels()
 			wxLogError( wxT( "clEnqueueBarrier failed %s" ),this->ErrorMessage( status ) );
 			throw status;
 		}
+		wxLogDebug( wxT( "CLModel::ExecuteKernels clEnqueueBarrier()" ) );
 	}
-
-	wxLogDebug( wxT( "CLModel::ExecuteKernels clFinish()" ) );
 
 	// for the first 16 steps we call the startupKernel. This populates the 16 element ring buffer
 	// It is current very inaccurate and uses a 1st order Adams Bashford Moulton followed by a 2nd order
@@ -1031,7 +1033,7 @@ void CLModel::ExecuteKernels()
 	status = clFlush( this->commandQueue );
 	if( status != CL_SUCCESS )
 	{
-		wxLogError( wxT( "clFinish failed %s" ),this->ErrorMessage( status ) );
+		wxLogError( wxT( "clFlush failed %s" ),this->ErrorMessage( status ) );
 		throw status;
 	}
 
@@ -1040,9 +1042,10 @@ void CLModel::ExecuteKernels()
 		status = clEnqueueBarrierWithWaitList( this->commandQueue,0,NULL,NULL );
 		if( status != CL_SUCCESS )
 		{
-			wxLogError( wxT( "clFinish failed %s" ),this->ErrorMessage( status ) );
+			wxLogError( wxT( "clEnqueueBarrierWithWaitList failed %s" ),this->ErrorMessage( status ) );
 			throw status;
 		}
+		wxLogDebug( wxT( "CLModel::ExecuteKernels clEnqueueBarrierWithWaitList()" ) );
 	}
 	else
 	{
@@ -1052,9 +1055,8 @@ void CLModel::ExecuteKernels()
 			wxLogError( wxT( "clEnqueueBarrier failed %s" ),this->ErrorMessage( status ) );
 			throw status;
 		}
+		wxLogDebug( wxT( "CLModel::ExecuteKernels clEnqueueBarrier()" ) );
 	}
-
-	wxLogDebug( wxT( "CLModel::ExecuteKernels clFinish()" ) );
 
 	// Copy new positions to current position
 	status = clEnqueueCopyBuffer( commandQueue,this->newPos,this->currPos,0,0,sizeof( cl_double4 ) * this->numParticles,0,0,0 );
@@ -1084,9 +1086,10 @@ void CLModel::ExecuteKernels()
 		status = clEnqueueBarrierWithWaitList( this->commandQueue,0,NULL,NULL );
 		if( status != CL_SUCCESS )
 		{
-			wxLogError( wxT( "clFinish failed %s" ),this->ErrorMessage( status ) );
+			wxLogError( wxT( "clEnqueueBarrierWithWaitList failed %s" ),this->ErrorMessage( status ) );
 			throw status;
 		}
+		wxLogDebug( wxT( "CLModel::ExecuteKernels clEnqueueBarrierWithWaitList()" ) );
 	}
 	else
 	{
@@ -1096,9 +1099,8 @@ void CLModel::ExecuteKernels()
 			wxLogError( wxT( "clEnqueueBarrier failed %s" ),this->ErrorMessage( status ) );
 			throw status;
 		}
+		wxLogDebug( wxT( "CLModel::ExecuteKernels clEnqueueBarrier()" ) );
 	}
-
-	wxLogDebug( wxT( "CLModel::ExecuteKernels clFinish()" ) );
 
 	this->stage = this->stage - 1;
 	if( this->stage < 0 )
@@ -1467,7 +1469,7 @@ void CLModel::SetAdamsKernelArgs( cl_kernel adamsKernel )
 	status = clSetKernelArg( adamsKernel,6,sizeof( cl_int ),( void * )&this->stage );
 	if( status != CL_SUCCESS )
 	{
-		wxLogError( wxT( "clSetKernelArg failed for stage %s" ),this->ErrorMessage( status ) );
+		wxLogError( wxT( "clSetKernelArg 6 failed for stage %s" ),this->ErrorMessage( status ) );
 		throw status;
 	}
 
@@ -1682,7 +1684,7 @@ int CLModel::CleanUpCL()
 		status = clReleaseMemObject( this->dispPos );
 		if( status != CL_SUCCESS )
 		{
-			wxLogError( wxT( "clReleaseMemObject newVel failed %s" ),this->ErrorMessage( status ) );
+			wxLogError( wxT( "clReleaseMemObject dispPos failed %s" ),this->ErrorMessage( status ) );
 			success=status;
 		}
 		else
