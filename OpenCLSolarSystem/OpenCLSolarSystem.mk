@@ -5,8 +5,8 @@
 ## Release_x86_64
 ProjectName            :=OpenCLSolarSystem
 ConfigurationName      :=Release_x86_64
-WorkspacePath          := "C:\Users\Michael\Documents\CodeLite\OpenCLSolarSystem"
-ProjectPath            := "C:\Users\Michael\Documents\CodeLite\OpenCLSolarSystem\OpenCLSolarSystem"
+WorkspacePath          := "C:\SDK\OpenCLSolarSystem"
+ProjectPath            := "C:\SDK\OpenCLSolarSystem\OpenCLSolarSystem"
 IntermediateDirectory  :=./$(ConfigurationName)
 OutDir                 := $(IntermediateDirectory)
 CurrentFileName        :=
@@ -82,22 +82,23 @@ $(OutputFile): $(IntermediateDirectory)/.d $(Objects)
 	@echo $(Objects0)  > $(ObjectsFileList)
 	$(LinkerName) $(OutputSwitch)$(OutputFile) @$(ObjectsFileList) $(LibPath) $(Libs) $(LinkOptions)
 
+PostBuild:
+	@echo Executing Post Build commands ...
+	copy adamsfma.cl $(ConfigurationName)
+	copy astrorbsolexsmall.slf $(ConfigurationName)
+	@echo Done
+
 $(IntermediateDirectory)/.d:
 	@$(MakeDirCommand) "./$(ConfigurationName)"
 
 PreBuild:
-	@echo Executing Pre Build commands ...
-	mkdir $(ConfigurationName)
-	copy adamsfma.cl $(ConfigurationName)
-	copy astrorbsolexsmall.slf $(ConfigurationName)
-	@echo Done
 
 
 ##
 ## Objects
 ##
 $(IntermediateDirectory)/global.cpp$(ObjectSuffix): global.cpp $(IntermediateDirectory)/global.cpp$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "C:/Users/Michael/Documents/CodeLite/OpenCLSolarSystem/OpenCLSolarSystem/global.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/global.cpp$(ObjectSuffix) $(IncludePath)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "C:/SDK/OpenCLSolarSystem/OpenCLSolarSystem/global.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/global.cpp$(ObjectSuffix) $(IncludePath)
 $(IntermediateDirectory)/global.cpp$(DependSuffix): global.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/global.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/global.cpp$(DependSuffix) -MM "global.cpp"
 
@@ -105,7 +106,7 @@ $(IntermediateDirectory)/global.cpp$(PreprocessSuffix): global.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/global.cpp$(PreprocessSuffix) "global.cpp"
 
 $(IntermediateDirectory)/initialstate.cpp$(ObjectSuffix): initialstate.cpp $(IntermediateDirectory)/initialstate.cpp$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "C:/Users/Michael/Documents/CodeLite/OpenCLSolarSystem/OpenCLSolarSystem/initialstate.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/initialstate.cpp$(ObjectSuffix) $(IncludePath)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "C:/SDK/OpenCLSolarSystem/OpenCLSolarSystem/initialstate.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/initialstate.cpp$(ObjectSuffix) $(IncludePath)
 $(IntermediateDirectory)/initialstate.cpp$(DependSuffix): initialstate.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/initialstate.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/initialstate.cpp$(DependSuffix) -MM "initialstate.cpp"
 
@@ -113,7 +114,7 @@ $(IntermediateDirectory)/initialstate.cpp$(PreprocessSuffix): initialstate.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/initialstate.cpp$(PreprocessSuffix) "initialstate.cpp"
 
 $(IntermediateDirectory)/physicalproperties.cpp$(ObjectSuffix): physicalproperties.cpp $(IntermediateDirectory)/physicalproperties.cpp$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "C:/Users/Michael/Documents/CodeLite/OpenCLSolarSystem/OpenCLSolarSystem/physicalproperties.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/physicalproperties.cpp$(ObjectSuffix) $(IncludePath)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "C:/SDK/OpenCLSolarSystem/OpenCLSolarSystem/physicalproperties.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/physicalproperties.cpp$(ObjectSuffix) $(IncludePath)
 $(IntermediateDirectory)/physicalproperties.cpp$(DependSuffix): physicalproperties.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/physicalproperties.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/physicalproperties.cpp$(DependSuffix) -MM "physicalproperties.cpp"
 
@@ -121,7 +122,7 @@ $(IntermediateDirectory)/physicalproperties.cpp$(PreprocessSuffix): physicalprop
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/physicalproperties.cpp$(PreprocessSuffix) "physicalproperties.cpp"
 
 $(IntermediateDirectory)/glcanvas.cpp$(ObjectSuffix): glcanvas.cpp $(IntermediateDirectory)/glcanvas.cpp$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "C:/Users/Michael/Documents/CodeLite/OpenCLSolarSystem/OpenCLSolarSystem/glcanvas.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/glcanvas.cpp$(ObjectSuffix) $(IncludePath)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "C:/SDK/OpenCLSolarSystem/OpenCLSolarSystem/glcanvas.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/glcanvas.cpp$(ObjectSuffix) $(IncludePath)
 $(IntermediateDirectory)/glcanvas.cpp$(DependSuffix): glcanvas.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/glcanvas.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/glcanvas.cpp$(DependSuffix) -MM "glcanvas.cpp"
 
@@ -129,7 +130,7 @@ $(IntermediateDirectory)/glcanvas.cpp$(PreprocessSuffix): glcanvas.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/glcanvas.cpp$(PreprocessSuffix) "glcanvas.cpp"
 
 $(IntermediateDirectory)/clmodel.cpp$(ObjectSuffix): clmodel.cpp $(IntermediateDirectory)/clmodel.cpp$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "C:/Users/Michael/Documents/CodeLite/OpenCLSolarSystem/OpenCLSolarSystem/clmodel.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/clmodel.cpp$(ObjectSuffix) $(IncludePath)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "C:/SDK/OpenCLSolarSystem/OpenCLSolarSystem/clmodel.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/clmodel.cpp$(ObjectSuffix) $(IncludePath)
 $(IntermediateDirectory)/clmodel.cpp$(DependSuffix): clmodel.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/clmodel.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/clmodel.cpp$(DependSuffix) -MM "clmodel.cpp"
 
@@ -137,7 +138,7 @@ $(IntermediateDirectory)/clmodel.cpp$(PreprocessSuffix): clmodel.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/clmodel.cpp$(PreprocessSuffix) "clmodel.cpp"
 
 $(IntermediateDirectory)/frame.cpp$(ObjectSuffix): frame.cpp $(IntermediateDirectory)/frame.cpp$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "C:/Users/Michael/Documents/CodeLite/OpenCLSolarSystem/OpenCLSolarSystem/frame.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/frame.cpp$(ObjectSuffix) $(IncludePath)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "C:/SDK/OpenCLSolarSystem/OpenCLSolarSystem/frame.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/frame.cpp$(ObjectSuffix) $(IncludePath)
 $(IntermediateDirectory)/frame.cpp$(DependSuffix): frame.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/frame.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/frame.cpp$(DependSuffix) -MM "frame.cpp"
 
@@ -145,7 +146,7 @@ $(IntermediateDirectory)/frame.cpp$(PreprocessSuffix): frame.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) $(PreprocessOnlySwitch) $(OutputSwitch) $(IntermediateDirectory)/frame.cpp$(PreprocessSuffix) "frame.cpp"
 
 $(IntermediateDirectory)/application.cpp$(ObjectSuffix): application.cpp $(IntermediateDirectory)/application.cpp$(DependSuffix)
-	$(CXX) $(IncludePCH) $(SourceSwitch) "C:/Users/Michael/Documents/CodeLite/OpenCLSolarSystem/OpenCLSolarSystem/application.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/application.cpp$(ObjectSuffix) $(IncludePath)
+	$(CXX) $(IncludePCH) $(SourceSwitch) "C:/SDK/OpenCLSolarSystem/OpenCLSolarSystem/application.cpp" $(CXXFLAGS) $(ObjectSwitch)$(IntermediateDirectory)/application.cpp$(ObjectSuffix) $(IncludePath)
 $(IntermediateDirectory)/application.cpp$(DependSuffix): application.cpp
 	@$(CXX) $(CXXFLAGS) $(IncludePCH) $(IncludePath) -MG -MP -MT$(IntermediateDirectory)/application.cpp$(ObjectSuffix) -MF$(IntermediateDirectory)/application.cpp$(DependSuffix) -MM "application.cpp"
 

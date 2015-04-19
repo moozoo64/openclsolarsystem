@@ -110,12 +110,11 @@
         <PostConnectCommands/>
         <StartupCommands/>
       </Debugger>
-      <PreBuild>
-        <Command Enabled="yes">mkdir $(ConfigurationName)</Command>
+      <PreBuild/>
+      <PostBuild>
         <Command Enabled="yes">copy adamsfma.cl $(ConfigurationName)</Command>
         <Command Enabled="yes">copy astrorbsolexsmall.slf $(ConfigurationName)</Command>
-      </PreBuild>
-      <PostBuild/>
+      </PostBuild>
       <CustomBuild Enabled="no">
         <RebuildCommand/>
         <CleanCommand/>
@@ -158,12 +157,11 @@
         <PostConnectCommands/>
         <StartupCommands/>
       </Debugger>
-      <PreBuild>
-        <Command Enabled="yes">mkdir $(ConfigurationName)</Command>
+      <PreBuild/>
+      <PostBuild>
         <Command Enabled="yes">copy adamsfma.cl $(ConfigurationName)</Command>
         <Command Enabled="yes">copy astrorbsolexsmall.slf $(ConfigurationName)</Command>
-      </PreBuild>
-      <PostBuild/>
+      </PostBuild>
       <CustomBuild Enabled="no">
         <RebuildCommand/>
         <CleanCommand/>

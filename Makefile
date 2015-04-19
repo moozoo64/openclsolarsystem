@@ -2,7 +2,7 @@
 
 All:
 	@echo "----------Building project:[ OpenCLSolarSystem - Release_x86_64 ]----------"
-	@cd "OpenCLSolarSystem" && $(MAKE) -f  "OpenCLSolarSystem.mk" PreBuild && $(MAKE) -f  "OpenCLSolarSystem.mk"
+	@cd "OpenCLSolarSystem" && $(MAKE) -f  "OpenCLSolarSystem.mk" && $(MAKE) -f  "OpenCLSolarSystem.mk" PostBuild
 clean:
 	@echo "----------Cleaning project:[ OpenCLSolarSystem - Release_x86_64 ]----------"
 	@cd "OpenCLSolarSystem" && $(MAKE) -f  "OpenCLSolarSystem.mk" clean
