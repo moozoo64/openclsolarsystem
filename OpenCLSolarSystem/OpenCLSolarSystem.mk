@@ -2,9 +2,9 @@
 ## Auto Generated makefile by CodeLite IDE
 ## any manual changes will be erased      
 ##
-## Release_x86_64
+## Debug_x86_64
 ProjectName            :=OpenCLSolarSystem
-ConfigurationName      :=Release_x86_64
+ConfigurationName      :=Debug_x86_64
 WorkspacePath          := "C:\Users\michael\Documents\CodeLite\OpenCLSolarSystem"
 ProjectPath            := "C:\Users\michael\Documents\CodeLite\OpenCLSolarSystem\OpenCLSolarSystem"
 IntermediateDirectory  :=./$(ConfigurationName)
@@ -37,7 +37,7 @@ PCHCompileFlags        :=
 MakeDirCommand         :=makedir
 RcCmpOptions           := $(shell wx-config --rcflags)
 RcCompilerName         :=C:/TDM-GCC-64/bin/windres.exe 
-LinkOptions            :=  -mwindows -s $(shell wx-config --debug=no --libs --unicode=yes --libs gl)
+LinkOptions            :=  -mwindows $(shell wx-config --debug=yes --libs --unicode=yes --libs gl)
 IncludePath            :=  $(IncludeSwitch). $(IncludeSwitch)"$(AMDAPPSDKROOT)include" $(IncludeSwitch)/SDK/glew-1.12.0/include 
 IncludePCH             := 
 RcIncludePath          := 
@@ -52,8 +52,8 @@ LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)"$(AMDAPPSDK
 AR       := C:/TDM-GCC-64/bin/ar.exe rcu
 CXX      := C:/TDM-GCC-64/bin/g++.exe 
 CC       := C:/TDM-GCC-64/bin/gcc.exe 
-CXXFLAGS :=  -O2 -Wall -DwxDEBUG_LEVEL=0 $(shell wx-config --cxxflags --unicode=yes --debug=no) $(Preprocessors)
-CFLAGS   :=  -O2 -Wall -DwxDEBUG_LEVEL=0 $(shell wx-config --cxxflags --unicode=yes --debug=no) $(Preprocessors)
+CXXFLAGS :=  -std=gnu++11 -g -O0 -Wall $(shell wx-config --cxxflags --unicode=yes --debug=yes) $(Preprocessors)
+CFLAGS   :=  -std=gnu++11 -g -O0 -Wall $(shell wx-config --cxxflags --unicode=yes --debug=yes) $(Preprocessors)
 ASFLAGS  := 
 AS       := C:/TDM-GCC-64/bin/as.exe 
 

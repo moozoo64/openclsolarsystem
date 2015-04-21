@@ -8,5 +8,11 @@
     <WorkspaceConfiguration Name="Debug_x86_64" Selected="no">
       <Project Name="OpenCLSolarSystem" ConfigName="Debug_x86_64"/>
     </WorkspaceConfiguration>
+    <WorkspaceConfiguration Name="Release_x86_32" Selected="no">
+      <Project Name="OpenCLSolarSystem" ConfigName="Release_x86_32"/>
+    </WorkspaceConfiguration>
+    <WorkspaceConfiguration Name="Debug_x86_32" Selected="no">
+      <Project Name="OpenCLSolarSystem" ConfigName="Debug_x86_32"/>
+    </WorkspaceConfiguration>
   </BuildMatrix>
 </CodeLite_Workspace>
