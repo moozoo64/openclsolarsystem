@@ -96,6 +96,7 @@
     <File Name="todo.txt"/>
     <File Name="adamsfma.cl"/>
     <File Name="MakeGlewMingw.txt"/>
+    <File Name="MakeGlewMingw.cmd"/>
   </VirtualDirectory>
   <Settings Type="Executable">
     <GlobalSettings>
@@ -109,18 +110,18 @@
     </GlobalSettings>
     <Configuration Name="Debug_x86_32" CompilerType="MinGW ( TDM-GCC-32 )" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
       <Compiler Options="-m32 -std=gnu++11 -g;-O0;-Wall;$(shell wx-config --cxxflags --unicode=yes --debug=yes)" C_Options="-m32 -std=gnu++11 -g;-O0;-Wall;$(shell wx-config --cxxflags --unicode=yes --debug=yes)" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
-        <IncludePath Value="&quot;$(AMDAPPSDKROOT)include&quot;"/>
+        <IncludePath Value="&quot;$(OPENCL_INCLUDE)&quot;"/>
         <IncludePath Value="/SDK/glew-1.12.0/include"/>
       </Compiler>
       <Linker Options="-m32 -mwindows;$(shell wx-config --debug=yes --libs --unicode=yes --libs gl)" Required="yes">
-        <LibraryPath Value="&quot;$(AMDAPPSDKROOT)lib/x86&quot;"/>
+        <LibraryPath Value="&quot;$(OPENCL_LIB)&quot;"/>
         <LibraryPath Value="/SDK/glew-1.12.0/lib/Release/Win32"/>
         <Library Value="OpenCL"/>
         <Library Value="glew32"/>
       </Linker>
       <ResourceCompiler Options="$(shell wx-config --rcflags)" Required="no"/>
       <General OutputFile="$(IntermediateDirectory)/$(ProjectName)" IntermediateDirectory="./$(ConfigurationName)" Command="./$(ProjectName)" CommandArguments="-amd" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
-      <Environment EnvVarSetName="32BitEnv" DbgSetName="&lt;Use Defaults&gt;">
+      <Environment EnvVarSetName="32BitAMD" DbgSetName="&lt;Use Defaults&gt;">
         <![CDATA[]]>
       </Environment>
       <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="" IsExtended="no">
@@ -156,18 +157,18 @@
     </Configuration>
     <Configuration Name="Debug_x86_64" CompilerType="MinGW ( TDM-GCC-32 )" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
       <Compiler Options="-std=gnu++11 -g;-O0;-Wall;$(shell wx-config --cxxflags --unicode=yes --debug=yes)" C_Options="-std=gnu++11 -g;-O0;-Wall;$(shell wx-config --cxxflags --unicode=yes --debug=yes)" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
-        <IncludePath Value="&quot;$(AMDAPPSDKROOT)include&quot;"/>
+        <IncludePath Value="&quot;$(OPENCL_INCLUDE)&quot;"/>
         <IncludePath Value="/SDK/glew-1.12.0/include"/>
       </Compiler>
       <Linker Options="-mwindows;$(shell wx-config --debug=yes --libs --unicode=yes --libs gl)" Required="yes">
-        <LibraryPath Value="&quot;$(AMDAPPSDKROOT)lib/x86_64&quot;"/>
+        <LibraryPath Value="&quot;$(OPENCL_LIB)&quot;"/>
         <LibraryPath Value="/SDK/glew-1.12.0/lib/Release/x64"/>
         <Library Value="OpenCL"/>
         <Library Value="glew32"/>
       </Linker>
       <ResourceCompiler Options="$(shell wx-config --rcflags)" Required="no"/>
       <General OutputFile="$(IntermediateDirectory)/$(ProjectName)" IntermediateDirectory="./$(ConfigurationName)" Command="./$(ProjectName)" CommandArguments="-amd" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
-      <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
+      <Environment EnvVarSetName="64BitAMD" DbgSetName="&lt;Use Defaults&gt;">
         <![CDATA[]]>
       </Environment>
       <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="" IsExtended="no">
@@ -203,18 +204,18 @@
     </Configuration>
     <Configuration Name="Release_x86_32" CompilerType="MinGW ( TDM-GCC-32 )" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
       <Compiler Options="-m32  -std=gnu++11 -O2;-Wall;-DwxDEBUG_LEVEL=0;$(shell wx-config.exe --cxxflags --unicode=yes --debug=no)" C_Options="-m32 -std=gnu++11 -O2;-Wall;-DwxDEBUG_LEVEL=0;$(shell wx-config.exe --cxxflags --unicode=yes --debug=no)" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
-        <IncludePath Value="&quot;$(AMDAPPSDKROOT)include&quot;"/>
+        <IncludePath Value="&quot;$(OPENCL_INCLUDE)&quot;"/>
         <IncludePath Value="/SDK/glew-1.12.0/include"/>
       </Compiler>
       <Linker Options="-m32 -mwindows;-s;$(shell wx-config --debug=no --libs --unicode=yes --libs gl)" Required="yes">
-        <LibraryPath Value="&quot;$(AMDAPPSDKROOT)lib/x86&quot;"/>
+        <LibraryPath Value="&quot;$(OPENCL_LIB)&quot;"/>
         <LibraryPath Value="/SDK/glew-1.12.0/lib/Release/Win32"/>
         <Library Value="OpenCL"/>
         <Library Value="glew32"/>
       </Linker>
       <ResourceCompiler Options="$(shell wx-config --rcflags)" Required="no"/>
       <General OutputFile="$(IntermediateDirectory)/$(ProjectName)" IntermediateDirectory="./$(ConfigurationName)" Command="./$(ProjectName)" CommandArguments="-amd" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
-      <Environment EnvVarSetName="32BitEnv" DbgSetName="&lt;Use Defaults&gt;">
+      <Environment EnvVarSetName="32BitAMD" DbgSetName="&lt;Use Defaults&gt;">
         <![CDATA[]]>
       </Environment>
       <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="" IsExtended="no">
@@ -250,18 +251,18 @@
     </Configuration>
     <Configuration Name="Release_x86_64" CompilerType="MinGW ( TDM-GCC-32 )" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
       <Compiler Options="-std=gnu++11 -O2;-Wall;-DwxDEBUG_LEVEL=0;$(shell wx-config --cxxflags --unicode=yes --debug=no)" C_Options="-std=gnu++11  -O2;-Wall;-DwxDEBUG_LEVEL=0;$(shell wx-config --cxxflags --unicode=yes --debug=no)" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
-        <IncludePath Value="&quot;$(AMDAPPSDKROOT)include&quot;"/>
+        <IncludePath Value="&quot;$(OPENCL_INCLUDE)&quot;"/>
         <IncludePath Value="/SDK/glew-1.12.0/include"/>
       </Compiler>
       <Linker Options="-mwindows;-s;$(shell wx-config --debug=no --libs --unicode=yes --libs gl)" Required="yes">
-        <LibraryPath Value="&quot;$(AMDAPPSDKROOT)lib/x86_64&quot;"/>
+        <LibraryPath Value="&quot;$(OPENCL_LIB)&quot;"/>
         <LibraryPath Value="/SDK/glew-1.12.0/lib/Release/x64"/>
         <Library Value="OpenCL"/>
         <Library Value="glew32"/>
       </Linker>
       <ResourceCompiler Options="$(shell wx-config --rcflags)" Required="no"/>
       <General OutputFile="$(IntermediateDirectory)/$(ProjectName)" IntermediateDirectory="./$(ConfigurationName)" Command="./$(ProjectName)" CommandArguments="-amd" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
-      <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
+      <Environment EnvVarSetName="64BitAMD" DbgSetName="&lt;Use Defaults&gt;">
         <![CDATA[]]>
       </Environment>
       <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="" IsExtended="no">
