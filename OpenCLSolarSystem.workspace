@@ -2,13 +2,13 @@
 <CodeLite_Workspace Name="OpenCLSolarSystem" Database="./OpenCLSolarSystem.tags">
   <Project Name="OpenCLSolarSystem" Path="OpenCLSolarSystem/OpenCLSolarSystem.project" Active="Yes"/>
   <BuildMatrix>
-    <WorkspaceConfiguration Name="Release_x86_64" Selected="no">
+    <WorkspaceConfiguration Name="Release_x86_64" Selected="yes">
       <Project Name="OpenCLSolarSystem" ConfigName="Release_x86_64"/>
     </WorkspaceConfiguration>
     <WorkspaceConfiguration Name="Debug_x86_64" Selected="no">
       <Project Name="OpenCLSolarSystem" ConfigName="Debug_x86_64"/>
     </WorkspaceConfiguration>
-    <WorkspaceConfiguration Name="Release_x86_32" Selected="yes">
+    <WorkspaceConfiguration Name="Release_x86_32" Selected="no">
       <Project Name="OpenCLSolarSystem" ConfigName="Release_x86_32"/>
     </WorkspaceConfiguration>
     <WorkspaceConfiguration Name="Debug_x86_32" Selected="no">
