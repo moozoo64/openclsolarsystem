@@ -890,9 +890,9 @@ void CLModel::ExecuteKernels()
 	size_t globalThreads[] = {( size_t )this->numParticles};
 	size_t localThreads[] = {this->groupSize};
 
-	if( localThreads[0] > maxWorkItemSizes[0] || localThreads[0] > maxWorkGroupSize )
+	if( localThreads[0] > this->maxWorkItemSizes[0] || localThreads[0] > this->maxWorkGroupSize )
 	{
-		wxLogError( wxT( "groupSize %d is greater than maxWorkItemSizes %d or maxWorkGroupSize %d" ),this->groupSize,maxWorkItemSizes[0],maxWorkGroupSize );
+		wxLogError( wxT( "groupSize %llu is greater than maxWorkItemSizes %llu or maxWorkGroupSize %llu" ), (unsigned long long)this->groupSize, (unsigned long long)this->maxWorkItemSizes[0], (unsigned long long)this->maxWorkGroupSize );
 		throw -1;
 	}
 
@@ -1140,9 +1140,9 @@ void CLModel::UpdateDisplay()
 	size_t globalThreads[] = {( size_t )this->numParticles};
 	size_t localThreads[] = {this->groupSize};
 
-	if( localThreads[0] > maxWorkItemSizes[0] || localThreads[0] > maxWorkGroupSize )
+	if( localThreads[0] > this->maxWorkItemSizes[0] || localThreads[0] > this->maxWorkGroupSize )
 	{
-		wxLogError( wxT( "groupSize %d is greater than maxWorkItemSizes %d or maxWorkGroupSize %d" ),this->groupSize,maxWorkItemSizes[0],maxWorkGroupSize );
+		wxLogError( wxT( "groupSize %llu is greater than maxWorkItemSizes %llu or maxWorkGroupSize %llu" ),(unsigned long long)this->groupSize, (unsigned long long)this->maxWorkItemSizes[0], (unsigned long long)this->maxWorkGroupSize );
 		throw -1;
 	}
 
@@ -1330,7 +1330,7 @@ void CLModel::SetKernelArgumentsAndGroupSize()
 		throw status;
 	}
 
-	wxLogDebug( wxT( "accKernel Work Group Size %llu" ),this->accKernelWorkGroupSize );
+	wxLogDebug( wxT( "accKernel Work Group Size %llu" ),(unsigned long long)this->accKernelWorkGroupSize );
 
 	if( this->groupSize > this->accKernelWorkGroupSize )
 	{
@@ -1345,7 +1345,7 @@ void CLModel::SetKernelArgumentsAndGroupSize()
 		throw status;
 	}
 
-	wxLogDebug( wxT( "startupKernel Work Group Size %llu" ),this->startupKernelWorkGroupSize );
+	wxLogDebug( wxT( "startupKernel Work Group Size %llu" ),(unsigned long long)this->startupKernelWorkGroupSize );
 
 	if( this->groupSize > this->startupKernelWorkGroupSize )
 	{
@@ -1360,7 +1360,7 @@ void CLModel::SetKernelArgumentsAndGroupSize()
 		throw status;
 	}
 
-	wxLogDebug( wxT( "adamsBashford Work Group Size %llu" ),this->adamsBashforthKernelWorkGroupSize );
+	wxLogDebug( wxT( "adamsBashford Work Group Size %llu" ),(unsigned long long)this->adamsBashforthKernelWorkGroupSize );
 
 	if( this->groupSize > this->adamsBashforthKernelWorkGroupSize )
 	{
@@ -1375,7 +1375,7 @@ void CLModel::SetKernelArgumentsAndGroupSize()
 		throw status;
 	}
 
-	wxLogDebug( wxT( "adamsKernel Work Group Size %llu" ),this->adamsMoultonKernelWorkGroupSize );
+	wxLogDebug( wxT( "adamsKernel Work Group Size %llu" ),(unsigned long long)this->adamsMoultonKernelWorkGroupSize );
 
 	if( this->groupSize > this->adamsMoultonKernelWorkGroupSize )
 	{
@@ -1390,7 +1390,7 @@ void CLModel::SetKernelArgumentsAndGroupSize()
 		throw status;
 	}
 
-	wxLogDebug( wxT( "copyToDisplayKernel Work Group Size %llu" ),this->copyToDisplayKernelWorkGroupSize );
+	wxLogDebug( wxT( "copyToDisplayKernel Work Group Size %llu" ),(unsigned long long)this->copyToDisplayKernelWorkGroupSize );
 
 	if( this->groupSize > this->copyToDisplayKernelWorkGroupSize )
 	{

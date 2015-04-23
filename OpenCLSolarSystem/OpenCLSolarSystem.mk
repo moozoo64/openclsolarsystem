@@ -2,9 +2,9 @@
 ## Auto Generated makefile by CodeLite IDE
 ## any manual changes will be erased      
 ##
-## Release_x86_32
+## Release_x86_64
 ProjectName            :=OpenCLSolarSystem
-ConfigurationName      :=Release_x86_32
+ConfigurationName      :=Release_x86_64
 WorkspacePath          := "C:\Users\michael\Documents\CodeLite\OpenCLSolarSystem"
 ProjectPath            := "C:\Users\michael\Documents\CodeLite\OpenCLSolarSystem\OpenCLSolarSystem"
 IntermediateDirectory  :=./$(ConfigurationName)
@@ -13,7 +13,7 @@ CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
 User                   :=michael
-Date                   :=04/22/15
+Date                   :=04/24/15
 CodeLitePath           :="C:\Program Files\CodeLite"
 LinkerName             :=C:/TDM-GCC-64/bin/g++.exe 
 SharedObjectLinkerName :=C:/TDM-GCC-64/bin/g++.exe -shared -fPIC
@@ -37,13 +37,13 @@ PCHCompileFlags        :=
 MakeDirCommand         :=makedir
 RcCmpOptions           := $(shell wx-config --rcflags)
 RcCompilerName         :=C:/TDM-GCC-64/bin/windres.exe 
-LinkOptions            :=  -m32 -mwindows -s $(shell wx-config --debug=no --libs --unicode=yes --libs gl)
+LinkOptions            :=  -mwindows -s $(shell wx-config --debug=no --libs --unicode=yes --libs gl)
 IncludePath            :=  $(IncludeSwitch). $(IncludeSwitch)"$(OPENCL_INCLUDE)" $(IncludeSwitch)/SDK/glew-1.12.0/include 
 IncludePCH             := 
 RcIncludePath          := 
 Libs                   := $(LibrarySwitch)OpenCL $(LibrarySwitch)glew32 
 ArLibs                 :=  "OpenCL" "glew32" 
-LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)"$(OPENCL_LIB)" $(LibraryPathSwitch)/SDK/glew-1.12.0/lib/Release/Win32 
+LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)"$(OPENCL_LIB)" $(LibraryPathSwitch)/SDK/glew-1.12.0/lib/Release/x64 
 
 ##
 ## Common variables
@@ -52,8 +52,8 @@ LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)"$(OPENCL_LI
 AR       := C:/TDM-GCC-64/bin/ar.exe rcu
 CXX      := C:/TDM-GCC-64/bin/g++.exe 
 CC       := C:/TDM-GCC-64/bin/gcc.exe 
-CXXFLAGS :=  -m32  -std=gnu++11 -O2 -Wall -DwxDEBUG_LEVEL=0 $(shell wx-config.exe --cxxflags --unicode=yes --debug=no) $(Preprocessors)
-CFLAGS   :=  -m32 -std=gnu++11 -O2 -Wall -DwxDEBUG_LEVEL=0 $(shell wx-config.exe --cxxflags --unicode=yes --debug=no) $(Preprocessors)
+CXXFLAGS :=  -std=gnu++11 -O2 -Wall -DwxDEBUG_LEVEL=0 $(shell wx-config --cxxflags --unicode=yes --debug=no) $(Preprocessors)
+CFLAGS   :=  -std=gnu++11  -O2 -Wall -DwxDEBUG_LEVEL=0 $(shell wx-config --cxxflags --unicode=yes --debug=no) $(Preprocessors)
 ASFLAGS  := 
 AS       := C:/TDM-GCC-64/bin/as.exe 
 
@@ -62,10 +62,10 @@ AS       := C:/TDM-GCC-64/bin/as.exe
 ## User defined environment variables
 ##
 CodeLiteDir:=C:\Program Files\CodeLite
-WXWIN:=C:\wxWidgets-3.0.2
-PATH:=$WXWIN\lib\gcc_dll;C:\SDK\glew-1.12.0\bin\Release\Win32;$PATH
+WXWIN:=C:\wxWidgets-3.1
+PATH:=$WXWIN\lib\gcc_dll;C:\SDK\glew-1.12.0\bin\Release\x64;$PATH
 OPENCL_INCLUDE:=C:\Program Files (x86)\AMD APP SDK\3.0-0-Beta\include
-OPENCL_LIB:=C:\Program Files (x86)\AMD APP SDK\3.0-0-Beta\lib\x86
+OPENCL_LIB:=C:\Program Files (x86)\AMD APP SDK\3.0-0-Beta\lib\x86_64
 Objects0=$(IntermediateDirectory)/global.cpp$(ObjectSuffix) $(IntermediateDirectory)/initialstate.cpp$(ObjectSuffix) $(IntermediateDirectory)/physicalproperties.cpp$(ObjectSuffix) $(IntermediateDirectory)/glcanvas.cpp$(ObjectSuffix) $(IntermediateDirectory)/clmodel.cpp$(ObjectSuffix) $(IntermediateDirectory)/frame.cpp$(ObjectSuffix) $(IntermediateDirectory)/application.cpp$(ObjectSuffix) 
 
 
