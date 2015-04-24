@@ -2,11 +2,29 @@
 <CodeLite_Project Name="OpenCLSolarSystem" InternalType="GUI">
   <Plugins>
     <Plugin Name="qmake">
-      <![CDATA[00070001N0005Debug0000000000000001N0012Debug_x86_320000000000000001N0012Debug_x86_640000000000000001N0007Release0000000000000001N0014Release x86_640000000000000001N0014Release_x86_320000000000000001N0014Release_x86_64000000000000]]>
+      <![CDATA[00110001N0005Debug0000000000000001N0011Debug_Win320000000000000001N0009Debug_x640000000000000001N0012Debug_x86_320000000000000001N0012Debug_x86_640000000000000001N0007Release0000000000000001N0014Release x86_640000000000000001N0013Release_Win320000000000000001N0011Release_x640000000000000001N0014Release_x86_320000000000000001N0014Release_x86_64000000000000]]>
     </Plugin>
     <Plugin Name="CMakePlugin">
       <![CDATA[[{
   "name": "Debug",
+  "enabled": false,
+  "buildDirectory": "build",
+  "sourceDirectory": "$(ProjectPath)",
+  "generator": "",
+  "buildType": "",
+  "arguments": [],
+  "parentProject": ""
+ }, {
+  "name": "Debug_Win32",
+  "enabled": false,
+  "buildDirectory": "build",
+  "sourceDirectory": "$(ProjectPath)",
+  "generator": "",
+  "buildType": "",
+  "arguments": [],
+  "parentProject": ""
+ }, {
+  "name": "Debug_x64",
   "enabled": false,
   "buildDirectory": "build",
   "sourceDirectory": "$(ProjectPath)",
@@ -43,6 +61,24 @@
   "parentProject": ""
  }, {
   "name": "Release x86_64",
+  "enabled": false,
+  "buildDirectory": "build",
+  "sourceDirectory": "$(ProjectPath)",
+  "generator": "",
+  "buildType": "",
+  "arguments": [],
+  "parentProject": ""
+ }, {
+  "name": "Release_Win32",
+  "enabled": false,
+  "buildDirectory": "build",
+  "sourceDirectory": "$(ProjectPath)",
+  "generator": "",
+  "buildType": "",
+  "arguments": [],
+  "parentProject": ""
+ }, {
+  "name": "Release_x64",
   "enabled": false,
   "buildDirectory": "build",
   "sourceDirectory": "$(ProjectPath)",
@@ -108,21 +144,22 @@
       </Linker>
       <ResourceCompiler Options=""/>
     </GlobalSettings>
-    <Configuration Name="Debug_x86_32" CompilerType="MinGW ( TDM-GCC )" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
+    <Configuration Name="Debug_Win32" CompilerType="MinGW ( TDM-GCC )" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
       <Compiler Options="-m32 -std=gnu++11 -g;-O0;-Wall;$(shell wx-config --cxxflags --unicode=yes --debug=yes)" C_Options="-m32 -std=gnu++11 -g;-O0;-Wall;$(shell wx-config --cxxflags --unicode=yes --debug=yes)" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
         <IncludePath Value="&quot;$(OPENCL_INCLUDE)&quot;"/>
         <IncludePath Value="/SDK/glew-1.12.0/include"/>
       </Compiler>
       <Linker Options="-m32 -mwindows;$(shell wx-config --debug=yes --libs --unicode=yes --libs gl)" Required="yes">
         <LibraryPath Value="&quot;$(OPENCL_LIB32)&quot;"/>
-        <LibraryPath Value="/SDK/glew-1.12.0/lib/Release/Win32"/>
+        <LibraryPath Value="$(GLEWLIB32)"/>
         <Library Value="OpenCL"/>
         <Library Value="glew32"/>
       </Linker>
       <ResourceCompiler Options="$(shell wx-config --rcflags)" Required="no"/>
       <General OutputFile="$(IntermediateDirectory)/$(ProjectName)" IntermediateDirectory="./$(ConfigurationName)" Command="./$(ProjectName)" CommandArguments="-amd" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
       <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
-        <![CDATA[]]>
+        <![CDATA[WXWIN=$WXWIN32
+PATH=$WXWIN\lib\gcc_dll;$GLEWBIN32;$PATH]]>
       </Environment>
       <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="" IsExtended="no">
         <DebuggerSearchPaths/>
@@ -155,21 +192,22 @@
         <SearchPaths/>
       </Completion>
     </Configuration>
-    <Configuration Name="Debug_x86_64" CompilerType="MinGW ( TDM-GCC )" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
+    <Configuration Name="Debug_x64" CompilerType="MinGW ( TDM-GCC )" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
       <Compiler Options="-std=gnu++11 -g;-O0;-Wall;$(shell wx-config --cxxflags --unicode=yes --debug=yes)" C_Options="-std=gnu++11 -g;-O0;-Wall;$(shell wx-config --cxxflags --unicode=yes --debug=yes)" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
         <IncludePath Value="&quot;$(OPENCL_INCLUDE)&quot;"/>
         <IncludePath Value="/SDK/glew-1.12.0/include"/>
       </Compiler>
       <Linker Options="-mwindows;$(shell wx-config --debug=yes --libs --unicode=yes --libs gl)" Required="yes">
         <LibraryPath Value="&quot;$(OPENCL_LIB64)&quot;"/>
-        <LibraryPath Value="/SDK/glew-1.12.0/lib/Release/x64"/>
+        <LibraryPath Value="$(GLEWLIB64)"/>
         <Library Value="OpenCL"/>
         <Library Value="glew32"/>
       </Linker>
       <ResourceCompiler Options="$(shell wx-config --rcflags)" Required="no"/>
       <General OutputFile="$(IntermediateDirectory)/$(ProjectName)" IntermediateDirectory="./$(ConfigurationName)" Command="./$(ProjectName)" CommandArguments="-amd" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
       <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
-        <![CDATA[]]>
+        <![CDATA[WXWIN=$WXWIN64
+PATH=$WXWIN\lib\gcc_dll;$GLEWBIN64;$PATH]]>
       </Environment>
       <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="" IsExtended="no">
         <DebuggerSearchPaths/>
@@ -202,21 +240,22 @@
         <SearchPaths/>
       </Completion>
     </Configuration>
-    <Configuration Name="Release_x86_32" CompilerType="MinGW ( TDM-GCC )" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
+    <Configuration Name="Release_Win32" CompilerType="MinGW ( TDM-GCC )" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
       <Compiler Options="-m32  -std=gnu++11 -O2;-Wall;-DwxDEBUG_LEVEL=0;$(shell wx-config.exe --cxxflags --unicode=yes --debug=no)" C_Options="-m32 -std=gnu++11 -O2;-Wall;-DwxDEBUG_LEVEL=0;$(shell wx-config.exe --cxxflags --unicode=yes --debug=no)" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
         <IncludePath Value="&quot;$(OPENCL_INCLUDE)&quot;"/>
         <IncludePath Value="/SDK/glew-1.12.0/include"/>
       </Compiler>
       <Linker Options="-s;-m32 -mwindows;$(shell wx-config --debug=no --libs --unicode=yes --libs gl)" Required="yes">
         <LibraryPath Value="&quot;$(OPENCL_LIB32)&quot;"/>
-        <LibraryPath Value="/SDK/glew-1.12.0/lib/Release/Win32"/>
+        <LibraryPath Value="$(GLEWLIB32)"/>
         <Library Value="OpenCL"/>
         <Library Value="glew32"/>
       </Linker>
       <ResourceCompiler Options="$(shell wx-config --rcflags)" Required="no"/>
       <General OutputFile="$(IntermediateDirectory)/$(ProjectName)" IntermediateDirectory="./$(ConfigurationName)" Command="./$(ProjectName)" CommandArguments="-amd" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
-      <Environment EnvVarSetName="32BitEnv" DbgSetName="&lt;Use Defaults&gt;">
-        <![CDATA[]]>
+      <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
+        <![CDATA[WXWIN=$WXWIN32
+PATH=$WXWIN\lib\gcc_dll;$GLEWBIN32;$PATH]]>
       </Environment>
       <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="" IsExtended="no">
         <DebuggerSearchPaths/>
@@ -249,21 +288,22 @@
         <SearchPaths/>
       </Completion>
     </Configuration>
-    <Configuration Name="Release_x86_64" CompilerType="MinGW ( TDM-GCC )" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
+    <Configuration Name="Release_x64" CompilerType="MinGW ( TDM-GCC )" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
       <Compiler Options="-std=gnu++11 -O2;-Wall;-DwxDEBUG_LEVEL=0;$(shell wx-config --cxxflags --unicode=yes --debug=no)" C_Options="-std=gnu++11  -O2;-Wall;-DwxDEBUG_LEVEL=0;$(shell wx-config --cxxflags --unicode=yes --debug=no)" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
         <IncludePath Value="&quot;$(OPENCL_INCLUDE)&quot;"/>
         <IncludePath Value="/SDK/glew-1.12.0/include"/>
       </Compiler>
       <Linker Options="-mwindows;-s;$(shell wx-config --debug=no --libs --unicode=yes --libs gl)" Required="yes">
         <LibraryPath Value="&quot;$(OPENCL_LIB64)&quot;"/>
-        <LibraryPath Value="/SDK/glew-1.12.0/lib/Release/x64"/>
+        <LibraryPath Value="$(GLEWLIB64)"/>
         <Library Value="OpenCL"/>
         <Library Value="glew32"/>
       </Linker>
       <ResourceCompiler Options="$(shell wx-config --rcflags)" Required="no"/>
       <General OutputFile="$(IntermediateDirectory)/$(ProjectName)" IntermediateDirectory="./$(ConfigurationName)" Command="./$(ProjectName)" CommandArguments="-intel" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
       <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
-        <![CDATA[]]>
+        <![CDATA[WXWIN=$WXWIN64
+PATH=$WXWIN\lib\gcc_dll;$GLEWBIN64;$PATH]]>
       </Environment>
       <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="" IsExtended="no">
         <DebuggerSearchPaths/>
