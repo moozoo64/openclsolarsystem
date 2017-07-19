@@ -68,7 +68,7 @@ namespace OrbToSlf
             // with x in the direction of perihelion, z perpendicular to the plane of the orbit
             var ox = semiMajorAxis * (Math.Cos(eccentricAnomaly) - eccentricity);
             var oy = semiMajorAxis * Math.Sqrt(1 - (eccentricity * eccentricity)) * Math.Sin(eccentricAnomaly);
-            double oz = 0.0f;
+            //double oz = 0.0f;
 
             var p = Math.Sqrt(u * semiMajorAxis) / radius;
             var ovx = -p * Math.Sin(eccentricAnomaly);

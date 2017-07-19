@@ -19,11 +19,11 @@ namespace OrbToSlf
 {
     using System;
     using System.Collections.Generic;
-    using System.Configuration;
     using System.Globalization;
     using System.IO;
     using System.Linq;
     using System.Net;
+    using Microsoft.Extensions.Configuration;
 
     /// <summary>
     ///     A program that reads asteroid data and creates a .SLF file of the solar system
@@ -111,26 +111,25 @@ namespace OrbToSlf
         /// <summary>
         /// The fetch astrob body infos.
         /// </summary>
-        /// <param name="astrorbUri">
-        /// The astrorb uri.
-        /// </param>
-        /// <param name="detailsPathName">
-        /// The details path name.
-        /// </param>
+        /// <param name="astrorbUri">The astrorb uri.</param>
+        /// <param name="detailsPathName">The details path name.</param>
         /// <returns>
-        /// The <see cref="Dictionary"/>.
+        /// The <see cref="Dictionary" />.
         /// </returns>
-        /// <exception cref="System.Exception">
-        /// </exception>
         /// <exception cref="Exception">
         /// </exception>
+        /// <exception cref="System.Exception"></exception>
         private static Dictionary<string, BodyInfo> FetchAstroOrBbodyInfos(Uri astrorbUri, string detailsPathName)
         {
             var bodyInfos = ReadDetails(detailsPathName);
             long lineCount = 0;
 
             var astrorbWebRequest = WebRequest.Create(astrorbUri);
-            using (var astrorbStream = astrorbWebRequest.GetResponse().GetResponseStream())
+            var astrorbWebResponseTask = astrorbWebRequest.GetResponseAsync();
+            astrorbWebResponseTask.Wait();
+            var astrorbWebResponse = astrorbWebResponseTask.Result;
+
+            using (var astrorbStream = astrorbWebResponse.GetResponseStream())
             {
                 if (astrorbStream == null)
                 {
@@ -155,7 +154,7 @@ namespace OrbToSlf
                         double longitudeOfTheAscendingNode;
                         double inclinationToTheEcliptic;
                         double orbitalEccentricity;
-                        double meanDailyMotionInRadiansPerDay;
+                        //double meanDailyMotionInRadiansPerDay;
                         double semiMajorAxis;
 
                         var epochString = line.Substring(107 - 1, 8);
@@ -227,7 +226,7 @@ namespace OrbToSlf
                         }
 
                         // var meanDailyMotion = line.Substring(81 - 1, 91 - 81 + 1);
-                        meanDailyMotionInRadiansPerDay = 0.0f; // double.Parse(meanDailyMotion);
+                        //meanDailyMotionInRadiansPerDay = 0.0f; // double.Parse(meanDailyMotion);
 
                         var semiMajorAxisString = line.Substring(170 - 1, 12);
                         if (!double.TryParse(semiMajorAxisString, out semiMajorAxis))
@@ -260,20 +259,20 @@ namespace OrbToSlf
                         else
                         {
                             bodyInfo = new BodyInfo
-                                           {
-                                               Name = readableDesignation, 
-                                               Radius = 0.1, 
-                                               Mass = 0.0, 
-                                               MeanAnomaly = meanAnomaly, 
-                                               AbsoluteMagnitude = absoluteMagnitude, 
-                                               ArgumentOfPerihelion = argumentOfPerihelion, 
-                                               LongitudeOfTheAscendingNode = longitudeOfTheAscendingNode, 
-                                               InclinationToTheEcliptic = inclinationToTheEcliptic, 
-                                               OrbitalEccentricity = orbitalEccentricity, 
-                                               SemiMajorAxis = semiMajorAxis, 
-                                               RelativisticParam = 0.0, 
-                                               Epoch = epoch
-                                           };
+                            {
+                                Name = readableDesignation,
+                                Radius = 0.1,
+                                Mass = 0.0,
+                                MeanAnomaly = meanAnomaly,
+                                AbsoluteMagnitude = absoluteMagnitude,
+                                ArgumentOfPerihelion = argumentOfPerihelion,
+                                LongitudeOfTheAscendingNode = longitudeOfTheAscendingNode,
+                                InclinationToTheEcliptic = inclinationToTheEcliptic,
+                                OrbitalEccentricity = orbitalEccentricity,
+                                SemiMajorAxis = semiMajorAxis,
+                                RelativisticParam = 0.0,
+                                Epoch = epoch
+                            };
                             bodyInfos.Add(readableDesignation.ToUpperInvariant(), bodyInfo);
                         }
                     }
@@ -303,7 +302,10 @@ namespace OrbToSlf
             long lineCount = 0;
 
             var mpcorbWebRequest = WebRequest.Create(mpcorbUrl);
-            using (var mpcorbStream = mpcorbWebRequest.GetResponse().GetResponseStream())
+            var mpcorbWebResponseTask = mpcorbWebRequest.GetResponseAsync();
+            mpcorbWebResponseTask.Wait();
+            var mpcorbWebResponse = mpcorbWebResponseTask.Result;
+            using (var mpcorbStream = mpcorbWebResponse.GetResponseStream())
             {
                 // var file = new StreamReader(mpcorbPathName);
                 using (var streamReader = new StreamReader(mpcorbStream))
@@ -452,9 +454,9 @@ namespace OrbToSlf
                         var typeCodeString = line.Substring(162 - 1, 4).Trim();
                         if (
                             !int.TryParse(
-                                typeCodeString, 
-                                NumberStyles.HexNumber, 
-                                CultureInfo.InvariantCulture, 
+                                typeCodeString,
+                                NumberStyles.HexNumber,
+                                CultureInfo.InvariantCulture,
                                 out typeCode))
                         {
                             typeCode = 0;
@@ -516,10 +518,11 @@ namespace OrbToSlf
                                     break;
                             }
                         }
-
-                        var readableDesignation = line.Substring(176 - 1, 194 - 176 + 1)
+                        
+                        var readableDesignation = line.Substring(176 - 1, line.Length - 176 + 1)
                             .Trim()
                             .Replace(" ", string.Empty);
+
 
                         if (readableDesignation.ToUpperInvariant() == "NAME")
                         {
@@ -549,23 +552,23 @@ namespace OrbToSlf
                         else
                         {
                             bodyInfo = new BodyInfo
-                                           {
-                                               Name = readableDesignation, 
-                                               Radius = 0.1, 
-                                               Mass = 0.0, 
-                                               MeanAnomaly = meanAnomaly, 
-                                               AbsoluteMagnitude = absoluteMagnitude, 
-                                               ArgumentOfPerihelion = argumentOfPerihelion, 
-                                               LongitudeOfTheAscendingNode = longitudeOfTheAscendingNode, 
-                                               InclinationToTheEcliptic = inclinationToTheEcliptic, 
-                                               OrbitalEccentricity = orbitalEccentricity, 
-                                               SemiMajorAxis = semiMajorAxis, 
-                                               RelativisticParam = 0.0, 
-                                               Epoch = epoch, 
-                                               Type = type, 
-                                               UncertaintyParameter = uncertaintyParameter, 
-                                               ReadIn = false
-                                           };
+                            {
+                                Name = readableDesignation,
+                                Radius = 0.1,
+                                Mass = 0.0,
+                                MeanAnomaly = meanAnomaly,
+                                AbsoluteMagnitude = absoluteMagnitude,
+                                ArgumentOfPerihelion = argumentOfPerihelion,
+                                LongitudeOfTheAscendingNode = longitudeOfTheAscendingNode,
+                                InclinationToTheEcliptic = inclinationToTheEcliptic,
+                                OrbitalEccentricity = orbitalEccentricity,
+                                SemiMajorAxis = semiMajorAxis,
+                                RelativisticParam = 0.0,
+                                Epoch = epoch,
+                                Type = type,
+                                UncertaintyParameter = uncertaintyParameter,
+                                ReadIn = false
+                            };
                             bodyInfos.Add(readableDesignation.ToUpperInvariant(), bodyInfo);
                         }
                     }
@@ -655,13 +658,18 @@ namespace OrbToSlf
                 }
             }
 
+            ConfigurationBuilder builder = new ConfigurationBuilder();
+            builder.SetBasePath(Directory.GetCurrentDirectory());
+            builder.AddJsonFile("appsettings.json");
+            var configuration = builder.Build();
+
             if (fetchFromAstorb)
             {
-                uri = new Uri(ConfigurationManager.AppSettings.Get("UriAstOrb"));
+                uri = new Uri(configuration["AppSettings:UriAstOrb"]);
             }
             else
             {
-                uri = new Uri(ConfigurationManager.AppSettings.Get("UriMpcOrb"));
+                uri = new Uri(configuration["AppSettings:UriMpcOrb"]);
             }
 
             Console.WriteLine("Fetching data from {0}", uri);
@@ -692,10 +700,10 @@ namespace OrbToSlf
         /// The <see cref="long"/>.
         /// </returns>
         private static long ProcessUri(
-            Uri mpcorbUrl, 
-            string detailsPathName, 
-            string fileOutName, 
-            int maxBodies, 
+            Uri mpcorbUrl,
+            string detailsPathName,
+            string fileOutName,
+            int maxBodies,
             int numOort)
         {
             Dictionary<string, BodyInfo> bodyInfos;
@@ -822,24 +830,24 @@ namespace OrbToSlf
                     }
 
                     bodyInfo = new BodyInfo
-                                   {
-                                       Name = name, 
-                                       Mass = Mass, 
-                                       Epoch = epoch, 
-                                       RelativisticParam = 0.0, 
-                                       MeanAnomaly = DegreeToRadian(random.NextDouble() * 360), 
-                                       SemiMajorAxis = AuInKm * distance, 
-                                       OrbitalEccentricity = random.NextDouble() * 0.3, 
-                                       InclinationToTheEcliptic =
-                                           DegreeToRadian((random.NextDouble() * maxInc) - (maxInc / 2)), 
-                                       ArgumentOfPerihelion = DegreeToRadian(random.NextDouble() * 360), 
-                                       LongitudeOfTheAscendingNode = DegreeToRadian(random.NextDouble() * 360), 
-                                       AbsoluteMagnitude = 25.0, 
-                                       StateVectors = null, 
-                                       ReadIn = false, 
-                                       Type = type, 
-                                       UncertaintyParameter = 0
-                                   };
+                    {
+                        Name = name,
+                        Mass = Mass,
+                        Epoch = epoch,
+                        RelativisticParam = 0.0,
+                        MeanAnomaly = DegreeToRadian(random.NextDouble() * 360),
+                        SemiMajorAxis = AuInKm * distance,
+                        OrbitalEccentricity = random.NextDouble() * 0.3,
+                        InclinationToTheEcliptic =
+                                           DegreeToRadian((random.NextDouble() * maxInc) - (maxInc / 2)),
+                        ArgumentOfPerihelion = DegreeToRadian(random.NextDouble() * 360),
+                        LongitudeOfTheAscendingNode = DegreeToRadian(random.NextDouble() * 360),
+                        AbsoluteMagnitude = 25.0,
+                        StateVectors = null,
+                        ReadIn = false,
+                        Type = type,
+                        UncertaintyParameter = 0
+                    };
                     bodyInfos.Add(bodyInfo.Name, bodyInfo);
                 }
             }
@@ -880,7 +888,7 @@ namespace OrbToSlf
                     bodyInfos.Add(duplicateSystemBody.Name, duplicateSystemBody);
                 }
             }
-            
+
             Console.WriteLine("Creating list of bodies");
             Console.WriteLine("Adding bodies with mass");
 
@@ -999,7 +1007,8 @@ namespace OrbToSlf
         private static Dictionary<string, BodyInfo> ReadDetails(string detailsPathName)
         {
             var bodyInfos = new Dictionary<string, BodyInfo>(1000000);
-            using (var file = new StreamReader(detailsPathName))
+            var detailsFileInfo = new FileInfo(detailsPathName);
+            using (var file = new StreamReader(detailsFileInfo.OpenRead()))
             {
                 string line;
                 while ((line = file.ReadLine()) != null)
@@ -1075,7 +1084,8 @@ namespace OrbToSlf
             var maxNameLength = 0;
 
             // 4.5783476938E+09;
-            using (var fileOut = new StreamWriter(fileOutName))
+            var fileOutStream = System.IO.File.Create(fileOutName);
+            using (var fileOut = new StreamWriter(fileOutStream))
             {
                 fileOut.WriteLine(@" {0}", epoch);
                 fileOut.Write(" 3");
@@ -1091,12 +1101,12 @@ namespace OrbToSlf
                     {
                         var ellipticMotion = new EllipticMotion();
                         stateVectors = ellipticMotion.ComputeStateVectors(
-                            SunMass + body.Mass, 
-                            body.MeanAnomaly, 
-                            body.SemiMajorAxis, 
-                            body.OrbitalEccentricity, 
-                            body.InclinationToTheEcliptic, 
-                            body.ArgumentOfPerihelion, 
+                            SunMass + body.Mass,
+                            body.MeanAnomaly,
+                            body.SemiMajorAxis,
+                            body.OrbitalEccentricity,
+                            body.InclinationToTheEcliptic,
+                            body.ArgumentOfPerihelion,
                             body.LongitudeOfTheAscendingNode);
                     }
                     else
@@ -1118,21 +1128,21 @@ namespace OrbToSlf
                                + (body.Type != string.Empty ? "-[" + body.Type + "]" : string.Empty);
                     maxNameLength = name.Length > maxNameLength ? name.Length : maxNameLength;
                     fileOut.WriteLine(
-                        " {0} {1} {2} {3}# {4}", 
-                        body.Mass / 1.0e+24, 
-                        body.Radius / 1000000, 
-                        body.AbsoluteMagnitude, 
-                        body.RelativisticParam, 
+                        " {0} {1} {2} {3}# {4}",
+                        body.Mass / 1.0e+24,
+                        body.Radius / 1000000,
+                        body.AbsoluteMagnitude,
+                        body.RelativisticParam,
                         name);
                     fileOut.WriteLine(
-                        "{0,23:0.0000000000000000E+00} {1,23:0.0000000000000000E+00} {2,23:0.0000000000000000E+00}", 
-                        (stateVectors[0].X / Gm) - body.xOffset, 
-                        (stateVectors[0].Y / Gm) - body.yOffset, 
+                        "{0,23:0.0000000000000000E+00} {1,23:0.0000000000000000E+00} {2,23:0.0000000000000000E+00}",
+                        (stateVectors[0].X / Gm) - body.xOffset,
+                        (stateVectors[0].Y / Gm) - body.yOffset,
                         stateVectors[0].Z / Gm);
                     fileOut.WriteLine(
-                        "{0,23:0.0000000000000000E+00} {1,23:0.0000000000000000E+00} {2,23:0.0000000000000000E+00}", 
-                        (stateVectors[1].X / 1000) - body.vxOffset, 
-                        stateVectors[1].Y / 1000, 
+                        "{0,23:0.0000000000000000E+00} {1,23:0.0000000000000000E+00} {2,23:0.0000000000000000E+00}",
+                        (stateVectors[1].X / 1000) - body.vxOffset,
+                        stateVectors[1].Y / 1000,
                         stateVectors[1].Z / 1000);
                     count++;
                 }
