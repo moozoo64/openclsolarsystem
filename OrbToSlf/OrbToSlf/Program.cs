@@ -529,10 +529,14 @@ namespace OrbToSlf
                             continue;
                         }
 
+                        var readableName = line.Substring(176 - 1, 19)
+                            .Trim()
+                            .Replace(" ", string.Empty);
+
                         BodyInfo bodyInfo;
-                        if (bodyInfos.ContainsKey(readableDesignation.ToUpperInvariant()))
+                        if (bodyInfos.ContainsKey(readableName.ToUpperInvariant()))
                         {
-                            bodyInfo = bodyInfos[readableDesignation.ToUpperInvariant()];
+                            bodyInfo = bodyInfos[readableName.ToUpperInvariant()];
                             if (!bodyInfo.ReadIn)
                             {
                                 continue;
@@ -551,25 +555,31 @@ namespace OrbToSlf
                         }
                         else
                         {
-                            bodyInfo = new BodyInfo
+                            if(!bodyInfos.ContainsKey(readableDesignation.ToUpperInvariant()))
                             {
-                                Name = readableDesignation,
-                                Radius = 0.1,
-                                Mass = 0.0,
-                                MeanAnomaly = meanAnomaly,
-                                AbsoluteMagnitude = absoluteMagnitude,
-                                ArgumentOfPerihelion = argumentOfPerihelion,
-                                LongitudeOfTheAscendingNode = longitudeOfTheAscendingNode,
-                                InclinationToTheEcliptic = inclinationToTheEcliptic,
-                                OrbitalEccentricity = orbitalEccentricity,
-                                SemiMajorAxis = semiMajorAxis,
-                                RelativisticParam = 0.0,
-                                Epoch = epoch,
-                                Type = type,
-                                UncertaintyParameter = uncertaintyParameter,
-                                ReadIn = false
-                            };
-                            bodyInfos.Add(readableDesignation.ToUpperInvariant(), bodyInfo);
+                                bodyInfo = new BodyInfo
+                                {
+                                    Name = readableDesignation,
+                                    Radius = 0.1,
+                                    Mass = 0.0,
+                                    MeanAnomaly = meanAnomaly,
+                                    AbsoluteMagnitude = absoluteMagnitude,
+                                    ArgumentOfPerihelion = argumentOfPerihelion,
+                                    LongitudeOfTheAscendingNode = longitudeOfTheAscendingNode,
+                                    InclinationToTheEcliptic = inclinationToTheEcliptic,
+                                    OrbitalEccentricity = orbitalEccentricity,
+                                    SemiMajorAxis = semiMajorAxis,
+                                    RelativisticParam = 0.0,
+                                    Epoch = epoch,
+                                    Type = type,
+                                    UncertaintyParameter = uncertaintyParameter,
+                                    ReadIn = false
+                                };
+                                bodyInfos.Add(readableDesignation.ToUpperInvariant(), bodyInfo);
+                            }else
+                            {
+                                Console.WriteLine("Body {0} already added",readableDesignation);
+                            }
                         }
                     }
                 }
@@ -794,10 +804,10 @@ namespace OrbToSlf
 
             bodyInfo = bodyInfos["Pluto".ToUpperInvariant()];
             var plutoMass = bodyInfo.Mass;
-            bodyInfo.StateVectors = planets.Pluto(epoch, out planetSemiMajorAxis);
-            bodyInfo.AbsoluteMagnitude = -1.0;
-            bodyInfo.SemiMajorAxis = planetSemiMajorAxis * AuInKm;
-            bodyInfo.Epoch = epoch;
+            //bodyInfo.StateVectors = planets.Pluto(epoch, out planetSemiMajorAxis);
+            //bodyInfo.AbsoluteMagnitude = -1.0;
+            //bodyInfo.SemiMajorAxis = planetSemiMajorAxis * AuInKm;
+            //bodyInfo.Epoch = epoch;
 
             bodyInfos = bodyInfos.Where(x => Math.Abs(x.Value.Epoch - epoch) < 0.00001)
                 .ToDictionary(x => x.Key, x => x.Value);
