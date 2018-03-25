@@ -25,11 +25,15 @@ enum
     ID_RESET,
     ID_RESETCOLOURS,
     ID_IMPORTSLF,
+    ID_SETDELTAT1,
+    ID_SETDELTAT5,
     ID_SETDELTAT15,
     ID_SETDELTATHR,
     ID_SETDELTAT12HR,
     ID_SETDELTATFOURHR,
     ID_SETDELTATDAY,
+    ID_SETDELTATMINUS1,
+    ID_SETDELTATMINUS5,
     ID_SETDELTATMINUS15,
     ID_SETDELTATMINUSHR,
     ID_SETDELTATMINUS12HR,
@@ -103,12 +107,16 @@ BEGIN_EVENT_TABLE( Frame, wxFrame )
 	EVT_MENU( ID_SETADAMS11, Frame::OnSetIntegrator )
 	EVT_MENU( ID_SETADAMS12, Frame::OnSetIntegrator )
 	EVT_MENU( ID_SETADAMS16, Frame::OnSetIntegrator )
-	EVT_MENU( ID_SETDELTATMINUS15, Frame::OnSetDeltaTime )
+	EVT_MENU( ID_SETDELTATMINUS1, Frame::OnSetDeltaTime )
+    EVT_MENU( ID_SETDELTATMINUS5, Frame::OnSetDeltaTime )
+    EVT_MENU( ID_SETDELTATMINUS15, Frame::OnSetDeltaTime )
 	EVT_MENU( ID_SETDELTATMINUSHR, Frame::OnSetDeltaTime )
 	EVT_MENU( ID_SETDELTATMINUS12HR, Frame::OnSetDeltaTime )
 	EVT_MENU( ID_SETDELTATMINUSFOURHR, Frame::OnSetDeltaTime )
 	EVT_MENU( ID_SETDELTATMINUSDAY, Frame::OnSetDeltaTime )
-	EVT_MENU( ID_SETDELTAT15, Frame::OnSetDeltaTime )
+	EVT_MENU( ID_SETDELTAT1, Frame::OnSetDeltaTime )
+    EVT_MENU( ID_SETDELTAT5, Frame::OnSetDeltaTime )
+    EVT_MENU( ID_SETDELTAT15, Frame::OnSetDeltaTime )
 	EVT_MENU( ID_SETDELTATHR, Frame::OnSetDeltaTime )
 	EVT_MENU( ID_SETDELTAT12HR, Frame::OnSetDeltaTime )
 	EVT_MENU( ID_SETDELTATFOURHR, Frame::OnSetDeltaTime )
@@ -274,12 +282,16 @@ void Frame::InitFrame( bool doubleBuffer, bool smooth, bool lighting, bool stere
 		// Create a menu that lets the user choose the time step size.
 		// Only one option can be chosen at any time
 		wxMenu *menuDeltaT = new wxMenu;
+        menuDeltaT->AppendRadioItem( ID_SETDELTAT1, wxT( "1 Mins" ) );
+        menuDeltaT->AppendRadioItem( ID_SETDELTAT5, wxT( "5 Mins" ) );
 		menuDeltaT->AppendRadioItem( ID_SETDELTAT15, wxT( "15 Mins" ) );
 		menuDeltaT->AppendRadioItem( ID_SETDELTATHR, wxT( "1 Hour" ) );
 		menuDeltaT->AppendRadioItem( ID_SETDELTATFOURHR, wxT( "4 Hours" ) );
 		menuDeltaT->AppendRadioItem( ID_SETDELTAT12HR, wxT( "12 Hours" ) );
 		menuDeltaT->AppendRadioItem( ID_SETDELTATDAY, wxT( "1 Day" ) );
-		menuDeltaT->AppendRadioItem( ID_SETDELTATMINUS15, wxT( "-15 Mins" ) );
+		menuDeltaT->AppendRadioItem( ID_SETDELTATMINUS1, wxT( "-1 Mins" ) );
+        menuDeltaT->AppendRadioItem( ID_SETDELTATMINUS5, wxT( "-5 Mins" ) );
+        menuDeltaT->AppendRadioItem( ID_SETDELTATMINUS15, wxT( "-15 Mins" ) );
 		menuDeltaT->AppendRadioItem( ID_SETDELTATMINUSHR, wxT( "-1 Hour" ) );
 		menuDeltaT->AppendRadioItem( ID_SETDELTATMINUSFOURHR, wxT( "-4 Hours" ) );
 		menuDeltaT->AppendRadioItem( ID_SETDELTATMINUS12HR, wxT( "-12 Hours" ) );
@@ -700,6 +712,12 @@ void Frame::OnSetDeltaTime( wxCommandEvent& event )
 	int id = event.GetId();
 	switch( id )
 	{
+	case ID_SETDELTAT1:
+		this->clModel->delT = 1*60.0f;
+		break;
+	case ID_SETDELTAT5:
+		this->clModel->delT = 5*60.0f;
+		break;
 	case ID_SETDELTAT15:
 		this->clModel->delT = 15*60.0f;
 		break;
@@ -714,6 +732,12 @@ void Frame::OnSetDeltaTime( wxCommandEvent& event )
 		break;
 	case ID_SETDELTAT12HR:
 		this->clModel->delT = 12*60*60.0f;
+		break;
+	case ID_SETDELTATMINUS1:
+		this->clModel->delT = -1*60.0f;
+		break;
+	case ID_SETDELTATMINUS5:
+		this->clModel->delT = -5*60.0f;
 		break;
 	case ID_SETDELTATMINUS15:
 		this->clModel->delT = -15*60.0f;
@@ -951,6 +975,14 @@ void Frame::UpdateMenuItems()
 
 		switch( ( int )this->clModel->delT )
 		{
+		case 1*60:
+			menuItem = menuBar->FindItem( ID_SETDELTAT1 );
+			menuItem->Check( true );
+			break;
+		case 5*60:
+			menuItem = menuBar->FindItem( ID_SETDELTAT5 );
+			menuItem->Check( true );
+			break;
 		case 15*60:
 			menuItem = menuBar->FindItem( ID_SETDELTAT15 );
 			menuItem->Check( true );
@@ -969,6 +1001,14 @@ void Frame::UpdateMenuItems()
 			break;
 		case 24*60*60:
 			menuItem = menuBar->FindItem( ID_SETDELTATDAY );
+			menuItem->Check( true );
+			break;
+		case -1*60:
+			menuItem = menuBar->FindItem( ID_SETDELTATMINUS1 );
+			menuItem->Check( true );
+			break;
+		case -5*60:
+			menuItem = menuBar->FindItem( ID_SETDELTATMINUS5 );
 			menuItem->Check( true );
 			break;
 		case -15*60:
