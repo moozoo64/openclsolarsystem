@@ -201,7 +201,7 @@ PATH=$WXWIN\lib\gcc_dll;$GLEWBIN64;$PATH]]>
       <Linker Options="-mwindows;-s;$(shell wx-config --debug=no --libs --unicode=yes --libs gl)" Required="yes">
         <LibraryPath Value="&quot;$(OPENCL_LIB64)&quot;"/>
         <LibraryPath Value="$(GLEWLIB64)"/>
-        <Library Value="libOpenCL.dll"/>
+        <Library Value="OpenCL.dll"/>
         <Library Value="glew32"/>
       </Linker>
       <ResourceCompiler Options="$(shell wx-config --rcflags)" Required="no"/>
@@ -220,7 +220,7 @@ PATH=$WXWIN\lib\gcc_dll;$GLEWBIN64;$PATH]]>
         <Command Enabled="yes">copy adamsfma.cl $(ConfigurationName)</Command>
         <Command Enabled="yes">copy astrorbsolexsmall.slf $(ConfigurationName)</Command>
         <Command Enabled="yes">copy $WXWIN\lib\$(WXWIN64)\wxbase311u_gcc_cl.dll $(ConfigurationName)</Command>
-        <Command Enabled="yes">copy %OPENCL_LIB64%\bin\libOpenCL.dll $(ConfigurationName)</Command>
+        <Command Enabled="no">#copy %OPENCL_LIB64%\bin\libOpenCL.dll $(ConfigurationName)</Command>
       </PostBuild>
       <CustomBuild Enabled="no">
         <RebuildCommand/>
