@@ -13,7 +13,7 @@ CurrentFileName        :=
 CurrentFilePath        :=
 CurrentFileFullPath    :=
 User                   :=michael
-Date                   :=25/03/2018
+Date                   :=02/04/2018
 CodeLitePath           :="C:/Program Files/CodeLite"
 LinkerName             :="C:/Program Files/mingw-w64/x86_64-7.2.0-posix-seh-rt_v5-rev1/mingw64/bin/g++.exe"
 SharedObjectLinkerName :="C:/Program Files/mingw-w64/x86_64-7.2.0-posix-seh-rt_v5-rev1/mingw64/bin/g++.exe" -shared -fPIC
@@ -42,7 +42,7 @@ IncludePath            :=  $(IncludeSwitch). $(IncludeSwitch)"$(OPENCL_INCLUDE)"
 IncludePCH             := 
 RcIncludePath          := 
 Libs                   := $(LibrarySwitch)OpenCL $(LibrarySwitch)glew32 
-ArLibs                 :=  "libOpenCL.dll" "glew32" 
+ArLibs                 :=  "OpenCL.dll" "glew32" 
 LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)"$(OPENCL_LIB64)" $(LibraryPathSwitch)$(GLEWLIB64) 
 
 ##
@@ -73,7 +73,7 @@ GLEWLIB32:=/SDK/glew-2.1.0/lib/Release/Win32
 GLEWLIB64:=/SDK/glew-2.1.0/lib/Release/x64
 GLM_INCLUDE:=C:\SDK\glm
 OPENCL_INCLUDE:=C:\SDK\OpenCL-Headers\opencl22
-OPENCL_LIB64:=C:\SDK\OpenCL-ICD-Loader\build
+OPENCL_LIB64:=C:\SDK\OpenCL
 OPENCL_LIB32:=C:\Program Files (x86)\AMD APP SDK\3.0\lib\x86
 PATH:=%WXWIN%\lib\%WXWIN64%;%GLEWBIN64%;%SystemRoot%;%SystemRoot%\System32;%CodeLiteDir%;C:\Program Files\SlikSvn\bin
 PATH:=$WXWIN\lib\$WXWIN64;$GLEWBIN64;$PATH
@@ -100,7 +100,6 @@ PostBuild:
 	copy adamsfma.cl Release_x64
 	copy astrorbsolexsmall.slf Release_x64
 	copy C:\wxWidgets-3.1.1\lib\gcc_dllx86_64\wxbase311u_gcc_cl.dll Release_x64
-	copy C:\SDK\OpenCL-ICD-Loader\build\bin\libOpenCL.dll Release_x64
 	@echo Done
 
 MakeIntermediateDirs:
