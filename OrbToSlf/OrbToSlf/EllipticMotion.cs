@@ -20,6 +20,7 @@
 
 namespace OrbToSlf
 {
+
     using System;
 
     /// <summary>
@@ -39,7 +40,7 @@ namespace OrbToSlf
         #region Public Methods and Operators
 
         /// <summary>
-        /// The compute state vectors.
+        ///     The compute state vectors.
         /// </summary>
         /// <param name="mass">The mass.</param>
         /// <param name="meanAnomaly">The mean anomaly.</param>
@@ -49,30 +50,30 @@ namespace OrbToSlf
         /// <param name="argumentOfPerihelion">The argument of perihelion.</param>
         /// <param name="longitudeOfAscendingNode">The longitude of ascending node.</param>
         /// <returns>
-        /// The <see cref="Double4[]" />.
+        ///     The <see cref="Double4[]" />.
         /// </returns>
         public Double4[] ComputeStateVectors(
-            double mass, 
-            double meanAnomaly, 
-            double semiMajorAxis, 
-            double eccentricity, 
-            double inclination, 
-            double argumentOfPerihelion, 
+            double mass,
+            double meanAnomaly,
+            double semiMajorAxis,
+            double eccentricity,
+            double inclination,
+            double argumentOfPerihelion,
             double longitudeOfAscendingNode)
         {
             var u = GravitationalConstant * mass;
             var kepler = new Kepler();
             var eccentricAnomaly = kepler.Sinnott(meanAnomaly, eccentricity);
-            var radius = semiMajorAxis * (1 - (eccentricity * Math.Cos(eccentricAnomaly)));
+            var radius = semiMajorAxis * (1 - eccentricity * Math.Cos(eccentricAnomaly));
 
             // with x in the direction of perihelion, z perpendicular to the plane of the orbit
             var ox = semiMajorAxis * (Math.Cos(eccentricAnomaly) - eccentricity);
-            var oy = semiMajorAxis * Math.Sqrt(1 - (eccentricity * eccentricity)) * Math.Sin(eccentricAnomaly);
+            var oy = semiMajorAxis * Math.Sqrt(1 - eccentricity * eccentricity) * Math.Sin(eccentricAnomaly);
             //double oz = 0.0f;
 
             var p = Math.Sqrt(u * semiMajorAxis) / radius;
             var ovx = -p * Math.Sin(eccentricAnomaly);
-            var ovy = p * Math.Sqrt(1 - (eccentricity * eccentricity)) * Math.Cos(eccentricAnomaly);
+            var ovy = p * Math.Sqrt(1 - eccentricity * eccentricity) * Math.Cos(eccentricAnomaly);
 
             // rotate to ecliptic co-ordinates
             var cosArg = Math.Cos(argumentOfPerihelion); // cos w
@@ -115,7 +116,7 @@ namespace OrbToSlf
             velocity.Z = vzE;
             velocity.W = 0.0f;
 
-            return new[] { position, velocity };
+            return new[] {position, velocity};
         }
 
         #endregion
@@ -123,13 +124,13 @@ namespace OrbToSlf
         #region Methods
 
         /// <summary>
-        /// The degree to radian.
+        ///     The degree to radian.
         /// </summary>
         /// <param name="angle">
-        /// The angle.
+        ///     The angle.
         /// </param>
         /// <returns>
-        /// The <see cref="double"/>.
+        ///     The <see cref="double" />.
         /// </returns>
         private static double DegreeToRadian(double angle)
         {

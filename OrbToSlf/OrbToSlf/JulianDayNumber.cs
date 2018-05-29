@@ -20,6 +20,7 @@
 
 namespace OrbToSlf
 {
+
     using System;
 
     /// <summary>
@@ -30,13 +31,13 @@ namespace OrbToSlf
         #region Public Methods and Operators
 
         /// <summary>
-        /// The from date.
+        ///     The from date.
         /// </summary>
         /// <param name="yr">The yr.</param>
         /// <param name="mn">The mn.</param>
         /// <param name="dy">The dy.</param>
         /// <returns>
-        /// The <see cref="double" />.
+        ///     The <see cref="double" />.
         /// </returns>
         public static double FromDate(int yr, int mn, int dy)
         {
@@ -50,11 +51,11 @@ namespace OrbToSlf
             }
 
             var b = 0;
-            var isJulian = (yr < 1582) || (yr == 1582 && mn < 10) || (yr == 1582 && mn == 10 && dy < 15);
+            var isJulian = yr < 1582 || yr == 1582 && mn < 10 || yr == 1582 && mn == 10 && dy < 15;
             if (!isJulian)
             {
                 var a = yr / 100;
-                b = 2 - a + (a / 4);
+                b = 2 - a + a / 4;
             }
 
             var dj1 = Math.Floor(365.25 * (yr + 4716)) + Math.Floor(30.6001f * (mn + 1)) + b - 1524.5 + dy;

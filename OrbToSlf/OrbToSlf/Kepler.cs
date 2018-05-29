@@ -30,12 +30,12 @@ namespace OrbToSlf
         #region Public Methods and Operators
 
         /// <summary>
-        /// Using sinnott's method.
+        ///     Using sinnott's method.
         /// </summary>
         /// <param name="m">The m.</param>
         /// <param name="e">The e.</param>
         /// <returns>
-        /// The <see cref="double" />.
+        ///     The <see cref="double" />.
         /// </returns>
         public double Sinnott(double m, double e)
         {
@@ -64,12 +64,12 @@ namespace OrbToSlf
         }
 
         /// <summary>
-        /// The solve.
+        ///     The solve.
         /// </summary>
         /// <param name="m0">The m 0.</param>
         /// <param name="ec">The ec.</param>
         /// <returns>
-        /// The <see cref="double" />.
+        ///     The <see cref="double" />.
         /// </returns>
         public double Solve(double m0, double ec)
         {
