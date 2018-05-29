@@ -15,6 +15,8 @@
 // </copyright>
 // --------------------------------------------------------------------------------------------------------------------
 
+using System.Net.Http;
+
 namespace OrbToSlf
 {
     using System;
@@ -124,12 +126,15 @@ namespace OrbToSlf
             var bodyInfos = ReadDetails(detailsPathName);
             long lineCount = 0;
 
-            var astrorbWebRequest = WebRequest.Create(astrorbUri);
-            var astrorbWebResponseTask = astrorbWebRequest.GetResponseAsync();
-            astrorbWebResponseTask.Wait();
-            var astrorbWebResponse = astrorbWebResponseTask.Result;
+            var astrorbHttpClient = new HttpClient();
+            var astrorbResponseTask = astrorbHttpClient.GetStreamAsync(astrorbUri);
+            astrorbResponseTask.Wait();
+            if (!astrorbResponseTask.IsCompletedSuccessfully)
+            {
+                throw new Exception("Failed to fetch data");
+            }
 
-            using (var astrorbStream = astrorbWebResponse.GetResponseStream())
+            using (var astrorbStream = astrorbResponseTask.Result)
             {
                 if (astrorbStream == null)
                 {
@@ -301,11 +306,15 @@ namespace OrbToSlf
             var bodyInfos = ReadDetails(detailsPathName);
             long lineCount = 0;
 
-            var mpcorbWebRequest = WebRequest.Create(mpcorbUrl);
-            var mpcorbWebResponseTask = mpcorbWebRequest.GetResponseAsync();
-            mpcorbWebResponseTask.Wait();
-            var mpcorbWebResponse = mpcorbWebResponseTask.Result;
-            using (var mpcorbStream = mpcorbWebResponse.GetResponseStream())
+            var mpcorbHttpClient = new HttpClient();
+            var mpcorbResponseTask = mpcorbHttpClient.GetStreamAsync(mpcorbUrl);
+            mpcorbResponseTask.Wait();
+            if (!mpcorbResponseTask.IsCompletedSuccessfully)
+            {
+                throw new Exception("Failed to fetch data");
+            }
+
+            using (var mpcorbStream = mpcorbResponseTask.Result)
             {
                 // var file = new StreamReader(mpcorbPathName);
                 using (var streamReader = new StreamReader(mpcorbStream))
@@ -411,7 +420,8 @@ namespace OrbToSlf
                         if (!double.TryParse(longitudeOfTheAscendingNodeString, out longitudeOfTheAscendingNode))
                         {
                             throw new Exception(
-                                string.Format("Bad longitudeOfTheAscendingNode {0}", longitudeOfTheAscendingNodeString));
+                                string.Format("Bad longitudeOfTheAscendingNode {0}",
+                                    longitudeOfTheAscendingNodeString));
                         }
 
                         longitudeOfTheAscendingNode = DegreeToRadian(longitudeOfTheAscendingNode);
@@ -428,7 +438,8 @@ namespace OrbToSlf
                         var orbitalEccentricityString = line.Substring(71 - 1, 79 - 71 + 1);
                         if (!double.TryParse(orbitalEccentricityString, out orbitalEccentricity))
                         {
-                            throw new Exception(string.Format("Bad orbitalEccentricity {0}", orbitalEccentricityString));
+                            throw new Exception(string.Format("Bad orbitalEccentricity {0}",
+                                orbitalEccentricityString));
                         }
 
                         var meanDailyMotionString = line.Substring(81 - 1, 91 - 81 + 1);
@@ -518,7 +529,7 @@ namespace OrbToSlf
                                     break;
                             }
                         }
-                        
+
                         var readableDesignation = line.Substring(176 - 1, line.Length - 176 + 1)
                             .Trim()
                             .Replace(" ", string.Empty);
@@ -555,7 +566,7 @@ namespace OrbToSlf
                         }
                         else
                         {
-                            if(!bodyInfos.ContainsKey(readableDesignation.ToUpperInvariant()))
+                            if (!bodyInfos.ContainsKey(readableDesignation.ToUpperInvariant()))
                             {
                                 bodyInfo = new BodyInfo
                                 {
@@ -576,9 +587,10 @@ namespace OrbToSlf
                                     ReadIn = false
                                 };
                                 bodyInfos.Add(readableDesignation.ToUpperInvariant(), bodyInfo);
-                            }else
+                            }
+                            else
                             {
-                                Console.WriteLine("Body {0} already added",readableDesignation);
+                                Console.WriteLine("Body {0} already added", readableDesignation);
                             }
                         }
                     }
