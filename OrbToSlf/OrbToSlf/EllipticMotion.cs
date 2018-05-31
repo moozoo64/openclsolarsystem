@@ -20,7 +20,6 @@
 
 namespace OrbToSlf
 {
-
     using System;
 
     /// <summary>
@@ -28,16 +27,10 @@ namespace OrbToSlf
     /// </summary>
     public class EllipticMotion
     {
-        #region Constants
-
         /// <summary>
         ///     The gravitational constant.
         /// </summary>
         private const double GravitationalConstant = 6.6725985e-11;
-
-        #endregion
-
-        #region Public Methods and Operators
 
         /// <summary>
         ///     The compute state vectors.
@@ -96,14 +89,14 @@ namespace OrbToSlf
             var vz = ovx * (sinArg * sinInc) + ovy * (cosArg * sinInc);
 
             // rotate to Equatorial Co-ordinates
-            var ObliquityOfTheEcliptic = DegreeToRadian(23.43928f); // 23.4375679356f
-            var CosObliquityOfTheEcliptic = Math.Cos(ObliquityOfTheEcliptic);
-            var SinObliquityOfTheEcliptic = Math.Sin(ObliquityOfTheEcliptic);
-            var yE = y * Math.Cos(ObliquityOfTheEcliptic) - z * Math.Sin(ObliquityOfTheEcliptic);
-            var zE = y * Math.Sin(ObliquityOfTheEcliptic) + z * Math.Cos(ObliquityOfTheEcliptic);
+            var obliquityOfTheEcliptic = DegreeToRadian(23.43928f); // 23.4375679356f
+            var cosObliquityOfTheEcliptic = Math.Cos(obliquityOfTheEcliptic);
+            var sinObliquityOfTheEcliptic = Math.Sin(obliquityOfTheEcliptic);
+            var yE = y * Math.Cos(obliquityOfTheEcliptic) - z * Math.Sin(obliquityOfTheEcliptic);
+            var zE = y * Math.Sin(obliquityOfTheEcliptic) + z * Math.Cos(obliquityOfTheEcliptic);
 
-            var vyE = vy * Math.Cos(ObliquityOfTheEcliptic) - vz * Math.Sin(ObliquityOfTheEcliptic);
-            var vzE = vy * Math.Sin(ObliquityOfTheEcliptic) + vz * Math.Cos(ObliquityOfTheEcliptic);
+            var vyE = vy * Math.Cos(obliquityOfTheEcliptic) - vz * Math.Sin(obliquityOfTheEcliptic);
+            var vzE = vy * Math.Sin(obliquityOfTheEcliptic) + vz * Math.Cos(obliquityOfTheEcliptic);
 
             var position = new Double4();
             position.X = x;
@@ -116,12 +109,8 @@ namespace OrbToSlf
             velocity.Z = vzE;
             velocity.W = 0.0f;
 
-            return new[] {position, velocity};
+            return new[] { position, velocity };
         }
-
-        #endregion
-
-        #region Methods
 
         /// <summary>
         ///     The degree to radian.
@@ -136,7 +125,5 @@ namespace OrbToSlf
         {
             return Math.PI * angle / 180.0;
         }
-
-        #endregion
     }
 }

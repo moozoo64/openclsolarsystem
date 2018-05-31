@@ -27,8 +27,6 @@ namespace OrbToSlf
     /// </summary>
     internal class Kepler
     {
-        #region Public Methods and Operators
-
         /// <summary>
         ///     Using sinnott's method.
         /// </summary>
@@ -87,7 +85,5 @@ namespace OrbToSlf
 
             return eca;
         }
-
-        #endregion
     }
 }

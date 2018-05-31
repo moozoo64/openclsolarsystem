@@ -20,7 +20,6 @@
 
 namespace OrbToSlf
 {
-
     using System;
 
     /// <summary>
@@ -28,8 +27,6 @@ namespace OrbToSlf
     /// </summary>
     public static class JulianDayNumber
     {
-        #region Public Methods and Operators
-
         /// <summary>
         ///     The from date.
         /// </summary>
@@ -61,7 +58,5 @@ namespace OrbToSlf
             var dj1 = Math.Floor(365.25 * (yr + 4716)) + Math.Floor(30.6001f * (mn + 1)) + b - 1524.5 + dy;
             return dj1;
         }
-
-        #endregion
     }
 }

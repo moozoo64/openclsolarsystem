@@ -31,16 +31,10 @@ namespace OrbToSlf
     /// </summary>
     internal class Planets
     {
-        #region Constants
-
         /// <summary>
         ///     The au in km.
         /// </summary>
         private const double AuInKm = 149597870691;
-
-        #endregion
-
-        #region Public Methods and Operators
 
         /// <summary>
         ///     Computes the approximate position of earth.
@@ -70,19 +64,19 @@ namespace OrbToSlf
             var longitudeOfPerihelion = 102.93768193 + 0.32327364 * tc;
             var longitudeOfTheAscendingNode = 0.0 - 0.0 * tc;
 
-            var meanAnomaly = Modulus(meanLongitude - longitudeOfPerihelion);
+            var meanAnomaly = this.Modulus(meanLongitude - longitudeOfPerihelion);
             var argumentOfPerihelion = longitudeOfPerihelion - longitudeOfTheAscendingNode;
 
             var massPrimary = 1.98894729428839E+30;
             var ellipticMotion = new EllipticMotion();
             var state = ellipticMotion.ComputeStateVectors(
                 massPrimary,
-                DegreeToRadian(meanAnomaly),
+                this.DegreeToRadian(meanAnomaly),
                 semiMajorAxis * AuInKm,
                 orbitalEccentricity,
-                DegreeToRadian(inclinationToTheEcliptic),
-                DegreeToRadian(argumentOfPerihelion),
-                DegreeToRadian(longitudeOfTheAscendingNode));
+                this.DegreeToRadian(inclinationToTheEcliptic),
+                this.DegreeToRadian(argumentOfPerihelion),
+                this.DegreeToRadian(longitudeOfTheAscendingNode));
             return state;
         }
 
@@ -114,19 +108,19 @@ namespace OrbToSlf
             var longitudeOfPerihelion = 14.72847983 + 0.21252668 * tc;
             var longitudeOfTheAscendingNode = 100.47390909 - 0.20469106 * tc;
 
-            var meanAnomaly = Modulus(meanLongitude - longitudeOfPerihelion);
+            var meanAnomaly = this.Modulus(meanLongitude - longitudeOfPerihelion);
             var argumentOfPerihelion = longitudeOfPerihelion - longitudeOfTheAscendingNode;
 
             var massPrimary = 1.98894729428839E+30;
             var ellipticMotion = new EllipticMotion();
             var state = ellipticMotion.ComputeStateVectors(
                 massPrimary,
-                DegreeToRadian(meanAnomaly),
+                this.DegreeToRadian(meanAnomaly),
                 semiMajorAxis * AuInKm,
                 orbitalEccentricity,
-                DegreeToRadian(inclinationToTheEcliptic),
-                DegreeToRadian(argumentOfPerihelion),
-                DegreeToRadian(longitudeOfTheAscendingNode));
+                this.DegreeToRadian(inclinationToTheEcliptic),
+                this.DegreeToRadian(argumentOfPerihelion),
+                this.DegreeToRadian(longitudeOfTheAscendingNode));
             return state;
         }
 
@@ -158,19 +152,19 @@ namespace OrbToSlf
             var longitudeOfPerihelion = -23.94362959 + 0.44441088 * tc;
             var longitudeOfTheAscendingNode = 49.55953891 - 0.29257343 * tc;
 
-            var meanAnomaly = Modulus(meanLongitude - longitudeOfPerihelion);
+            var meanAnomaly = this.Modulus(meanLongitude - longitudeOfPerihelion);
             var argumentOfPerihelion = longitudeOfPerihelion - longitudeOfTheAscendingNode;
 
             var massPrimary = 1.98894729428839E+30;
             var ellipticMotion = new EllipticMotion();
             var state = ellipticMotion.ComputeStateVectors(
                 massPrimary,
-                DegreeToRadian(meanAnomaly),
+                this.DegreeToRadian(meanAnomaly),
                 semiMajorAxis * AuInKm,
                 orbitalEccentricity,
-                DegreeToRadian(inclinationToTheEcliptic),
-                DegreeToRadian(argumentOfPerihelion),
-                DegreeToRadian(longitudeOfTheAscendingNode));
+                this.DegreeToRadian(inclinationToTheEcliptic),
+                this.DegreeToRadian(argumentOfPerihelion),
+                this.DegreeToRadian(longitudeOfTheAscendingNode));
             return state;
         }
 
@@ -202,19 +196,19 @@ namespace OrbToSlf
             var longitudeOfPerihelion = 77.45779628 + 0.16047689 * tc;
             var longitudeOfTheAscendingNode = 48.33076593 - 0.12534081 * tc;
 
-            var meanAnomaly = Modulus(meanLongitude - longitudeOfPerihelion);
+            var meanAnomaly = this.Modulus(meanLongitude - longitudeOfPerihelion);
             var argumentOfPerihelion = longitudeOfPerihelion - longitudeOfTheAscendingNode;
 
             var massPrimary = 1.98894729428839E+30;
             var ellipticMotion = new EllipticMotion();
             var state = ellipticMotion.ComputeStateVectors(
                 massPrimary,
-                DegreeToRadian(meanAnomaly),
+                this.DegreeToRadian(meanAnomaly),
                 semiMajorAxis * AuInKm,
                 orbitalEccentricity,
-                DegreeToRadian(inclinationToTheEcliptic),
-                DegreeToRadian(argumentOfPerihelion),
-                DegreeToRadian(longitudeOfTheAscendingNode));
+                this.DegreeToRadian(inclinationToTheEcliptic),
+                this.DegreeToRadian(argumentOfPerihelion),
+                this.DegreeToRadian(longitudeOfTheAscendingNode));
 
             return state;
         }
@@ -247,19 +241,19 @@ namespace OrbToSlf
             var longitudeOfPerihelion = 44.96476227 - 0.32241464 * tc;
             var longitudeOfTheAscendingNode = 131.78422574 - 0.00508664 * tc;
 
-            var meanAnomaly = Modulus(meanLongitude - longitudeOfPerihelion);
+            var meanAnomaly = this.Modulus(meanLongitude - longitudeOfPerihelion);
             var argumentOfPerihelion = longitudeOfPerihelion - longitudeOfTheAscendingNode;
 
             var massPrimary = 1.98894729428839E+30;
             var ellipticMotion = new EllipticMotion();
             var state = ellipticMotion.ComputeStateVectors(
                 massPrimary,
-                DegreeToRadian(meanAnomaly),
+                this.DegreeToRadian(meanAnomaly),
                 semiMajorAxis * AuInKm,
                 orbitalEccentricity,
-                DegreeToRadian(inclinationToTheEcliptic),
-                DegreeToRadian(argumentOfPerihelion),
-                DegreeToRadian(longitudeOfTheAscendingNode));
+                this.DegreeToRadian(inclinationToTheEcliptic),
+                this.DegreeToRadian(argumentOfPerihelion),
+                this.DegreeToRadian(longitudeOfTheAscendingNode));
             return state;
         }
 
@@ -291,19 +285,19 @@ namespace OrbToSlf
             var longitudeOfPerihelion = 224.06891629 - 0.04062942 * tc;
             var longitudeOfTheAscendingNode = 110.30393684 - 0.01183482 * tc;
 
-            var meanAnomaly = Modulus(meanLongitude - longitudeOfPerihelion);
+            var meanAnomaly = this.Modulus(meanLongitude - longitudeOfPerihelion);
             var argumentOfPerihelion = longitudeOfPerihelion - longitudeOfTheAscendingNode;
 
             var massPrimary = 1.98894729428839E+30;
             var ellipticMotion = new EllipticMotion();
             var state = ellipticMotion.ComputeStateVectors(
                 massPrimary,
-                DegreeToRadian(meanAnomaly),
+                this.DegreeToRadian(meanAnomaly),
                 semiMajorAxis * AuInKm,
                 orbitalEccentricity,
-                DegreeToRadian(inclinationToTheEcliptic),
-                DegreeToRadian(argumentOfPerihelion),
-                DegreeToRadian(longitudeOfTheAscendingNode));
+                this.DegreeToRadian(inclinationToTheEcliptic),
+                this.DegreeToRadian(argumentOfPerihelion),
+                this.DegreeToRadian(longitudeOfTheAscendingNode));
             return state;
         }
 
@@ -335,19 +329,19 @@ namespace OrbToSlf
             var longitudeOfPerihelion = 92.59887831 - 0.41897216 * tc;
             var longitudeOfTheAscendingNode = 113.66242448 - 0.28867794 * tc;
 
-            var meanAnomaly = Modulus(meanLongitude - longitudeOfPerihelion);
+            var meanAnomaly = this.Modulus(meanLongitude - longitudeOfPerihelion);
             var argumentOfPerihelion = longitudeOfPerihelion - longitudeOfTheAscendingNode;
 
             var massPrimary = 1.98894729428839E+30;
             var ellipticMotion = new EllipticMotion();
             var state = ellipticMotion.ComputeStateVectors(
                 massPrimary,
-                DegreeToRadian(meanAnomaly),
+                this.DegreeToRadian(meanAnomaly),
                 semiMajorAxis * AuInKm,
                 orbitalEccentricity,
-                DegreeToRadian(inclinationToTheEcliptic),
-                DegreeToRadian(argumentOfPerihelion),
-                DegreeToRadian(longitudeOfTheAscendingNode));
+                this.DegreeToRadian(inclinationToTheEcliptic),
+                this.DegreeToRadian(argumentOfPerihelion),
+                this.DegreeToRadian(longitudeOfTheAscendingNode));
             return state;
         }
 
@@ -379,19 +373,19 @@ namespace OrbToSlf
             var longitudeOfPerihelion = 170.95427630 + 0.40805281 * tc;
             var longitudeOfTheAscendingNode = 74.01692503 + 0.04240589 * tc;
 
-            var meanAnomaly = Modulus(meanLongitude - longitudeOfPerihelion);
+            var meanAnomaly = this.Modulus(meanLongitude - longitudeOfPerihelion);
             var argumentOfPerihelion = longitudeOfPerihelion - longitudeOfTheAscendingNode;
 
             var massPrimary = 1.98894729428839E+30;
             var ellipticMotion = new EllipticMotion();
             var state = ellipticMotion.ComputeStateVectors(
                 massPrimary,
-                DegreeToRadian(meanAnomaly),
+                this.DegreeToRadian(meanAnomaly),
                 semiMajorAxis * AuInKm,
                 orbitalEccentricity,
-                DegreeToRadian(inclinationToTheEcliptic),
-                DegreeToRadian(argumentOfPerihelion),
-                DegreeToRadian(longitudeOfTheAscendingNode));
+                this.DegreeToRadian(inclinationToTheEcliptic),
+                this.DegreeToRadian(argumentOfPerihelion),
+                this.DegreeToRadian(longitudeOfTheAscendingNode));
             return state;
         }
 
@@ -423,25 +417,21 @@ namespace OrbToSlf
             var longitudeOfPerihelion = 131.60246718 + 0.00268329 * tc;
             var longitudeOfTheAscendingNode = 76.67984255 - 0.27769418 * tc;
 
-            var meanAnomaly = Modulus(meanLongitude - longitudeOfPerihelion);
+            var meanAnomaly = this.Modulus(meanLongitude - longitudeOfPerihelion);
             var argumentOfPerihelion = longitudeOfPerihelion - longitudeOfTheAscendingNode;
 
             var massPrimary = 1.98894729428839E+30;
             var ellipticMotion = new EllipticMotion();
             var state = ellipticMotion.ComputeStateVectors(
                 massPrimary,
-                DegreeToRadian(meanAnomaly),
+                this.DegreeToRadian(meanAnomaly),
                 semiMajorAxis * AuInKm,
                 orbitalEccentricity,
-                DegreeToRadian(inclinationToTheEcliptic),
-                DegreeToRadian(argumentOfPerihelion),
-                DegreeToRadian(longitudeOfTheAscendingNode));
+                this.DegreeToRadian(inclinationToTheEcliptic),
+                this.DegreeToRadian(argumentOfPerihelion),
+                this.DegreeToRadian(longitudeOfTheAscendingNode));
             return state;
         }
-
-        #endregion
-
-        #region Methods
 
         /// <summary>
         ///     The degree to radian.
@@ -473,7 +463,5 @@ namespace OrbToSlf
             angle = (angle - Math.Floor(angle)) * 360 * sign;
             return angle;
         }
-
-        #endregion
     }
 }
