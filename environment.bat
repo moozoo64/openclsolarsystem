@@ -1,7 +1,7 @@
 set CodeLiteDir=C:\Program Files\CodeLite
 set WXWIN32=gcc510TDMDev_dll
-set WXWIN64=gcc_dllx86_64
-set WXWIN=C:\wxWidgets-3.1.1
+set WXWIN64=gcc_dll_x86_64
+set WXWIN=C:\SDK\wxWidgets-3.1.1
 set WXCFG=$WXWIN64/mswu
 set GLEW_INCLUDE=C:\SDK\glew-2.1.0\include
 set GLEWBIN32=C:\SDK\glew-2.1.0\bin\Release\Win32
