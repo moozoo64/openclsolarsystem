@@ -144,7 +144,7 @@
       </Linker>
       <ResourceCompiler Options=""/>
     </GlobalSettings>
-    <Configuration Name="Debug_x64" CompilerType="MinGW ( TDM-GCC )" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
+    <Configuration Name="Debug_x64" CompilerType="gcc.exe (x86_64-posix-seh-rev0, Built by MinGW-W64 project) 7.3.0" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
       <Compiler Options="-std=gnu++11 -g;-O0;-Wall;$(shell wx-config --cxxflags --unicode=yes --debug=yes)" C_Options="-std=gnu++11 -g;-O0;-Wall;$(shell wx-config --cxxflags --unicode=yes --debug=yes)" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
         <IncludePath Value="&quot;$(OPENCL_INCLUDE)&quot;"/>
         <IncludePath Value="&quot;$(GLEW_INCLUDE)&quot;"/>
@@ -193,7 +193,7 @@ PATH=$WXWIN\lib\gcc_dll;$GLEWBIN64;$PATH]]>
         <SearchPaths/>
       </Completion>
     </Configuration>
-    <Configuration Name="Release_x64" CompilerType="gcc.exe (x86_64-posix-seh-rev1, Built by MinGW-W64 project) 7.2.0" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
+    <Configuration Name="Release_x64" CompilerType="gcc.exe (x86_64-posix-seh-rev0, Built by MinGW-W64 project) 7.3.0" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
       <Compiler Options="-std=gnu++11 -O2;-Wall;-DwxDEBUG_LEVEL=0;$(shell wx-config --cxxflags --unicode=yes --debug=no)" C_Options="-std=gnu++11  -O2;-Wall;-DwxDEBUG_LEVEL=0;$(shell wx-config --cxxflags --unicode=yes --debug=no)" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
         <IncludePath Value="&quot;$(OPENCL_INCLUDE)&quot;"/>
         <IncludePath Value="&quot;$(GLEW_INCLUDE)&quot;"/>

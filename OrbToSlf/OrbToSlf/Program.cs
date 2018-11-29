@@ -24,6 +24,10 @@ namespace OrbToSlf
     using System.Linq;
     using System.Net.Http;
 
+#if NET472
+    using System.Threading.Tasks;
+#endif
+
     using Microsoft.Extensions.Configuration;
 
     /// <summary>
@@ -116,11 +120,17 @@ namespace OrbToSlf
             var astrorbHttpClient = new HttpClient();
             var astrorbResponseTask = astrorbHttpClient.GetStreamAsync(astrorbUri);
             astrorbResponseTask.Wait();
+#if NET472
+            if (astrorbResponseTask.Status != TaskStatus.RanToCompletion)
+            {
+                throw new Exception("Failed to fetch data");
+            }
+#else
             if (!astrorbResponseTask.IsCompletedSuccessfully)
             {
                 throw new Exception("Failed to fetch data");
             }
-
+#endif
             using (var astrorbStream = astrorbResponseTask.Result)
             {
                 if (astrorbStream == null)
@@ -287,11 +297,17 @@ namespace OrbToSlf
             var mpcorbHttpClient = new HttpClient();
             var mpcorbResponseTask = mpcorbHttpClient.GetStreamAsync(mpcorbUrl);
             mpcorbResponseTask.Wait();
+#if NET472            
+            if (mpcorbResponseTask.Status != TaskStatus.RanToCompletion)
+            {
+                throw new Exception("Failed to fetch data");
+            }
+#else
             if (!mpcorbResponseTask.IsCompletedSuccessfully)
             {
                 throw new Exception("Failed to fetch data");
             }
-
+#endif
             using (var mpcorbStream = mpcorbResponseTask.Result)
             {
                 // var file = new StreamReader(mpcorbPathName);
