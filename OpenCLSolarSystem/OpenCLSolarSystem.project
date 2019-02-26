@@ -145,7 +145,7 @@
       <ResourceCompiler Options=""/>
     </GlobalSettings>
     <Configuration Name="Debug_x64" CompilerType="gcc.exe (x86_64-posix-seh-rev0, Built by MinGW-W64 project) 7.3.0" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
-      <Compiler Options="-std=gnu++11 -g;-O0;-Wall;$(shell wx-config --cxxflags --unicode=yes --debug=yes)" C_Options="-std=gnu++11 -g;-O0;-Wall;$(shell wx-config --cxxflags --unicode=yes --debug=yes)" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
+      <Compiler Options="-std=gnu++11 -g;-O0;-Wall;-DwxDEBUG_LEVEL=1;$(shell wx-config --cxxflags --unicode=yes --debug=yes)" C_Options="-std=gnu++11 -g;-O0;-Wall;-DwxDEBUG_LEVEL=1;$(shell wx-config --cxxflags --unicode=yes --debug=yes)" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
         <IncludePath Value="&quot;$(OPENCL_INCLUDE)&quot;"/>
         <IncludePath Value="&quot;$(GLEW_INCLUDE)&quot;"/>
       </Compiler>
@@ -156,11 +156,10 @@
         <Library Value="glew32"/>
       </Linker>
       <ResourceCompiler Options="$(shell wx-config --rcflags)" Required="no"/>
-      <General OutputFile="$(IntermediateDirectory)/$(ProjectName)" IntermediateDirectory="./$(ConfigurationName)" Command="./$(ProjectName)" CommandArguments="-amd" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
+      <General OutputFile="$(IntermediateDirectory)/$(ProjectName)" IntermediateDirectory="./$(ConfigurationName)" Command="./$(ProjectName)" CommandArguments="-intel" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
       <BuildSystem Name="Default"/>
       <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
-        <![CDATA[WXWIN=$WXWIN64
-PATH=$WXWIN\lib\gcc_dll;$GLEWBIN64;$PATH]]>
+        <![CDATA[PATH=$WXWIN\lib\$WXWIN64;$GLEWBIN64;$PATH]]>
       </Environment>
       <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="" IsExtended="no">
         <DebuggerSearchPaths/>
@@ -171,6 +170,8 @@ PATH=$WXWIN\lib\gcc_dll;$GLEWBIN64;$PATH]]>
       <PostBuild>
         <Command Enabled="yes">copy adamsfma.cl $(ConfigurationName)</Command>
         <Command Enabled="yes">copy astrorbsolexsmall.slf $(ConfigurationName)</Command>
+        <Command Enabled="yes">copy $WXWIN\lib\$(WXWIN64)\wxbase311ud_gcc_cl.dll $(ConfigurationName)</Command>
+        <Command Enabled="no">#copy %OPENCL_LIB64%\bin\libOpenCL.dll $(ConfigurationName)</Command>
       </PostBuild>
       <CustomBuild Enabled="no">
         <RebuildCommand/>
