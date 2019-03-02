@@ -861,10 +861,7 @@ void Frame::OnLoadInitialState( wxCommandEvent& event )
 	{
 		if( this->initialState->LoadInitialState( fileDialog.GetPath() ) )
 		{
-			if( this->numParticles > this->initialState->initialNumParticles )
-			{
-				this->numParticles = this->initialState->initialNumParticles;
-			}
+            this->numParticles = this->initialState->initialNumParticles > this->clModel->maxNumParticles ? this->clModel->maxNumParticles : this->initialState->initialNumParticles;
 			this->numGrav = this->initialState->initialNumGrav > this->clModel->maxNumGrav ? this->clModel->maxNumGrav : this->initialState->initialNumGrav;
 			this->ResetAll();
 		}
