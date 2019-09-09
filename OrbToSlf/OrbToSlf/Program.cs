@@ -24,7 +24,7 @@ namespace OrbToSlf
     using System.Linq;
     using System.Net.Http;
 
-#if NET472
+#if NET48
     using System.Threading.Tasks;
 #endif
 
@@ -120,7 +120,7 @@ namespace OrbToSlf
             var astrorbHttpClient = new HttpClient();
             var astrorbResponseTask = astrorbHttpClient.GetStreamAsync(astrorbUri);
             astrorbResponseTask.Wait();
-#if NET472
+#if NET48
             if (astrorbResponseTask.Status != TaskStatus.RanToCompletion)
             {
                 throw new Exception("Failed to fetch data");
@@ -297,7 +297,7 @@ namespace OrbToSlf
             var mpcorbHttpClient = new HttpClient();
             var mpcorbResponseTask = mpcorbHttpClient.GetStreamAsync(mpcorbUrl);
             mpcorbResponseTask.Wait();
-#if NET472            
+#if NET48            
             if (mpcorbResponseTask.Status != TaskStatus.RanToCompletion)
             {
                 throw new Exception("Failed to fetch data");
