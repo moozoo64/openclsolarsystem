@@ -9,7 +9,8 @@
                 "build",
                 "${workspaceFolder}/OrbToSlf.csproj"
             ],
-            "problemMatcher": "$msCompile"
+            "problemMatcher": "$msCompile",
+            "group": "build"
         },
         {
             "label": "build Release",
@@ -22,10 +23,29 @@
                 "Release"
             ],
             "problemMatcher": "$msCompile",
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
+            "group": "build"
+        },
+        {
+            "label": "clean Debug",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "clean",
+                "${workspaceFolder}/OrbToSlf.csproj"
+            ],
+            "problemMatcher": "$msCompile",
+        },
+        {
+            "label": "clean Release",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "clean",
+                "${workspaceFolder}/OrbToSlf.csproj",
+                "-c",
+                "Release"
+            ],
+            "problemMatcher": "$msCompile",
         }
     ]
 }
