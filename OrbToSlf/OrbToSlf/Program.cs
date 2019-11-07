@@ -1130,7 +1130,7 @@ namespace OrbToSlf
                         stateVectors[1].Z / 1000);
                     count++;
                 }
-
+                Console.WriteLine("Wrote to {0}", fileOutStream.Name);
                 Console.WriteLine("Max Name Length is {0}", maxNameLength);
             }
 
