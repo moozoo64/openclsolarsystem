@@ -48,7 +48,7 @@ This can be compared with the lists from http://neo.jpl.nasa.gov/cgi-bin/neo_ca
 
 Tools and libraries require to compile the source under windows
 ----------------------------------------------------------------
-Checkout the source via git from https://github.com/moozoo64/openclsolarsystem
+Checkout the source via git clone https://github.com/moozoo64/openclsolarsystem.git
 You will need:
 Codelite (http://codelite.org/) version 7+ 64 bit
 Both wxWidgets libraries from the Codelite download section (wxWidgets-3.0.2 for 32 bit and wxWidgets-3.1 for 64 bit....)
