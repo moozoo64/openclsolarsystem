@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="Kepler.cs" company="Michael William Simmons">
-//   (c) 2013 Michael William Simmons
+//   (c) 2013-2025 Michael William Simmons
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
 //   You may obtain a copy of the License at
@@ -20,22 +20,22 @@
 
 namespace OrbToSlf
 {
-    using System;
+  using System;
 
-    /// <summary>
-    ///     Routines to solve Kepler's equation
-    /// </summary>
-    internal class Kepler
+  /// <summary>
+  ///     Routines to solve Kepler's equation
+  /// </summary>
+    public class Kepler
     {
-        /// <summary>
-        ///     Using sinnott's method.
-        /// </summary>
-        /// <param name="m">The m.</param>
-        /// <param name="e">The e.</param>
-        /// <returns>
-        ///     The <see cref="double" />.
-        /// </returns>
-        public double Sinnott(double m, double e)
+    /// <summary>
+    ///     Using sinnott's method.
+    /// </summary>
+    /// <param name="m">The m.</param>
+    /// <param name="e">The e.</param>
+    /// <returns>
+    ///     The <see cref="double" />.
+    /// </returns>
+    public double Sinnott(double m, double e)
         {
             const double Pi = Math.PI;
             var sign = m > 0 ? 1.0 : -1.0;

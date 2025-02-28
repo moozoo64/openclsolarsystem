@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
 // <copyright file="Double4.cs" company="Michael William Simmons">
-//   (c) 2013 Michael William Simmons
+//   (c) 2013-2025 Michael William Simmons
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
 //   You may obtain a copy of the License at

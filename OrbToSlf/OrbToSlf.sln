@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35728.132 d17.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrbToSlf", "OrbToSlf\OrbToSlf.csproj", "{4F35ECC9-6DCD-493F-9F64-6483F6504D24}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrbToSlfConsole", "OrbToSlfConsole\OrbToSlfConsole.csproj", "{F44B690C-E17C-4846-A6E0-A0F3E02720FA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{4F35ECC9-6DCD-493F-9F64-6483F6504D24}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4F35ECC9-6DCD-493F-9F64-6483F6504D24}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4F35ECC9-6DCD-493F-9F64-6483F6504D24}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F44B690C-E17C-4846-A6E0-A0F3E02720FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F44B690C-E17C-4846-A6E0-A0F3E02720FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F44B690C-E17C-4846-A6E0-A0F3E02720FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F44B690C-E17C-4846-A6E0-A0F3E02720FA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
