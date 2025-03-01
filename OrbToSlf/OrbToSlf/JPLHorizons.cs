@@ -19,6 +19,8 @@
 // 
 namespace OrbToSlf
 {
+  using Microsoft.Extensions.Configuration;
+  using Microsoft.Extensions.Logging;
   using System;
   using System.IO;
   using System.Net.Http;
@@ -32,12 +34,21 @@ namespace OrbToSlf
   /// </summary>
   public class JPLHorizons : IPlanets
   {
-    Uri UriHorizons = new Uri("https://ssd.jpl.nasa.gov/api/horizons.api");
+    private IConfiguration config;
+    private ILogger<Utilities> logger;
+
+    public JPLHorizons(IConfiguration config, ILogger<Utilities> logger)
+    {
+      this.config = config;
+      this.logger = logger;
+    }
+
 
     private Double4[] GetHorizonsData(string target, string time)
     {
       var position = new Double4();
       var velocity = new Double4();
+      Uri UriHorizons = new Uri(this.config["UriHorizons"]);
       string url = UriHorizons + "?format=text&COMMAND='" + target + "'&OBJ_DATA='NO'&MAKE_EPHEM='YES'&EPHEM_TYPE='VECTOR'&CENTER='500@0'&VEC_TABLE='2'&TLIST='" + time + "'&TLIST_TYPE='JD'&REF_PLANE='F'";
       /*       string url = $"{UriHorizons}?format=text" +
                 $"&COMMAND={Uri.EscapeDataString("'" + target + "'")}" +
@@ -123,6 +134,24 @@ namespace OrbToSlf
       return new[] { position, velocity };
     }
 
+    public bool IsSupported(string planet)
+    {
+      return planet switch
+      {
+        "Earth" => true,
+        "EMB" => true,
+        "Moon" => true,
+        "Jupiter" => true,
+        "Mars" => true,
+        "Mercury" => true,
+        "Neptune" => true,
+        "Pluto" => true,
+        "Saturn" => true,
+        "Uranus" => true,
+        "Venus" => true,
+        _ => false,
+      };
+    }
     public Double4[] Mercury(double t, out double semiMajorAxis)
     {
       var tc = (t - 2451545.0) / 36525;
@@ -146,6 +175,21 @@ namespace OrbToSlf
       return state;
     }
 
+    public Double4[] EMB(double t, out double semiMajorAxis)
+    {
+      var tc = (t - 2451545.0) / 36525;
+      semiMajorAxis = 1.00000261 + 0.00000562 * tc;
+      var state = GetHorizonsData("3", t.ToString());
+      return state;
+    }
+
+    public Double4[] Moon(double t, out double semiMajorAxis)
+    {
+      var tc = (t - 2451545.0) / 36525;
+      semiMajorAxis = 1.00000261 + 0.00000562 * tc;
+      var state = GetHorizonsData("301", t.ToString());
+      return state;
+    }
     public Double4[] Mars(double t, out double semiMajorAxis)
     {
       var tc = (t - 2451545.0) / 36525;
@@ -192,5 +236,7 @@ namespace OrbToSlf
       var state = GetHorizonsData("999", t.ToString());
       return state;
     }
+
+
   }
 }

@@ -604,8 +604,6 @@ namespace OrbToSlf
       var gotNumberCount = 0;
       var maxBodies = 0;
       var numOort = 0;
-      //var JplHorizons = new JPLHorizons();
-      //var marsState = JplHorizons.Mars(2460800.5);
 
       foreach (var arg in args)
       {
@@ -670,11 +668,11 @@ namespace OrbToSlf
 
       if (fetchFromAstorb)
       {
-        uri = new Uri(this.config["AppSettings:UriAstOrb"]);
+        uri = new Uri(this.config["UriAstOrb"]);
       }
       else
       {
-        uri = new Uri(this.config["AppSettings:UriMpcOrb"]);
+        uri = new Uri(this.config["UriMpcOrb"]);
       }
 
       Console.WriteLine("Fetching data from {0}", uri);

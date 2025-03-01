@@ -28,7 +28,10 @@ namespace OrbToSlf
 
   public interface IPlanets
   {
+    bool IsSupported(string planet);
     Double4[] Earth(double t, out double semiMajorAxis);
+    Double4[] EMB(double t, out double semiMajorAxis);
+    Double4[] Moon(double t, out double semiMajorAxis);
     Double4[] Jupiter(double t, out double semiMajorAxis);
     Double4[] Mars(double t, out double semiMajorAxis);
     Double4[] Mercury(double t, out double semiMajorAxis);
@@ -59,6 +62,18 @@ namespace OrbToSlf
       this.config = config;
       this.logger = logger;
     }
+
+    public Double4[] Earth(double t, out double semiMajorAxis)
+    {
+      return this.EMB(t, out semiMajorAxis);
+    }
+
+    // Not supported
+    public Double4[] Moon(double t, out double semiMajorAxis)
+    {
+      throw new NotImplementedException();
+    }
+
     /// <summary>
     ///     Computes the approximate position of earth.
     ///     a              e               I                L            long.peri.      long.node.
@@ -75,7 +90,7 @@ namespace OrbToSlf
     /// <returns>
     ///     The <see cref="Double4[]" />.
     /// </returns>
-    public Double4[] Earth(double t, out double semiMajorAxis)
+    public Double4[] EMB(double t, out double semiMajorAxis)
     {
       var tc = (t - 2451545.0) / 36525;
 
@@ -485,6 +500,25 @@ namespace OrbToSlf
       angle = Math.Abs(angle) / 360;
       angle = (angle - Math.Floor(angle)) * 360 * sign;
       return angle;
+    }
+
+    public bool IsSupported(string planet)
+    {
+      return planet switch
+      {
+        "Earth" => true,
+        "EMB" => true,
+        "Moon" => false,
+        "Jupiter" => true,
+        "Mars" => true,
+        "Mercury" => true,
+        "Neptune" => true,
+        "Pluto" => true,
+        "Saturn" => true,
+        "Uranus" => true,
+        "Venus" => true,
+        _ => false,
+      };
     }
   }
 }
