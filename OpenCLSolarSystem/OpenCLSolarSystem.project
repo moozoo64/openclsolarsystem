@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<CodeLite_Project Name="OpenCLSolarSystem" InternalType="GUI" Version="10.0.0">
+<CodeLite_Project Name="OpenCLSolarSystem" InternalType="GUI" Version="11000">
   <Plugins>
     <Plugin Name="qmake">
       <![CDATA[00110001N0005Debug0000000000000001N0011Debug_Win320000000000000001N0009Debug_x640000000000000001N0012Debug_x86_320000000000000001N0012Debug_x86_640000000000000001N0007Release0000000000000001N0014Release x86_640000000000000001N0013Release_Win320000000000000001N0011Release_x640000000000000001N0014Release_x86_320000000000000001N0014Release_x86_64000000000000]]>
@@ -144,13 +144,13 @@
       </Linker>
       <ResourceCompiler Options=""/>
     </GlobalSettings>
-    <Configuration Name="Debug_x64" CompilerType="gcc.exe (x86_64-posix-seh-rev0, Built by MinGW-W64 project) 7.3.0" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
-      <Compiler Options="-std=gnu++11 -g;-O0;-Wall;-DwxDEBUG_LEVEL=1;$(shell wx-config --cxxflags --unicode=yes --debug=yes)" C_Options="-std=gnu++11 -g;-O0;-Wall;-DwxDEBUG_LEVEL=1;$(shell wx-config --cxxflags --unicode=yes --debug=yes)" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
-        <IncludePath Value="&quot;$(OPENCL_INCLUDE)&quot;"/>
-        <IncludePath Value="&quot;$(GLEW_INCLUDE)&quot;"/>
+    <Configuration Name="Debug_x64" CompilerType="C:\SDK\mingw-w64\x86_64-7.2.0-posix-seh-rt_v5-rev1\mingw64\bin\g++.exe" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
+      <Compiler Options="-O0;-Wall;-std=gnu++11 -g;-DwxDEBUG_LEVEL=1;-IC:/wxWidgets-3.1.1/lib/gcc_dllx86_64/mswu -IC:/wxWidgets-3.1.1/include -mthreads -D_FILE_OFFSET_BITS=64 -DWXUSINGDLL -D__WXMSW__ -DHAVE_W32API_H -D_UNICODE -fmessage-length=0 -pipe -fno-keep-inline-dllexport -std=c++11" C_Options="-O0;-Wall;-std=gnu++11 -g;-DwxDEBUG_LEVEL=1;$(shell wx-config --cxxflags --unicode=yes )" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
+        <IncludePath Value="$(OPENCL_INCLUDE)"/>
+        <IncludePath Value="$(GLEW_INCLUDE)"/>
       </Compiler>
-      <Linker Options="-mwindows;$(shell wx-config --debug=yes --libs --unicode=yes --libs gl)" Required="yes">
-        <LibraryPath Value="&quot;$(OPENCL_LIB64)&quot;"/>
+      <Linker Options="-mwindows;-LC:/wxWidgets-3.1.1/lib/gcc_dllx86_64 -pipe -lwxmsw31u_xrc -lwxmsw31u_webview -lwxmsw31u_html -lwxmsw31u_adv -lwxmsw31u_core -lwxbase31u_xml -lwxbase31u_net -lwxbase31u -lwxmsw31u_gl -lwxbase31u -lopengl32 -lglu32" Required="yes">
+        <LibraryPath Value="$(OPENCL_LIB64)"/>
         <LibraryPath Value="$(GLEWLIB64)"/>
         <Library Value="OpenCL"/>
         <Library Value="glew32"/>
@@ -194,19 +194,19 @@
         <SearchPaths/>
       </Completion>
     </Configuration>
-    <Configuration Name="Release_x64" CompilerType="gcc.exe (x86_64-posix-seh-rev0, Built by MinGW-W64 project) 7.3.0" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
+    <Configuration Name="Release_x64" CompilerType="C:\SDK\mingw-w64\x86_64-7.2.0-posix-seh-rt_v5-rev1\mingw64\bin\g++.exe" DebuggerType="GNU gdb debugger" Type="Executable" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
       <Compiler Options="-std=gnu++11 -O2;-Wall;-DwxDEBUG_LEVEL=0;$(shell wx-config --cxxflags --unicode=yes --debug=no)" C_Options="-std=gnu++11  -O2;-Wall;-DwxDEBUG_LEVEL=0;$(shell wx-config --cxxflags --unicode=yes --debug=no)" Assembler="" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" PCHFlags="" PCHFlagsPolicy="0">
-        <IncludePath Value="&quot;$(OPENCL_INCLUDE)&quot;"/>
-        <IncludePath Value="&quot;$(GLEW_INCLUDE)&quot;"/>
+        <IncludePath Value="$(OPENCL_INCLUDE)"/>
+        <IncludePath Value="$(GLEW_INCLUDE)"/>
       </Compiler>
-      <Linker Options="-mwindows;-s;$(shell wx-config --debug=no --libs --unicode=yes --libs gl)" Required="yes">
-        <LibraryPath Value="&quot;$(OPENCL_LIB64)&quot;"/>
+      <Linker Options="-s;-mwindows;-LC:/wxWidgets-3.1.1/lib/gcc_dllx86_64 -pipe -lwxmsw31u_xrc -lwxmsw31u_webview -lwxmsw31u_html -lwxmsw31u_adv -lwxmsw31u_core -lwxbase31u_xml -lwxbase31u_net -lwxbase31u -lwxmsw31u_gl -lwxbase31u -lopengl32 -lglu32" Required="yes">
+        <LibraryPath Value="$(OPENCL_LIB64)"/>
         <LibraryPath Value="$(GLEWLIB64)"/>
         <Library Value="OpenCL.dll"/>
         <Library Value="glew32"/>
       </Linker>
       <ResourceCompiler Options="$(shell wx-config --rcflags)" Required="no"/>
-      <General OutputFile="$(IntermediateDirectory)/$(ProjectName)" IntermediateDirectory="./$(ConfigurationName)" Command="./$(ProjectName)" CommandArguments="-amd" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
+      <General OutputFile="$(IntermediateDirectory)/$(ProjectName)" IntermediateDirectory="./$(ConfigurationName)" Command="./$(ProjectName)" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="yes" IsGUIProgram="no" IsEnabled="yes"/>
       <BuildSystem Name="Default"/>
       <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
         <![CDATA[PATH=$WXWIN\lib\$WXWIN64;$GLEWBIN64;$PATH]]>

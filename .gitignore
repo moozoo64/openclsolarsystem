@@ -361,3 +361,8 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/OpenCLSolarSystem/Debug_x64
+/OpenCLSolarSystem/Release_x64
+/.codelite/OpenCLSolarSystem-michael.tags
+/.codelite
+/compile_commands.json

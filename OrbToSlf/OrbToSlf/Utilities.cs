@@ -762,6 +762,15 @@ namespace OrbToSlf
       bodyInfo.SemiMajorAxis = planetSemiMajorAxis * AuInKm;
       bodyInfo.Epoch = epoch;
 
+      if(planets.IsSupported("Moon"))
+      {
+        bodyInfo = bodyInfos["Moon".ToUpperInvariant()];
+        bodyInfo.StateVectors = planets.Moon(epoch, out planetSemiMajorAxis);
+        bodyInfo.AbsoluteMagnitude = -3.5;
+        bodyInfo.SemiMajorAxis = planetSemiMajorAxis * AuInKm;
+        bodyInfo.Epoch = epoch;
+      }
+
       bodyInfo = bodyInfos["Mars".ToUpperInvariant()];
       bodyInfo.StateVectors = planets.Mars(epoch, out planetSemiMajorAxis);
       bodyInfo.AbsoluteMagnitude = -1.52;

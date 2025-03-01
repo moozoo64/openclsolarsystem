@@ -1,5 +1,5 @@
 /*
-	Copyright 2013 Michael William Simmons
+	Copyright 2013-2025 Michael William Simmons
 
 	Licensed under the Apache License, Version 2.0 (the "License");
 	you may not use this file except in compliance with the License.
@@ -498,7 +498,7 @@ bool InitialState::ExportSLF( wxString fileName )
 	for( int i=0; i< this->initialNumParticles; i++ )
 	{
 		name = wxString( this->physicalProperties[i].Name );
-		if( name.IsSameAs( wxT( "Earth" ) ) )
+		if( name.IsSameAs( wxT( "Earth" ) ) || name.IsSameAs( wxT( "Earth-0" ) ))
 		{
 			earth = i;
 			break;
@@ -520,7 +520,7 @@ bool InitialState::ExportSLF( wxString fileName )
 		double vy = this->initialVelocities[i].s[1];
 		double vz = this->initialVelocities[i].s[2];
 
-		if( name.IsSameAs( wxT( "Moon" ) ) )
+		if( name.IsSameAs( wxT( "Moon" ) ) || name.IsSameAs( wxT( "Moon-0" ) ))
 		{
 			x = x - this->initialPositions[earth].s[0];
 			y = y - this->initialPositions[earth].s[1];
@@ -674,13 +674,15 @@ bool InitialState::ImportSLF( wxString fileName )
 			}
 			wxString nameToken = lineTokenizer->GetNextToken();
 
-			if( nameToken.IsSameAs( wxT( "Earth" ) ) )
+			if( nameToken.IsSameAs( wxT( "Earth" ) ) || nameToken.IsSameAs( wxT( "Earth-0" ) ))
 			{
 				earth = i;
+                wxLogDebug( wxT( "Found Earth" ) );
 			}
-			else if( nameToken.IsSameAs( wxT( "Moon" ) ) )
+			else if( nameToken.IsSameAs( wxT( "Moon" ) ) || nameToken.IsSameAs( wxT( "Moon-0" ) ))
 			{
 				moon = i;
+                wxLogDebug( wxT( "Found Moon" ) );
 			}
 
 			// Next Line
@@ -829,6 +831,8 @@ bool InitialState::ImportSLF( wxString fileName )
 			progressBar.Update( i,message );
 		}
 	}
+
+	//wxLogMessage( wxT( "Read %ld Bodies" ),bodiesReadCount);
 	this->initialNumParticles = bodiesReadCount;
 	this->SetDefaultBodyColours();
 
