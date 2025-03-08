@@ -1,5 +1,7 @@
 Solar System Simulation by Michael Simmons
 
+WARNING Currently being moved across to github and switching to VS Code.
+
 This program simulates the Solar System through numerical integration.
 It utilises OpenCL(tm) to enable the integration of not only the planets but also 500000+ asteroids.
 
@@ -48,30 +50,7 @@ This can be compared with the lists from http://neo.jpl.nasa.gov/cgi-bin/neo_ca
 
 Tools and libraries require to compile the source under windows
 ----------------------------------------------------------------
-Checkout the source via git clone https://github.com/moozoo64/openclsolarsystem.git
-You will need:
-Codelite (http://codelite.org/) version 7+ 64 bit
-Both wxWidgets libraries from the Codelite download section (wxWidgets-3.0.2 for 32 bit and wxWidgets-3.1 for 64 bit....)
-TDM-GCC-64 web installer. Install for 32bit and 64bit development. I put it in C:\TDM-GCC-64
-The Library (http://glew.sourceforge.net/) glew-1.12.0 (compile by putting MakeGlewMingw.cmd in its folder and running it)
-The Khronos opencl headers from http://www.khronos.org/registry/cl/ or from the AMD or Intel SDK
-The OpenCL.lib from Intel OpenCL SDK or AMD SDKs
-
-This is my current Codelite Enviroment Settings
-CodeLiteDir=C:\Program Files\CodeLite
-WXWIN32=C:\wxWidgets-3.0.2
-WXWIN64=C:\wxWidgets-3.1
-GLEW_INCLUDE=C:\SDK\glew-1.12.0\include
-GLEWBIN32=C:\SDK\glew-1.12.0\bin\Release\Win32
-GLEWBIN64=C:\SDK\glew-1.12.0\bin\Release\x64
-GLEWLIB32=/SDK/glew-1.12.0/lib/Release/Win32
-GLEWLIB64=/SDK/glew-1.12.0/lib/Release/x64
-OPENCL_INCLUDE=C:\Program Files (x86)\AMD APP SDK\3.0-0-Beta\include
-OPENCL_LIB64=C:\Program Files (x86)\AMD APP SDK\3.0-0-Beta\lib\x86_64
-OPENCL_LIB32=C:\Program Files (x86)\AMD APP SDK\3.0-0-Beta\lib\x86
-
-To Compile under Ubuntu 12.04 LTS open the OpenCLSolarSystemUbuntu.project and set enviroment enviroment variables as required.
-The program runs much slower under linux. Try disabling the status bar updates and running it at an elevated priority.
+Currently being updated
 
 Creating an initial.bin datafile
 --------------------------------
