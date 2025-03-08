@@ -76,7 +76,7 @@ The program runs much slower under linux. Try disabling the status bar updates a
 Creating an initial.bin datafile
 --------------------------------
 A Solex SLF formated data file of the solar system is needed.
-A file astrorbsolexsmall.slf is included in the source.
+A file mpcsmall.slf is included in the source.
 It was generated from the astrorb.dat (http://www.naic.edu/~nolan/astorb.html) and a solex FINAL.SLF of the planets and moon for the same epoch.
 
 A free version of Solex can be found at http://chemistry.unina.it/~alvitagl/solex/

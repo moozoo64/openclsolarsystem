@@ -1,1 +1,0 @@
-./Debug_x64/application.cpp.o ./Debug_x64/frame.cpp.o ./Debug_x64/physicalproperties.cpp.o ./Debug_x64/initialstate.cpp.o ./Debug_x64/glcanvas.cpp.o ./Debug_x64/clmodel.cpp.o ./Debug_x64/global.cpp.o   

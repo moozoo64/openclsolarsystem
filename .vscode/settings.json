@@ -1,0 +1,25 @@
+{
+  "makefile.makePath": "mingw32-make.exe",
+  "makefile.makefilePath": "${workspaceFolder}/src/OpenCLSolarSystem",
+  "makefile.configurations": [
+    {
+      "name": "Debug",
+      "makeDirectory": "${workspaceFolder}/src/OpenCLSolarSystem",
+      "makeArgs": [
+        "-j8",
+        "BUILD_TYPE=Debug",
+        "ARCH=x64"
+      ]
+    },
+    {
+      "name": "Release",
+      "makeDirectory": "${workspaceFolder}/src/OpenCLSolarSystem",
+      "makeArgs": [
+        "-j8",
+        "BUILD_TYPE=Release",
+        "ARCH=x64"
+      ]
+    }
+  ],
+  "makefile.launchConfigurations": []
+}
