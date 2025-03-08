@@ -1,11 +1,13 @@
-$base = (Split-Path $PSScriptRoot)
+#$base=where you have the tools installed
+#.vscode.ps1
+#$base = (Split-Path $PSScriptRoot)
 $env:Path = "$env:SystemRoot;$env:SystemRoot\System32"
 $env:Mingw64 = "$base\x86_64-14.2.0-release-posix-seh-msvcrt-rt_v12-rev1"
 $env:Path = "$env:Mingw64\mingw64\bin;$base\mkdir;" + $env:Path
 $env:DotNet = "$base\dotnet-sdk-8.0.406-win-x64"
 $env:Path = "$env:DotNet;" + $env:Path
-$env:CMake="$base\cmake-3.31.6-windows-x86_64"
-$env:Path="$env:CMake\bin;"+$env:Path
+$env:CMake = "$base\cmake-3.31.6-windows-x86_64"
+$env:Path = "$env:CMake\bin;" + $env:Path
 $env:WxWidgets = "$base\wxWidgets-3.2.6"
 $env:GLEW = "$base\glew-2.1.0"
 $env:GLEWBIN32 = "$env:GLEW\bin\Release\Win32"
