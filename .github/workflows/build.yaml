@@ -24,7 +24,7 @@ jobs:
       matrix:
         include:
           - { sys: UCRT64,  env: ucrt-x86_64,  build: Release }
-          - { sys: CLANG64, env: clang-x86_64, build: Release }
+          # - { sys: CLANG64, env: clang-x86_64, build: Release }
 
     steps:
       - name: Clone
@@ -38,9 +38,11 @@ jobs:
       #     evict-old-files: 1d
 
       - name: Setup ${{ matrix.sys }}
-        uses: msys2/setup-msys2@v2.1.2
+        uses: msys2/setup-msys2@v2
         with:
           update: true
+          location: C:\msys64
+          release: false
           msystem: ${{matrix.sys}}
           install: >-
             base-devel
@@ -52,20 +54,28 @@ jobs:
             mingw-w64-${{matrix.env}}-opencl-icd
             mingw-w64-${{matrix.env}}-wxwidgets3.2-common
 
-      - name: Build using CMake
+      - name: Build using Makefile
         shell: msys2 {0}
         run: |
-            cmake -B build
-            cmake --build build --config ${{ matrix.build }} -j $(nproc)
+          ls -R
+          cd src
+          g++ --version
+          mingw32-make -j8 BUILD_TYPE=Debug ARCH=x64  
 
-      - name: Clean after building using CMake
-        shell: msys2 {0}
-        run: |
-            rm -rf build
+      # - name: Build using CMake
+      #   shell: msys2 {0}
+      #   run: |
+      #       cmake -B build
+      #       cmake --build build --config ${{ matrix.build }} -j $(nproc)
 
-      - name: Build using CMake 
-        shell: msys2 {0}
-        run: |
-            cmake -B build 
-            cmake --build build --config ${{ matrix.build }} -j $(nproc)
+      # - name: Clean after building using CMake
+      #   shell: msys2 {0}
+      #   run: |
+      #       rm -rf build
+
+      # - name: Build using CMake 
+      #   shell: msys2 {0}
+      #   run: |
+      #       cmake -B build 
+      #       cmake --build build --config ${{ matrix.build }} -j $(nproc)
         

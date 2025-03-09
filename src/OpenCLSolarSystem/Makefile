@@ -35,7 +35,7 @@ ProjectName            :=OpenCLSolarSystem
 IntermediateDirectory  :=./$(ConfigurationName)
 OutputDirectory        :=$(IntermediateDirectory)
 OutputFile             :=$(IntermediateDirectory)/$(ProjectName)
-LinkerName             :=g++.exe
+LinkerName             :=gcc
 ObjectSuffix           :=.o
 IncludeSwitch          :=-I
 LibrarySwitch          :=-l
@@ -44,8 +44,8 @@ LibraryPathSwitch      :=-L
 SourceSwitch           :=-c 
 ObjectSwitch           :=-o 
 ObjectsFileList        :="OpenCLSolarSystem.txt"
-MakeDirCommand         :="makedir.exe"
-RMDirCommand           :="rm.exe" -f -r
+MakeDirCommand         :="mkdir"
+RMDirCommand           :="rm" -f -r
 RcCompilerName         :=windres.exe
 LinkOptions            := $(StripFlag) -mwindows -L$(WXWIN)/lib/$(WXWIN64) -pipe -lwxmsw32u_xrc -lwxmsw32u_webview -lwxmsw32u_html -lwxmsw32u_adv -lwxmsw32u_core -lwxbase32u_xml -lwxbase32u_net -lwxbase32u -lwxmsw32u_gl -lwxbase32u -lopengl32 -lglu32
 IncludePath            := $(IncludeSwitch). $(IncludeSwitch)$(WXWIN)/include $(IncludeSwitch)$(WXWIN)/lib/$(WXCFG) $(IncludeSwitch)$(OPENCL_INCLUDE) $(IncludeSwitch)$(GLEW_INCLUDE) 
@@ -57,12 +57,12 @@ LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)$(OPENCL_LIB
 ## Common variables
 ## AR, CXX, CC, AS, CXXFLAGS and CFLAGS can be overridden using an environment variable
 ##
-AR       := ar.exe -r
-CXX      := g++.exe
-CC       := gcc.exe
+AR       := ar -r
+CXX      := gcc
+CC       := gcc
 CXXFLAGS := -std=gnu++11 $(OptimizeFlag) -Wall $(DebugLevel)
 CFLAGS   := -std=gnu++11 $(OptimizeFlag) -Wall $(DebugLevel)
-AS       := as.exe
+AS       := as
 
 ##
 ## User defined environment variables
