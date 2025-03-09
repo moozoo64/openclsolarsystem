@@ -59,7 +59,7 @@ jobs:
         run: |
           ls -R
           cd src
-          g++ --version
+          gcc --version
           mingw32-make -j8 BUILD_TYPE=Debug ARCH=x64  
 
       # - name: Build using CMake
