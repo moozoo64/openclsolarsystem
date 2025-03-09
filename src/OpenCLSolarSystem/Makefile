@@ -35,7 +35,7 @@ ProjectName            :=OpenCLSolarSystem
 IntermediateDirectory  :=./$(ConfigurationName)
 OutputDirectory        :=$(IntermediateDirectory)
 OutputFile             :=$(IntermediateDirectory)/$(ProjectName)
-LinkerName             :=gcc
+LinkerName             :=g++
 ObjectSuffix           :=.o
 IncludeSwitch          :=-I
 LibrarySwitch          :=-l
@@ -58,7 +58,7 @@ LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)$(OPENCL_LIB
 ## AR, CXX, CC, AS, CXXFLAGS and CFLAGS can be overridden using an environment variable
 ##
 AR       := ar -r
-CXX      := gcc
+CXX      := g++
 CC       := gcc
 CXXFLAGS := -std=gnu++11 $(OptimizeFlag) -Wall $(DebugLevel)
 CFLAGS   := -std=gnu++11 $(OptimizeFlag) -Wall $(DebugLevel)
