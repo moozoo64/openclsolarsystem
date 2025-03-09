@@ -57,9 +57,8 @@ jobs:
       - name: Build using Makefile
         shell: msys2 {0}
         run: |
-          ls -R
+          alias makedir="mkdir"
           cd src
-          gcc --version
           mingw32-make -j8 BUILD_TYPE=Debug ARCH=x64  
 
       # - name: Build using CMake
