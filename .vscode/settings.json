@@ -21,5 +21,6 @@
       ]
     }
   ],
-  "makefile.launchConfigurations": []
+  "makefile.launchConfigurations": [],
+  "githubLocalActions.actCommand": "act -P windows-latest=-self-hosted "
 }

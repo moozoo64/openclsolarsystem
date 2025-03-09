@@ -30,12 +30,12 @@ jobs:
       - name: Clone
         uses: actions/checkout@v4
 
-      - name: ccache
-        uses: hendrikmuhs/ccache-action@v1.2.16
-        with:
-          key: windows-msys2
-          variant: sccache
-          evict-old-files: 1d
+      # - name: ccache
+      #   uses: hendrikmuhs/ccache-action@v1.2.16
+      #   with:
+      #     key: windows-msys2
+      #     variant: sccache
+      #     evict-old-files: 1d
 
       - name: Setup ${{ matrix.sys }}
         uses: msys2/setup-msys2@v2.1.2
