@@ -87,13 +87,12 @@ PostBuild: $(OutputFile)
 	@echo Executing Post Build commands ...
 	cp adamsfma.cl $(ConfigurationName)
 	cp mpcsmall.slf $(ConfigurationName)
-	cp $(shell which glew32.dll) $(ConfigurationName)
-	cp $(shell which libgcc_s_seh-1.dll) $(ConfigurationName)
-	cp $(shell which libstdc++-6.dll) $(ConfigurationName)
-	cp $(shell which libwinpthread-1.dll) $(ConfigurationName)
-	cp $(shell which wxbase32u_gcc_custom.dll) $(ConfigurationName)
-	cp $(shell which wxmsw32u_core_gcc_custom.dll) $(ConfigurationName)
-	cp $(shell which wxmsw32u_gl_gcc_custom.dll) $(ConfigurationName)
+	@for dll in $$(ldd "$(ConfigurationName)/OpenCLSolarSystem.exe" | grep -E "ucrt64|glew" | awk '{print $$3}'); do \
+			echo "Copying $$dll"; \
+			cp "$$dll" $(ConfigurationName); \
+	done
+	@echo Cleaning object files...
+	@rm -f $(ConfigurationName)/*.o
 	@echo Done
 
 MakeIntermediateDirs:
