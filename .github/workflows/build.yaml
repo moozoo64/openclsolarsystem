@@ -53,6 +53,8 @@ jobs:
             mingw-w64-${{matrix.env}}-opencl-headers
             mingw-w64-${{matrix.env}}-opencl-icd
             mingw-w64-${{matrix.env}}-wxwidgets3.2-common
+            mingw-w64-${{matrix.env}}-wxwidgets3.2-msw
+            mingw-w64-${{matrix.env}}-wxwidgets3.2-msw-cb_headers
 
       - name: Build using Makefile
         shell: msys2 {0}
