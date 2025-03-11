@@ -29,13 +29,9 @@ jobs:
     steps:
       - name: Clone
         uses: actions/checkout@v4
-
-      # - name: ccache
-      #   uses: hendrikmuhs/ccache-action@v1.2.16
-      #   with:
-      #     key: windows-msys2
-      #     variant: sccache
-      #     evict-old-files: 1d
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.x.x'
 
       - name: Setup ${{ matrix.sys }}
         uses: msys2/setup-msys2@v2
@@ -58,12 +54,16 @@ jobs:
             mingw-w64-${{matrix.env}}-wxwidgets3.2-msw
             mingw-w64-${{matrix.env}}-wxwidgets3.2-msw-cb_headers
 
-      - name: Build using Makefile
+      - name: Build OpenCLSolarSystem using Makefile
         shell: msys2 {0}
         run: |
-          alias makedir="mkdir"
-          cd src
-          mingw32-make -j8 BUILD_TYPE=Debug ARCH=x64  
+          cd src/OpenCLSolarSystem
+          mingw32-make -j8 BUILD_TYPE=Release ARCH=x64  
+
+      - name: Build OrbToSlf using dotnet
+        run: |
+          cd src/OrbToSlf
+          dotnet build --configuration Release --framework net8.0
 
       # - name: Build using CMake
       #   shell: msys2 {0}
