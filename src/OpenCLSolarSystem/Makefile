@@ -49,11 +49,11 @@ ObjectsFileList        :="OpenCLSolarSystem.txt"
 MakeDirCommand         :="mkdir" -p
 RMDirCommand           :="rm" -f -r
 RcCompilerName         :=windres.exe
-LinkOptions            := $(StripFlag) $(shell wx-config --debug=no --libs core,base,gl --unicode=yes ) -lopengl32 -lglu32
-IncludePath            := $(IncludeSwitch). $(IncludeSwitch)"$(OPENCL_INCLUDE)" $(IncludeSwitch)"$(GLEW_INCLUDE)"
+LinkOptions            := $(StripFlag) $(shell wx-config --libs core,base,gl --unicode=yes) -lopengl32 -lglu32
+IncludePath            := $(IncludeSwitch).
 Libs                   := $(LibrarySwitch)OpenCL $(LibrarySwitch)glew32 
 ArLibs                 :=  "OpenCL.dll" "glew32" 
-LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)$(OPENCL_LIB64) $(LibraryPathSwitch)$(GLEWLIB64) 
+LibPath                := $(LibraryPathSwitch).
 
 ##
 ## Common variables
@@ -62,15 +62,15 @@ LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)$(OPENCL_LIB
 AR       := ar -r
 CXX      := c++
 CC       := gcc
-CXXFLAGS := -std=gnu++11 $(OptimizeFlag) -Wall $(shell wx-config --cxxflags --unicode=yes --debug=$(wxDebug)) -DCL_TARGET_OPENCL_VERSION=300
-CFLAGS   := -std=gnu++11 $(OptimizeFlag) -Wall $(shell wx-config --cxxflags --unicode=yes --debug=$(wxDebug))
+CXXFLAGS := -std=gnu++11 $(OptimizeFlag) -Wall $(DebugLevel) $(shell wx-config --cxxflags --unicode=yes) -DCL_TARGET_OPENCL_VERSION=300
+CFLAGS   := -std=gnu++11 $(OptimizeFlag) -Wall $(DebugLevel) $(shell wx-config --cxxflags --unicode=yes)
 AS       := as
 
 ##
 ## User defined environment variables
 ##
 
-Objects0=$(IntermediateDirectory)/application.cpp$(ObjectSuffix) $(IntermediateDirectory)/frame.cpp$(ObjectSuffix) $(IntermediateDirectory)/physicalproperties.cpp$(ObjectSuffix) $(IntermediateDirectory)/initialstate.cpp$(ObjectSuffix) $(IntermediateDirectory)/glcanvas.cpp$(ObjectSuffix) $(IntermediateDirectory)/clmodel.cpp$(ObjectSuffix) $(IntermediateDirectory)/global.cpp$(ObjectSuffix) 
+Objects0=$(IntermediateDirectory)/application.cpp$(ObjectSuffix) $(IntermediateDirectory)/frame.cpp$(ObjectSuffix) $(IntermediateDirectory)/physicalproperties.cpp$(ObjectSuffix) $(IntermediateDirectory)/initialstate.cpp$(ObjectSuffix) $(IntermediateDirectory)/glcanvas.cpp$(ObjectSuffix) $(IntermediateDirectory)/clmodel.cpp$(ObjectSuffix) $(IntermediateDirectory)/global.cpp$(ObjectSuffix)
 Objects=$(Objects0) 
 
 ##
