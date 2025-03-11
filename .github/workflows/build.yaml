@@ -81,7 +81,7 @@ jobs:
 
       - name: Pack artifacts
         id: pack_artifacts
-        if: ${{ true || ( github.event_name == 'push' && github.ref == 'refs/heads/master' ) || github.event.inputs.create_release == 'true' }}
+        if: ${{ ( github.event_name == 'push' && github.ref == 'refs/heads/master' ) || github.event.inputs.create_release == 'true' }}
         run: |
           mkdir -p .\src\OpenCLSolarSystem\Release_x64\OrbToSlf       
           Copy-Item .\licenses .\src\OpenCLSolarSystem\Release_x64\ -Recurse
@@ -91,7 +91,7 @@ jobs:
           7z a OpenClSolarSystem-${{ steps.tag.outputs.name }}-${{matrix.env}}-${{ matrix.build }}.zip .\src\OpenCLSolarSystem\Release_x64\*
 
       - name: Upload artifacts
-        if: ${{ true || ( github.event_name == 'push' && github.ref == 'refs/heads/master' ) || github.event.inputs.create_release == 'true' }}
+        if: ${{ ( github.event_name == 'push' && github.ref == 'refs/heads/master' ) || github.event.inputs.create_release == 'true' }}
         uses: actions/upload-artifact@v4
         with:
           path: OpenClSolarSystem-${{ steps.tag.outputs.name }}-${{matrix.env}}-${{ matrix.build }}.zip
