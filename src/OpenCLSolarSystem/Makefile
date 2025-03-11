@@ -24,10 +24,12 @@ ConfigurationName := $(BUILD_TYPE)_$(ARCH)
 ifeq ($(BUILD_TYPE),Debug)
     OptimizeFlag := -O0 -g3 -ggdb
     DebugLevel   := -DwxDEBUG_LEVEL=1
+    wxDebug      := yes
     StripFlag    := 
 else
     OptimizeFlag := -O2
     DebugLevel   := -DwxDEBUG_LEVEL=0
+    wxDebug	 := no
     StripFlag    := -s
 endif
 
@@ -44,11 +46,11 @@ LibraryPathSwitch      :=-L
 SourceSwitch           :=-c 
 ObjectSwitch           :=-o 
 ObjectsFileList        :="OpenCLSolarSystem.txt"
-MakeDirCommand         :="makedir"
+MakeDirCommand         :="mkdir" -p
 RMDirCommand           :="rm" -f -r
 RcCompilerName         :=windres.exe
-LinkOptions            := $(StripFlag) -mwindows -L$(WXWIN)/lib/$(WXWIN64) -pipe -lwxmsw32u_xrc -lwxmsw32u_webview -lwxmsw32u_html -lwxmsw32u_adv -lwxmsw32u_core -lwxbase32u_xml -lwxbase32u_net -lwxbase32u -lwxmsw32u_gl -lwxbase32u -lopengl32 -lglu32
-IncludePath            := $(IncludeSwitch). $(IncludeSwitch)$(WXWIN)/include $(IncludeSwitch)$(WXWIN)/lib/$(WXCFG) $(IncludeSwitch)$(OPENCL_INCLUDE) $(IncludeSwitch)$(GLEW_INCLUDE) 
+LinkOptions            := $(StripFlag) $(shell wx-config --debug=no --libs core,base,gl --unicode=yes ) -lopengl32 -lglu32
+IncludePath            := $(IncludeSwitch). $(IncludeSwitch)"$(OPENCL_INCLUDE)" $(IncludeSwitch)"$(GLEW_INCLUDE)"
 Libs                   := $(LibrarySwitch)OpenCL $(LibrarySwitch)glew32 
 ArLibs                 :=  "OpenCL.dll" "glew32" 
 LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)$(OPENCL_LIB64) $(LibraryPathSwitch)$(GLEWLIB64) 
@@ -60,13 +62,14 @@ LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)$(OPENCL_LIB
 AR       := ar -r
 CXX      := c++
 CC       := gcc
-CXXFLAGS := -std=gnu++11 $(OptimizeFlag) -Wall $(DebugLevel)
-CFLAGS   := -std=gnu++11 $(OptimizeFlag) -Wall $(DebugLevel)
+CXXFLAGS := -std=gnu++11 $(OptimizeFlag) -Wall $(shell wx-config --cxxflags --unicode=yes --debug=$(wxDebug)) -DCL_TARGET_OPENCL_VERSION=300
+CFLAGS   := -std=gnu++11 $(OptimizeFlag) -Wall $(shell wx-config --cxxflags --unicode=yes --debug=$(wxDebug))
 AS       := as
 
 ##
 ## User defined environment variables
 ##
+
 Objects0=$(IntermediateDirectory)/application.cpp$(ObjectSuffix) $(IntermediateDirectory)/frame.cpp$(ObjectSuffix) $(IntermediateDirectory)/physicalproperties.cpp$(ObjectSuffix) $(IntermediateDirectory)/initialstate.cpp$(ObjectSuffix) $(IntermediateDirectory)/glcanvas.cpp$(ObjectSuffix) $(IntermediateDirectory)/clmodel.cpp$(ObjectSuffix) $(IntermediateDirectory)/global.cpp$(ObjectSuffix) 
 Objects=$(Objects0) 
 
@@ -82,15 +85,14 @@ $(OutputFile): $(IntermediateDirectory)/.d $(Objects)
 
 PostBuild: $(OutputFile)
 	@echo Executing Post Build commands ...
-	copy adamsfma.cl $(ConfigurationName)
-	copy mpcsmall.slf $(ConfigurationName)
-	copy $(WXWIN)\lib\$(WXWIN64)\wxbase32u_gcc_cl.dll $(ConfigurationName)
-	copy $(WXWIN)\lib\$(WXWIN64)\wxmsw32u_gl_gcc_cl.dll $(ConfigurationName)
-	copy $(WXWIN)\lib\$(WXWIN64)\wxmsw32u_core_gcc_cl.dll $(ConfigurationName)
-	copy $(GLEWBIN64)\glew32.dll $(ConfigurationName)
-	copy $(Mingw64)\mingw64\bin\libgcc_s_seh-1.dll $(ConfigurationName)
-	copy "$(Mingw64)\mingw64\bin\libstdc++-6.dll" $(ConfigurationName)
-	copy $(Mingw64)\mingw64\bin\libwinpthread-1.dll $(ConfigurationName)
+	cp adamsfma.cl $(ConfigurationName)
+	cp mpcsmall.slf $(ConfigurationName)
+	@for dll in $$(ldd "$(ConfigurationName)/OpenCLSolarSystem.exe" | grep -E "ucrt64|glew" | awk '{print $$3}'); do \
+			echo "Copying $$dll"; \
+			cp "$$dll" $(ConfigurationName); \
+	done
+	@echo Cleaning object files...
+	@rm -f $(ConfigurationName)/*.o
 	@echo Done
 
 MakeIntermediateDirs:
