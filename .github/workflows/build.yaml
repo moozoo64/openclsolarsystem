@@ -47,6 +47,8 @@ jobs:
           install: >-
             base-devel
             git
+            mingw-w64-${{matrix.env}}-gcc
+            mingw-w64-${{matrix.env}}-gdb
             mingw-w64-${{matrix.env}}-toolchain
             mingw-w64-${{matrix.env}}-glew
             mingw-w64-${{matrix.env}}-cmake
