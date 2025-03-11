@@ -140,7 +140,7 @@ jobs:
       always() &&
       needs.windows-msys2.result == 'success' &&
       needs.windows-msys2.outputs.tag_name != '' &&
-      ((github.event_name == 'push' && github.ref == 'refs/heads/master') || github.event.inputs.create_release == 'true')
+      ((github.event_name == 'push' && github.ref == 'refs/heads/master') || (github.ref == 'refs/heads/master' && github.event.inputs.create_release == 'true'))
     runs-on: windows-latest
     steps:
       - uses: actions/download-artifact@v4
