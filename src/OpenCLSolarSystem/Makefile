@@ -49,7 +49,7 @@ ObjectsFileList        :="OpenCLSolarSystem.txt"
 MakeDirCommand         :="mkdir" -p
 RMDirCommand           :="rm" -f -r
 RcCompilerName         :=windres.exe
-LinkOptions            := $(StripFlag) $(shell wx-config --debug=no --libs all --unicode=yes --libs gl) -lopengl32 -lglu32
+LinkOptions            := $(StripFlag) $(shell wx-config --debug=no --libs core,base,gl --unicode=yes ) -lopengl32 -lglu32
 IncludePath            := $(IncludeSwitch). $(IncludeSwitch)"$(OPENCL_INCLUDE)" $(IncludeSwitch)"$(GLEW_INCLUDE)"
 Libs                   := $(LibrarySwitch)OpenCL $(LibrarySwitch)glew32 
 ArLibs                 :=  "OpenCL.dll" "glew32" 
@@ -85,15 +85,15 @@ $(OutputFile): $(IntermediateDirectory)/.d $(Objects)
 
 PostBuild: $(OutputFile)
 	@echo Executing Post Build commands ...
-	copy adamsfma.cl $(ConfigurationName)
-	copy mpcsmall.slf $(ConfigurationName)
-	copy $(WXWIN)\lib\$(WXWIN64)\wxbase32u_gcc_cl.dll $(ConfigurationName)
-	copy $(WXWIN)\lib\$(WXWIN64)\wxmsw32u_gl_gcc_cl.dll $(ConfigurationName)
-	copy $(WXWIN)\lib\$(WXWIN64)\wxmsw32u_core_gcc_cl.dll $(ConfigurationName)
-	copy $(GLEWBIN64)\glew32.dll $(ConfigurationName)
-	copy $(Mingw64)\mingw64\bin\libgcc_s_seh-1.dll $(ConfigurationName)
-	copy "$(Mingw64)\mingw64\bin\libstdc++-6.dll" $(ConfigurationName)
-	copy $(Mingw64)\mingw64\bin\libwinpthread-1.dll $(ConfigurationName)
+	cp adamsfma.cl $(ConfigurationName)
+	cp mpcsmall.slf $(ConfigurationName)
+	cp $(shell which glew32.dll) $(ConfigurationName)
+	cp $(shell which libgcc_s_seh-1.dll) $(ConfigurationName)
+	cp $(shell which libstdc++-6.dll) $(ConfigurationName)
+	cp $(shell which libwinpthread-1.dll) $(ConfigurationName)
+	cp $(shell which wxbase32u_gcc_custom.dll) $(ConfigurationName)
+	cp $(shell which wxmsw32u_core_gcc_custom.dll) $(ConfigurationName)
+	cp $(shell which wxmsw32u_gl_gcc_custom.dll) $(ConfigurationName)
 	@echo Done
 
 MakeIntermediateDirs:
