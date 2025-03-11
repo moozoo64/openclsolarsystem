@@ -7,13 +7,26 @@ on:
         description: 'Create new release'
         required: true
         type: boolean
-# Fine-grant permission
-# https://docs.github.com/en/actions/security-for-github-actions/security-guides/automatic-token-authentication#modifying-the-permissions-for-the-github_token
+  push:
+    branches:
+      - master
+    paths: ['.github/workflows/build.yaml', '**/CMakeLists.txt', '**/Makefile', '**/*.h', '**/*.hpp', '**/*.c', '**/*.cpp', '**/*.cl', '**/*.cs', '**/*.sln', '**/*.csproj', '**/appsettings.json']
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths: ['.github/workflows/build.yaml', '**/CMakeLists.txt', '**/Makefile', '**/*.h', '**/*.hpp', '**/*.c', '**/*.cpp', '**/*.cl', '**/*.cs', '**/*.sln', '**/*.csproj', '**/appsettings.json']
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref && github.ref || github.run_id }}
+  cancel-in-progress: true
+
 permissions:
   contents: write # for creating release
 env:
   BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
   RELEASE_VERSION: ${{ github.event.inputs.create_release && github.run_number }}
+  SHOULD_RELEASE: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/master') || github.event.inputs.create_release == 'true' }}
+  SHOULD_UPLOAD_ARTIFACT: ${{ github.ref == 'refs/heads/develop' && github.event.inputs.create_release == 'true' }}
+  BUILD_DATE: ${{ format('YYYY-MM-DD') }}
 
 jobs:
   windows-msys2:
@@ -81,21 +94,31 @@ jobs:
 
       - name: Pack artifacts
         id: pack_artifacts
-        if: ${{ ( github.event_name == 'push' && github.ref == 'refs/heads/master' ) || github.event.inputs.create_release == 'true' }}
+        if: ${{ env.SHOULD_RELEASE == 'true' || env.SHOULD_UPLOAD_ARTIFACT == 'true' }}
         run: |
-          mkdir -p .\src\OpenCLSolarSystem\Release_x64\OrbToSlf       
-          Copy-Item .\licenses .\src\OpenCLSolarSystem\Release_x64\ -Recurse
-          Copy-Item .\README.md .\src\OpenCLSolarSystem\Release_x64\
-          Copy-Item .\license.txt .\src\OpenCLSolarSystem\Release_x64\
-          Copy-Item .\src\OrbToSlf\OrbToSlfConsole\bin\Release\net8.0\* .\src\OpenCLSolarSystem\Release_x64\OrbToSlf\ -Recurse
-          7z a OpenClSolarSystem-${{ steps.tag.outputs.name }}-${{matrix.env}}-${{ matrix.build }}.zip .\src\OpenCLSolarSystem\Release_x64\*
+          mkdir -p ./src/OpenCLSolarSystem/Release_x64/OrbToSlf       
+          Copy-Item ./licenses ./src/OpenCLSolarSystem/Release_x64/ -Recurse
+          Copy-Item ./README.md ./src/OpenCLSolarSystem/Release_x64/
+          Copy-Item ./license.txt ./src/OpenCLSolarSystem/Release_x64/
+          Copy-Item ./src/OrbToSlf/OrbToSlfConsole/bin/Release/net8.0/* ./src/OpenCLSolarSystem/Release_x64/OrbToSlf/ -Recurse
+          7z a OpenClSolarSystem-${{ steps.tag.outputs.name }}-${{matrix.env}}-${{ matrix.build }}.zip ./src/OpenCLSolarSystem/Release_x64/*
+          # Generate checksums
+          $hash = Get-FileHash -Algorithm SHA256 OpenClSolarSystem-${{ steps.tag.outputs.name }}-${{matrix.env}}-${{ matrix.build }}.zip
+          $hash.Hash | Out-File -FilePath OpenClSolarSystem-${{ steps.tag.outputs.name }}-${{matrix.env}}-${{ matrix.build }}.sha256
 
       - name: Upload artifacts
-        if: ${{ ( github.event_name == 'push' && github.ref == 'refs/heads/master' ) || github.event.inputs.create_release == 'true' }}
+        if: ${{ env.SHOULD_RELEASE == 'true' || env.SHOULD_UPLOAD_ARTIFACT == 'true' }}
         uses: actions/upload-artifact@v4
         with:
           path: OpenClSolarSystem-${{ steps.tag.outputs.name }}-${{matrix.env}}-${{ matrix.build }}.zip
-          name: OpenClSolarSystem-${{ matrix.build }}.zip
+          name: OpenClSolarSystem-${{ steps.tag.outputs.name }}-${{matrix.env}}-${{ matrix.build }}.zip
+
+      - name: Upload artifacts Checksum
+        if: ${{ env.SHOULD_RELEASE == 'true' || env.SHOULD_UPLOAD_ARTIFACT == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          path: OpenClSolarSystem-${{ steps.tag.outputs.name }}-${{matrix.env}}-${{ matrix.build }}.sha256
+          name: OpenClSolarSystem-${{ steps.tag.outputs.name }}-${{matrix.env}}-${{ matrix.build }}.sha256
 
       # - name: Build using CMake
       #   shell: msys2 {0}
@@ -108,9 +131,52 @@ jobs:
       #   run: |
       #       rm -rf build
 
-      # - name: Build using CMake 
-      #   shell: msys2 {0}
-      #   run: |
-      #       cmake -B build 
-      #       cmake --build build --config ${{ matrix.build }} -j $(nproc)
-        
+    outputs:
+      tag_name: ${{ steps.tag.outputs.name }}
+
+  create-release:
+    needs: windows-msys2
+    if: |
+      always() &&
+      needs.windows-msys2.result == 'success' &&
+      needs.windows-msys2.outputs.tag_name != '' &&
+      ((github.event_name == 'push' && github.ref == 'refs/heads/master') || (github.ref == 'refs/heads/master' && github.event.inputs.create_release == 'true'))
+    runs-on: windows-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: OpenClSolarSystem-*
+          path: artifacts
+          merge-multiple: true
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: |
+            artifacts/**/OpenClSolarSystem-*.zip
+            artifacts/**/OpenClSolarSystem-*.sha256
+          tag_name: ${{ needs.windows-msys2.outputs.tag_name }}
+          name: Release ${{ needs.windows-msys2.outputs.tag_name }}
+          body: |
+            ## OpenCLSolarSystem Release ${{ needs.windows-msys2.outputs.tag_name }}
+            
+            ### Build Information
+            - Version: ${{ needs.windows-msys2.outputs.tag_name }}
+            - Commit: ${{ github.sha }}
+             Build Date: ${{ env.BUILD_DATE }}
+            
+            ### Available Builds
+            - UCRT64 (x86_64)
+            - CLANG64 (x86_64)
+            
+            ### Installation
+            1. Download the zip file for your preferred build
+            2. Verify the SHA256 checksum
+            3. Extract and run OpenCLSolarSystem.exe
+            
+            ### SHA256 Verification
+            ```powershell
+            Get-FileHash OpenClSolarSystem-*.zip -Algorithm SHA256
+            ```
