@@ -49,7 +49,7 @@ ObjectsFileList        :="OpenCLSolarSystem.txt"
 MakeDirCommand         :="mkdir" -p
 RMDirCommand           :="rm" -f -r
 RcCompilerName         :=windres.exe
-LinkOptions            := -mwindows $(StripFlag) $(shell wx-config --debug=no --libs --unicode=yes --libs gl)
+LinkOptions            := $(StripFlag) $(shell wx-config --debug=no --libs all --unicode=yes --libs gl) -lopengl32 -lglu32
 IncludePath            := $(IncludeSwitch). $(IncludeSwitch)"$(OPENCL_INCLUDE)" $(IncludeSwitch)"$(GLEW_INCLUDE)"
 Libs                   := $(LibrarySwitch)OpenCL $(LibrarySwitch)glew32 
 ArLibs                 :=  "OpenCL.dll" "glew32" 
@@ -62,7 +62,7 @@ LibPath                := $(LibraryPathSwitch). $(LibraryPathSwitch)$(OPENCL_LIB
 AR       := ar -r
 CXX      := c++
 CC       := gcc
-CXXFLAGS := -std=gnu++11 $(OptimizeFlag) -Wall $(shell wx-config --cxxflags --unicode=yes --debug=$(wxDebug))
+CXXFLAGS := -std=gnu++11 $(OptimizeFlag) -Wall $(shell wx-config --cxxflags --unicode=yes --debug=$(wxDebug)) -DCL_TARGET_OPENCL_VERSION=300
 CFLAGS   := -std=gnu++11 $(OptimizeFlag) -Wall $(shell wx-config --cxxflags --unicode=yes --debug=$(wxDebug))
 AS       := as
 
