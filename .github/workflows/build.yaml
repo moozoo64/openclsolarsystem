@@ -43,6 +43,7 @@ jobs:
           install: >-
             base-devel
             git
+            zip
             mingw-w64-${{matrix.env}}-gcc
             mingw-w64-${{matrix.env}}-gdb
             mingw-w64-${{matrix.env}}-toolchain
@@ -64,6 +65,37 @@ jobs:
         run: |
           cd src/OrbToSlf
           dotnet build --configuration Release --framework net8.0
+
+      - name: Determine tag name
+        id: tag
+        shell: msys2 {0}
+        run: |
+          BUILD_NUMBER="$(git rev-list --count HEAD)"
+          SHORT_HASH="$(git rev-parse --short=7 HEAD)"
+          if [[ "${{ env.BRANCH_NAME }}" == "master" ]]; then
+            echo "name=b${BUILD_NUMBER}" >> $GITHUB_OUTPUT
+          else
+            SAFE_NAME=$(echo "${{ env.BRANCH_NAME }}" | tr '/' '-')
+            echo "name=${SAFE_NAME}-b${BUILD_NUMBER}-${SHORT_HASH}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Pack artifacts
+        id: pack_artifacts
+        if: ${{ ( github.event_name == 'push' && github.ref == 'refs/heads/master' ) || github.event.inputs.create_release == 'true' }}
+        run: |
+          mkdir -p .\src\OpenCLSolarSystem\Release_x64\OrbToSlf       
+          Copy-Item .\licenses .\src\OpenCLSolarSystem\Release_x64\ -Recurse
+          Copy-Item .\README.md .\src\OpenCLSolarSystem\Release_x64\
+          Copy-Item .\license.txt .\src\OpenCLSolarSystem\Release_x64\
+          Copy-Item .\src\OrbToSlf\OrbToSlfConsole\bin\Release\net8.0\* .\src\OpenCLSolarSystem\Release_x64\OrbToSlf\ -Recurse
+          7z a OpenClSolarSystem-${{ steps.tag.outputs.name }}-${{matrix.env}}-${{ matrix.build }}.zip .\src\OpenCLSolarSystem\Release_x64\*
+
+      - name: Upload artifacts
+        if: ${{ ( github.event_name == 'push' && github.ref == 'refs/heads/master' ) || github.event.inputs.create_release == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          path: OpenClSolarSystem-${{ steps.tag.outputs.name }}-${{matrix.env}}-${{ matrix.build }}.zip
+          name: OpenClSolarSystem-${{ matrix.build }}.zip
 
       # - name: Build using CMake
       #   shell: msys2 {0}
