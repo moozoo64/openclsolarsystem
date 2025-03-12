@@ -23,13 +23,11 @@ ConfigurationName := $(BUILD_TYPE)_$(ARCH)
 # Set build flags based on configuration
 ifeq ($(BUILD_TYPE),Debug)
     OptimizeFlag := -O0 -g3 -ggdb
-    DebugLevel   := -DwxDEBUG_LEVEL=1
-    wxDebug      := yes
+    DebugLevel   := 
     StripFlag    := 
 else
     OptimizeFlag := -O2
-    DebugLevel   := -DwxDEBUG_LEVEL=0
-    wxDebug	 := no
+    DebugLevel   := -DNDEBUG
     StripFlag    := -s
 endif
 
@@ -62,7 +60,7 @@ LibPath                := $(LibraryPathSwitch).
 AR       := ar -r
 CXX      := c++
 CC       := gcc
-CXXFLAGS := -std=gnu++11 $(OptimizeFlag) -Wall $(DebugLevel) $(shell wx-config --cxxflags --unicode=yes) -DCL_TARGET_OPENCL_VERSION=300
+CXXFLAGS := -std=gnu++11 -faligned-new $(OptimizeFlag) -Wall $(DebugLevel) $(shell wx-config --cxxflags --unicode=yes) -DCL_TARGET_OPENCL_VERSION=300
 CFLAGS   := -std=gnu++11 $(OptimizeFlag) -Wall $(DebugLevel) $(shell wx-config --cxxflags --unicode=yes)
 AS       := as
 
