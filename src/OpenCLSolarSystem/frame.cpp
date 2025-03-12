@@ -1025,17 +1025,8 @@ void Frame::UpdateMenuItems()
       break;
     }
 
-    switch (this->glCanvas->blending)
-    {
-    case true:
-      menuItem = menuBar->FindItem(ID_BLENDING);
-      menuItem->Check(true);
-      break;
-    default:
-      menuItem = menuBar->FindItem(ID_BLENDING);
-      menuItem->Check(false);
-      break;
-    }
+    menuItem = menuBar->FindItem(ID_BLENDING);
+    menuItem->Check(this->glCanvas->blending);
 
     menuItem = menuBar->FindItem(ID_LOGENCOUNTERS);
     menuItem->Check(this->checkForEncounters);

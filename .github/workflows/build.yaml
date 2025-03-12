@@ -37,7 +37,7 @@ jobs:
       matrix:
         include:
           - { sys: UCRT64,  env: ucrt-x86_64,  build: Release }
-          # - { sys: CLANG64, env: clang-x86_64, build: Release }
+          - { sys: CLANG64, env: clang-x86_64, build: Release }
 
     steps:
       - name: Clone
@@ -72,6 +72,7 @@ jobs:
         shell: msys2 {0}
         run: |
           cd src/OpenCLSolarSystem
+          mingw32-make -j8 BUILD_TYPE=Release ARCH=x64 clean
           mingw32-make -j8 BUILD_TYPE=Release ARCH=x64  
 
       - name: Build OrbToSlf using dotnet
