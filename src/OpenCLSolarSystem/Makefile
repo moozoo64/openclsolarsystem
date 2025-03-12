@@ -53,6 +53,13 @@ Libs                   := $(LibrarySwitch)OpenCL $(LibrarySwitch)glew32
 ArLibs                 :=  "OpenCL.dll" "glew32" 
 LibPath                := $(LibraryPathSwitch).
 
+COMPILER_VERSION := $(shell $(CXX) --version)
+ifneq (,$(findstring clang,$(COMPILER_VERSION)))
+    WARNING_FLAGS := -Wno-ignored-attributes -Wno-nontrivial-memcall
+else
+    WARNING_FLAGS := -Wno-ignored-attributes
+endif
+
 ##
 ## Common variables
 ## AR, CXX, CC, AS, CXXFLAGS and CFLAGS can be overridden using an environment variable
@@ -60,8 +67,8 @@ LibPath                := $(LibraryPathSwitch).
 AR       := ar -r
 CXX      := c++
 CC       := gcc
-CXXFLAGS := -std=gnu++11 -faligned-new $(OptimizeFlag) -Wall $(DebugLevel) $(shell wx-config --cxxflags --unicode=yes) -DCL_TARGET_OPENCL_VERSION=300
-CFLAGS   := -std=gnu++11 $(OptimizeFlag) -Wall $(DebugLevel) $(shell wx-config --cxxflags --unicode=yes)
+CXXFLAGS := -std=gnu++17 $(WARNING_FLAGS) -faligned-new $(OptimizeFlag) -Wall $(DebugLevel) $(shell wx-config --cxxflags --unicode=yes) -DCL_TARGET_OPENCL_VERSION=300
+CFLAGS   := -std=gnu++17 $(OptimizeFlag) -Wall $(DebugLevel) $(shell wx-config --cxxflags --unicode=yes)
 AS       := as
 
 ##
@@ -85,7 +92,7 @@ PostBuild: $(OutputFile)
 	@echo Executing Post Build commands ...
 	cp adamsfma.cl $(ConfigurationName)
 	cp mpcsmall.slf $(ConfigurationName)
-	@for dll in $$(ldd "$(ConfigurationName)/OpenCLSolarSystem.exe" | grep -E "ucrt64|glew" | awk '{print $$3}'); do \
+	@for dll in $$(ldd "$(ConfigurationName)/OpenCLSolarSystem.exe" | grep -E "ucrt64|clang64|glew" | awk '{print $$3}'); do \
 			echo "Copying $$dll"; \
 			cp "$$dll" $(ConfigurationName); \
 	done

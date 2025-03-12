@@ -1,41 +1,70 @@
-Solar System Simulation by Michael Simmons
+# Solar System Simulation 🌠
+> A high-performance OpenCL-based solar system simulator by Michael Simmons
+> Highly accurate gravity based simulation.
 
-WARNING Work in progress
-Currently being moved across to github and switching to VS Code.
-Plan is to use GitHub actions to build releases.
-
+## Overview 📝
 This program simulates the Solar System through numerical integration.
-It utilises OpenCL(tm) to enable the integration of not only the planets but also 500000+ asteroids.
+It utilises OpenCL™ to enable the integration of not only the planets but also 1,400,000+ asteroids.
 
-The latest version of this program and its source can be found at
+📥 The latest version of this program and its source can be found at:  
 https://github.com/moozoo64/openclsolarsystem
 
-Running
-------------------------------------
-Install the latest graphics card drivers for your graphics card.
-For Nvidia cards install the geforce 350.12 driver or later (with opencl 1.2 support)
+## Getting Started 🚀
 
-This software requires opencl double precision floating point support.
+### Prerequisites
+* Latest graphics card drivers
+* Modern Graphics card with OpenCL support. Version 1.2 or greater.
+* OpenCL double precision floating point support
 
-If, when the program starts for the first time, it displays an error indicating it could not load initial.bin then
-Use File->Import SLF to import a Solex SLF formated file.
-Then use File->Save Inital to save a binary initialization file initial.bin in the same directory as the program.
+### Installation
+1. Download from [GitHub](https://github.com/moozoo64/openclsolarsystem)
+2. First run requires OpenCL device selection:
+   ```powershell
+   OpenCLSolarSystem.exe -nvidia  # For NVIDIA GPUs
+   OpenCLSolarSystem.exe -amd     # For AMD GPUs
+   OpenCLSolarSystem.exe -intel   # For Intel GPUs
+   OpenCLSolarSystem.exe -cpu     # For CPU computation
+   ```
 
-Set the Time Delta to 4 hr, The Integration to "Adams Bashforth Moulton 11" , the Gravity to "With Relatvistic corrections" and then Go->Start
-To see the moon (if it was in the .SLF file), Center on body 3 and then use the Z key to zoom in.
+### Initial Setup
+If you see an `initial.bin` error on first launch:
+1. Go to `File -> Import SLF`
+2. Select the included `mpcsmall.slf` (contains 32,768 objects)
+3. Save with `File -> Save Initial`
 
-There is a bug where the Number of Bodies on initial startup is set to maximum but is actually 2560. Change the Number of Bodies to some other value and back.
+> 💡 **Tip**: For full 1.4 million objects simulation:
+> 1. Run `OrbToSlfConsole.exe` in the OrbToSlf folder
+> 2. Import the generated `Final.slf`
 
-Command Line options
----------------------
--stereo = switch to 3d stereoscopic mode (requires a graphics card and a 3d monitor). I have only tested this with AMD HD3D. Note you will probably need to manually switch back to 2D mode afterwards.
--cpu = attempt to use a CPU type opencl driver
--amd = attempt to use and AMD opencl device
--nvidia = attempt to use a NVIDIA opencl device
--intel = attempt to use a Intel opencl device
+### Recommended Settings ⚙️
+* Time Delta: 4 hr
+* Integration: "Adams Bashforth Moulton 11"
+* Gravity: "With Relativistic corrections"
+* Start with: `Go->Start`
 
-Stability and Accuracy
-------------------------
+> ⚠️ Some combination of settings are unstable and the solar system will fall apart.
+> See "Stability and Accuracy" below
+
+### To view the moon:🌙
+1. Center on body Earth
+2. Use the mouse scroll wheel to zoom in
+
+> ⚠️ **Known Issue**: Initial "Number of Bodies" shows maximum but is actually 2560.  
+> **Workaround**: Change the value to another number and back.
+
+## Command Line Options
+
+| Option    | Description |
+|-----------|-------------|
+| `-stereo` | Enable 3D stereoscopic mode (requires compatible hardware) |
+| `-cpu`    | Use CPU OpenCL driver |
+| `-amd`    | Use AMD OpenCL device |
+| `-nvidia` | Use NVIDIA OpenCL device |
+| `-intel`  | Use Intel OpenCL device |
+
+> **Note**: For `-stereo`, manual switch back to 2D mode may be required. Tested with AMD HD3D.
+
+## Stability and Accuracy
 During the first 16 time steps the program initialises the Adams Bashforth Moulton history.
 Currently this is done in a very inaccurate manner. I plan to implement a runge kutta 7th order method for this in the future.
 
@@ -50,13 +79,34 @@ The higher the order and the smaller the time step the more accurate the result.
 The option "Detect Close Encounters" combined with Center on Earth can be used to find Close earth encounters.
 This can be compared with the lists from http://neo.jpl.nasa.gov/cgi-bin/neo_ca
 
-Tools and libraries require to compile the source under windows
-----------------------------------------------------------------
-Currently being updated
-docs/fetch.ps1 is currently broken
+## Tools and libraries require to compile the source under windows
+see https://github.com/moozoo64/openclsolarsystem/blob/master/.github/workflows/build.yaml
+Install MSYS2 and then pacman install these
+  base-devel
+  git
+  zip
+then pacman install these pacman install these for either ucrt-x86_64 or clang-x86_64
+below is for ucrt-x86_64 for CLANG64 substitute clang-x86_64
+  mingw-w64-ucrt-x86_64-gcc
+  mingw-w64-ucrt-x86_64-gdb
+  mingw-w64-ucrt-x86_64-toolchain
+  mingw-w64-ucrt-x86_64-glew
+  mingw-w64-ucrt-x86_64-cmake
+  mingw-w64-ucrt-x86_64-opencl-headers
+  mingw-w64-ucrt-x86_64-opencl-icd
+  mingw-w64-ucrt-x86_64-wxwidgets3.2-common
+  mingw-w64-ucrt-x86_64-wxwidgets3.2-msw
+  mingw-w64-ucrt-x86_64-wxwidgets3.2-msw-cb_headers
+git clone https://github.com/moozoo64/openclsolarsystem.git
+cd openclsolarsystem/src/OpenCLSolarSystem
+mingw32-make -j8 BUILD_TYPE=Release ARCH=x64 clean
+mingw32-make -j8 BUILD_TYPE=Release ARCH=x64  
 
-Creating an initial.bin datafile
---------------------------------
+for OrbToSlf install dotnet 8 SDK and then
+cd src/OrbToSlf
+dotnet build --configuration Release --framework net8.0
+
+## Creating an initial.bin datafile
 A Solex SLF formated data file of the solar system is needed.
 A file mpcsmall.slf is included in the source.
 It was generated from the MPC MPCORB.DAT and JPLHorizons api for the planets and moon for the same epoch using the program found in the OrbToSlf directory.
@@ -78,8 +128,11 @@ Will add at most 600000 asteroids (real), 300000 random oort cloud bodies. NEO a
 Alternatively free version of Solex can be found at http://chemistry.unina.it/~alvitagl/solex/
 After running the program and loading in bodies look for the file FINAL.SLF in the USERDATA directory.
 
-References and Acknowledgements
--------------------------------
+## Fun Stuff
+Because SLF files are text files you can edit them to add additional bodies like rogue stars passing through the solar system, extra planets or a higher mass Jupiter and so on.
+So long something very massive is not added (eg massive black hole) the simulation should be highly accurate.
+
+## References and Acknowledgements
 The Adams Bashforth Moulton integration method is from Wikipedia http://en.wikipedia.org/wiki/Linear_multistep_method
 
 A separate program written in C# was used to generated the Adams Bashforth Moulton co-efficents used in adamsfma.cl
