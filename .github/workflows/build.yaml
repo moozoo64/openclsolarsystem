@@ -42,7 +42,11 @@ jobs:
     steps:
       - name: Clone
         uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup dotnet 
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.x.x'
 
@@ -92,6 +96,14 @@ jobs:
             SAFE_NAME=$(echo "${{ env.BRANCH_NAME }}" | tr '/' '-')
             echo "name=${SAFE_NAME}-b${BUILD_NUMBER}-${SHORT_HASH}" >> $GITHUB_OUTPUT
           fi
+
+      - name: Debug git info
+        shell: msys2 {0}
+        run: |
+          echo "Total commits: $(git rev-list --count HEAD)"
+          echo "Current tag: ${{ steps.tag.outputs.name }}"
+          echo "Current branch: ${{ env.BRANCH_NAME }}"
+          echo "Git hash: $(git rev-parse --short=7 HEAD)"
 
       - name: Pack artifacts
         id: pack_artifacts
