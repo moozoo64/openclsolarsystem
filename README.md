@@ -31,7 +31,7 @@ You will see an `initial.bin` error on first launch and the program will setup a
 To fix this:
 1. Go to `File -> Import SLF`
 2. Select the included `mpcsmall.slf` (contains 32,768 objects)
-3. Save with `File -> Save Initial`
+3. Save with `File -> Save Initial` with the file name initial.bin in the programs directory.
 
 > 💡 **Tip**: For full 1.4 million objects simulation:
 > 1. Run `OrbToSlfConsole.exe` in the OrbToSlf folder
