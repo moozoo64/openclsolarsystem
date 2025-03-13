@@ -1289,7 +1289,7 @@ void Frame::OnClose(wxCloseEvent &event)
 void Frame::OnAbout(wxCommandEvent &WXUNUSED(event))
 {
   wxString message;
-  message.Printf(wxT("Solar System Simulation\n (c) 2013-2025 Michael Simmons\nbody count:%d\nWith Mass:%d\nMax Count Possible:%d\nPredictor %s\nCorrector %s\nPlatform: %s\nDevice: %s\nCL Version: %s\nWeb: https://sourceforge.net/projects/openclsolarsyst/"),
+  message.Printf(wxT("Solar System Simulation\n (c) 2013-2025 Michael Simmons\nbody count:%d\nWith Mass:%d\nMax Count Possible:%d\nPredictor %s\nCorrector %s\nPlatform: %s\nDevice: %s\nCL Version: %s\nWeb: https://github.com/moozoo64/openclsolarsystem"),
                  this->numParticles, this->numGrav, this->clModel->maxNumParticles, this->clModel->adamsBashforthKernelName->c_str(), this->clModel->adamsMoultonKernelName->c_str(), this->clModel->platformName->c_str(), this->clModel->deviceName->c_str(), this->clModel->deviceCLVersion->c_str());
   wxMessageBox(message, wxT("About NBody"), wxOK | wxICON_INFORMATION);
 }

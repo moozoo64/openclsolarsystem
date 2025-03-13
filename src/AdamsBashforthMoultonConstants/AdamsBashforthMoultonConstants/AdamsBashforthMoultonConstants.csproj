@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AssemblyTitle>AdamsBashforthMoultonConstants</AssemblyTitle>
+    <Product>AdamsBashforthMoultonConstants</Product>
+    <Copyright>Copyright ©2015-2025 Michael Simmons</Copyright>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="ExtendedNumerics.BigRational" Version="3000.0.1.326" />
+  </ItemGroup>
+</Project>
