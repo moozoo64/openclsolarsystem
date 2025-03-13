@@ -1,5 +1,6 @@
 # Solar System Simulation 🌠
 > A high-performance OpenCL-based solar system simulator by Michael Simmons
+>
 > Highly accurate gravity based simulation.
 
 ## Overview 📝
@@ -43,13 +44,15 @@ If you see an `initial.bin` error on first launch:
 * Start with: `Go->Start`
 
 > ⚠️ Some combination of settings are unstable and the solar system will fall apart.
+>
 > See "Stability and Accuracy" below
 
 ### To view the moon:🌙
 1. Center on body Earth
 2. Use the mouse scroll wheel to zoom in
 
-> ⚠️ **Known Issue**: Initial "Number of Bodies" shows maximum but is actually 2560.  
+> ⚠️ **Known Issue**: Initial "Number of Bodies" shows maximum but is actually 2560.
+>  
 > **Workaround**: Change the value to another number and back.
 
 ## Command Line Options
@@ -79,48 +82,72 @@ The higher the order and the smaller the time step the more accurate the result.
 The option "Detect Close Encounters" combined with Center on Earth can be used to find Close earth encounters.
 This can be compared with the lists from http://neo.jpl.nasa.gov/cgi-bin/neo_ca
 
-## Tools and libraries require to compile the source under windows
-see https://github.com/moozoo64/openclsolarsystem/blob/master/.github/workflows/build.yaml
-Install MSYS2 and then pacman install these
-  base-devel
-  git
-  zip
-then pacman install these pacman install these for either ucrt-x86_64 or clang-x86_64
-below is for ucrt-x86_64 for CLANG64 substitute clang-x86_64
-  mingw-w64-ucrt-x86_64-gcc
-  mingw-w64-ucrt-x86_64-gdb
-  mingw-w64-ucrt-x86_64-toolchain
-  mingw-w64-ucrt-x86_64-glew
-  mingw-w64-ucrt-x86_64-cmake
-  mingw-w64-ucrt-x86_64-opencl-headers
-  mingw-w64-ucrt-x86_64-opencl-icd
-  mingw-w64-ucrt-x86_64-wxwidgets3.2-common
-  mingw-w64-ucrt-x86_64-wxwidgets3.2-msw
-  mingw-w64-ucrt-x86_64-wxwidgets3.2-msw-cb_headers
+## Tools and Libraries Required to Compile the Source Under Windows
+
+See the build configuration at: https://github.com/moozoo64/openclsolarsystem/blob/master/.github/workflows/build.yaml
+
+### 1. Install MSYS2 Base Requirements
+Install these packages using pacman:
+```bash
+pacman -S base-devel git zip
+```
+
+### 2. Install Development Tools
+Choose either UCRT64 or CLANG64 toolchain. Below example uses UCRT64:
+```bash
+pacman -S mingw-w64-ucrt-x86_64-gcc
+pacman -S mingw-w64-ucrt-x86_64-gdb
+pacman -S mingw-w64-ucrt-x86_64-toolchain
+pacman -S mingw-w64-ucrt-x86_64-glew
+pacman -S mingw-w64-ucrt-x86_64-cmake
+pacman -S mingw-w64-ucrt-x86_64-opencl-headers
+pacman -S mingw-w64-ucrt-x86_64-opencl-icd
+pacman -S mingw-w64-ucrt-x86_64-wxwidgets3.2-common
+pacman -S mingw-w64-ucrt-x86_64-wxwidgets3.2-msw
+pacman -S mingw-w64-ucrt-x86_64-wxwidgets3.2-msw-cb_headers
+```
+
+> **Note**: For CLANG64, replace `ucrt` with `clang` in the above commands
+
+### 3. Building OpenCLSolarSystem
+```bash
 git clone https://github.com/moozoo64/openclsolarsystem.git
 cd openclsolarsystem/src/OpenCLSolarSystem
 mingw32-make -j8 BUILD_TYPE=Release ARCH=x64 clean
-mingw32-make -j8 BUILD_TYPE=Release ARCH=x64  
+mingw32-make -j8 BUILD_TYPE=Release ARCH=x64
+```
 
-for OrbToSlf install dotnet 8 SDK and then
+### 4. Building OrbToSlf
+First install .NET 8 SDK, then:
+```bash
 cd src/OrbToSlf
 dotnet build --configuration Release --framework net8.0
+```
 
 ## Creating an initial.bin datafile
-A Solex SLF formated data file of the solar system is needed.
-A file mpcsmall.slf is included in the source.
-It was generated from the MPC MPCORB.DAT and JPLHorizons api for the planets and moon for the same epoch using the program found in the OrbToSlf directory.
-It generates a .slf file from either the Minor Planet Centres MPCORB.DAT or astrorb.dat.
-Command line options are
-ASTORB use astorb.dat instead of MPC
-NEOFirst Add NEO and NEO! asteroids before other types
-AddDuplicate - creates and adds a duplicate solar system
-Numbers in order
-maxbodies the maximum number of asteroids included in the output
-numOort - the number of random oort cloud bodies to add
-xOffset - The x axis to offset the duplicate system (if AddDuplicate is on)
-yOffset - The y axis to offset the duplicate system (if AddDuplicate is on)
-vxOffset - The x velocity offset of the duplicate system (if AddDuplicate is on)
+
+A Solex SLF formatted data file of the solar system is needed. 
+
+A file `mpcsmall.slf` is included in the source. It was generated from:
+- The MPC MPCORB.DAT
+- JPLHorizons API for the planets and moon
+- Both sources use the same epoch
+- Generated using the program found in the OrbToSlf directory
+
+The OrbToSlf program generates a .slf file from either:
+- The Minor Planet Centre's MPCORB.DAT
+- or astrorb.dat
+
+Command line options are:
+- `ASTORB` - use astorb.dat instead of MPC
+- `NEOFirst` - Add NEO and NEO! asteroids before other types
+- `AddDuplicate` - creates and adds a duplicate solar system
+- `Numbers` - in order
+- `maxbodies` - the maximum number of asteroids included in the output
+- `numOort` - the number of random oort cloud bodies to add
+- `xOffset` - The x axis to offset the duplicate system (if AddDuplicate is on)
+- `yOffset` - The y axis to offset the duplicate system (if AddDuplicate is on)
+- `vxOffset` - The x velocity offset of the duplicate system (if AddDuplicate is on)
 
 e.g. OrbToSlf.exe 600000 300000 NEOFirst
 Will add at most 600000 asteroids (real), 300000 random oort cloud bodies. NEO and NEO! objects will be added before other types
@@ -128,29 +155,40 @@ Will add at most 600000 asteroids (real), 300000 random oort cloud bodies. NEO a
 Alternatively free version of Solex can be found at http://chemistry.unina.it/~alvitagl/solex/
 After running the program and loading in bodies look for the file FINAL.SLF in the USERDATA directory.
 
-## Fun Stuff
-Because SLF files are text files you can edit them to add additional bodies like rogue stars passing through the solar system, extra planets or a higher mass Jupiter and so on.
-So long something very massive is not added (eg massive black hole) the simulation should be highly accurate.
+## Fun Stuff 🚀
+Because SLF files are text files you can edit them to add additional bodies like:
+- Rogue stars passing through the solar system
+- Extra planets
+- Higher mass Jupiter
+- And more!
 
-## References and Acknowledgements
-The Adams Bashforth Moulton integration method is from Wikipedia http://en.wikipedia.org/wiki/Linear_multistep_method
+> **Note**: As long as something very massive is not added (e.g., massive black hole), the simulation should remain highly accurate.
 
-A separate program written in C# was used to generated the Adams Bashforth Moulton co-efficents used in adamsfma.cl
-The algorithm is given in "Fundamentals of Celestrial Mechanics" by J.M.A. Danby section 10.7.
-The calculation was done using rational numbers. I used my own BigRational class combined with System.Nurmerics.BigInteger.
+## References and Acknowledgements 📚
 
-The inspiration to create this program was from the programs Solex by Aldo Vitagliano (http://chemistry.unina.it/~alvitagl/solex/) and DE118i by Steve Moshier (http://www.moshier.net/ssystem.html) 
+### Integration Methods
+- Adams Bashforth Moulton integration method from [Wikipedia](http://en.wikipedia.org/wiki/Linear_multistep_method)
+- Coefficients generation algorithm from "Fundamentals of Celestrial Mechanics" by J.M.A. Danby (section 10.7)
+- Relativistic corrections from "NUMERICAL INTEGRATION FOR THE REAL TIME PRODUCTION OF FUNDAMENTAL EPHEMERIDES OVER A WIDE TIME SPAN" by Aldo Vitagliano
 
-The relativistic correction used is from the paper "NUMERICAL INTEGRATION FOR THE REAL TIME PRODUCTION OF FUNDAMENTAL EPHEMERIDES OVER A WIDE TIME SPAN" by Aldo Vitagliano
+### Inspirations
+- [Solex](http://chemistry.unina.it/~alvitagl/solex/) by Aldo Vitagliano
+- [DE118i](http://www.moshier.net/ssystem.html) by Steve Moshier
 
-The binary distribution contains the file initial.bin.
-This file contains asteroid data based on the mpcorb.dat asteroid database and planet data from the program Solex.
-mpcorb.dat asteroid database can be found at the Minor Planet Center website http://www.minorplanetcenter.net
-astorb.dat asteroid database can be found at http://www.naic.edu/~nolan/astorb.html and is the work of Dr. Edward Bowell. It was funded principally by NASA grant NAG5-4741, and in part by the Lowell Observatory endowment. 
+### Data Sources
+- [Minor Planet Center](http://www.minorplanetcenter.net) - mpcorb.dat asteroid database
+- [Astorb Database](http://www.naic.edu/~nolan/astorb.html) by Dr. Edward Bowell
+  > Funded by NASA grant NAG5-4741 and Lowell Observatory endowment
 
-OpenCL® and the OpenCL logo are trademarks of Apple Inc. used by permission by Khronos
-OpenGL® and the oval logo are trademarks or registered trademarks of Silicon Graphics, Inc. in the United States and/or other countries worldwide.
+### Third-Party Software and Trademarks
+- [The OpenGL Extension Wrangler Library](http://glew.sourceforge.net/)
+- OpenCL® and the OpenCL logo are trademarks of Apple Inc. used by permission by Khronos
+- OpenGL® and the oval logo are trademarks of Silicon Graphics, Inc.
+- [MSYS2](https://www.msys2.org/) - Software Distribution and Building Platform for Windows
+- [wxWidgets](https://www.wxwidgets.org/) - Cross-Platform GUI Library (Version 3.2)
 
-"The OpenGL Extension Wrangler Library" http://glew.sourceforge.net/ is used by this program.
+### Licensing
+This software includes several third-party works. Their licenses can be found in the Licenses folder.
+Only my original code is covered under the top-level license.txt file.
 
-Other than my own motivation I received no encouragement or support in creating this software.
+> **Note**: Please notify me if I've missed any required credit or license acknowledgements.
