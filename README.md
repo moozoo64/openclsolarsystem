@@ -1,10 +1,9 @@
 # Solar System Simulation 🌠
-> A high-performance OpenCL-based solar system simulator by Michael Simmons
->
+> A high-performance OpenCL-based solar system simulator by Michael Simmons  
 > Highly accurate gravity based simulation.
 
 ## Overview 📝
-This program simulates the Solar System through numerical integration.
+This program simulates the Solar System through numerical integration.  
 It utilises OpenCL™ to enable the integration of not only the planets but also 1,400,000+ asteroids.
 
 📥 The latest version of this program and its source can be found at:  
@@ -18,7 +17,7 @@ https://github.com/moozoo64/openclsolarsystem
 * OpenCL double precision floating point support
 
 ### Installation
-1. Download from [GitHub](https://github.com/moozoo64/openclsolarsystem)
+1. Download the latest Release from [GitHub](https://github.com/moozoo64/openclsolarsystem)
 2. First run requires OpenCL device selection:
    ```powershell
    OpenCLSolarSystem.exe -nvidia  # For NVIDIA GPUs
@@ -43,16 +42,14 @@ If you see an `initial.bin` error on first launch:
 * Gravity: "With Relativistic corrections"
 * Start with: `Go->Start`
 
-> ⚠️ Some combination of settings are unstable and the solar system will fall apart.
->
+> ⚠️ Some combination of settings are unstable and the solar system will fall apart.  
 > See "Stability and Accuracy" below
 
 ### To view the moon:🌙
 1. Center on body Earth
 2. Use the mouse scroll wheel to zoom in
 
-> ⚠️ **Known Issue**: Initial "Number of Bodies" shows maximum but is actually 2560.
->  
+> ⚠️ **Known Issue**: Initial "Number of Bodies" shows maximum but is actually 2560.  
 > **Workaround**: Change the value to another number and back.
 
 ## Command Line Options
@@ -152,7 +149,7 @@ Command line options are:
 e.g. OrbToSlf.exe 600000 300000 NEOFirst
 Will add at most 600000 asteroids (real), 300000 random oort cloud bodies. NEO and NEO! objects will be added before other types
 
-Alternatively free version of Solex can be found at http://chemistry.unina.it/~alvitagl/solex/
+Alternatively SLF files can be made by the free version of Solex which can be found at http://www.solexorb.it/
 After running the program and loading in bodies look for the file FINAL.SLF in the USERDATA directory.
 
 ## Fun Stuff 🚀
@@ -172,12 +169,12 @@ Because SLF files are text files you can edit them to add additional bodies like
 - Relativistic corrections from "NUMERICAL INTEGRATION FOR THE REAL TIME PRODUCTION OF FUNDAMENTAL EPHEMERIDES OVER A WIDE TIME SPAN" by Aldo Vitagliano
 
 ### Inspirations
-- [Solex](http://chemistry.unina.it/~alvitagl/solex/) by Aldo Vitagliano
+- [Solex](http://www.solexorb.it) by Aldo Vitagliano
 - [DE118i](http://www.moshier.net/ssystem.html) by Steve Moshier
 
 ### Data Sources
 - [Minor Planet Center](http://www.minorplanetcenter.net) - mpcorb.dat asteroid database
-- [Astorb Database](http://www.naic.edu/~nolan/astorb.html) by Dr. Edward Bowell
+- [Astorb Database](https://asteroid.lowell.edu/astorb) by Dr. Edward Bowell
   > Funded by NASA grant NAG5-4741 and Lowell Observatory endowment
 
 ### Third-Party Software and Trademarks
