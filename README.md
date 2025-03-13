@@ -68,15 +68,15 @@ If you see an `initial.bin` error on first launch:
 During the first 16 time steps the program initialises the Adams Bashforth Moulton history.
 Currently this is done in a very inaccurate manner. I plan to implement a runge kutta 7th order method for this in the future.
 
-The Adams Bashforth Moulton integration method is unstable for higher order methods used with large time steps.
-With "Adams Bashforth Moulton 11" and a Time Delta to 4 hr the integration appears stable.
-Feel free to experiment.
-I believe With "Adams Bashforth Moulton 16" and a Time Delta of 15 mins is stable.
+The Adams Bashforth Moulton integration method is unstable for higher order methods used with large time steps.  
+With "Adams Bashforth Moulton 11" and a Time Delta to 4 hr the integration appears stable.  
+Feel free to experiment.  
+I believe With "Adams Bashforth Moulton 16" and a Time Delta of 15 mins is stable.  
 So is "Adams Bashforth Moulton 8" and a Time Delta one day.
 
 The higher the order and the smaller the time step the more accurate the result.
 
-The option "Detect Close Encounters" combined with Center on Earth can be used to find Close earth encounters.
+The option "Detect Close Encounters" combined with Center on Earth can be used to find Close earth encounters.  
 This can be compared with the lists from http://neo.jpl.nasa.gov/cgi-bin/neo_ca
 
 ## Tools and Libraries Required to Compile the Source Under Windows
@@ -149,7 +149,7 @@ Command line options are:
 e.g. OrbToSlf.exe 600000 300000 NEOFirst
 Will add at most 600000 asteroids (real), 300000 random oort cloud bodies. NEO and NEO! objects will be added before other types
 
-Alternatively SLF files can be made by the free version of Solex which can be found at http://www.solexorb.it/
+Alternatively SLF files can be made by the free version of Solex which can be found at http://www.solexorb.it/  
 After running the program and loading in bodies look for the file FINAL.SLF in the USERDATA directory.
 
 ## Fun Stuff 🚀
@@ -185,7 +185,7 @@ Because SLF files are text files you can edit them to add additional bodies like
 - [wxWidgets](https://www.wxwidgets.org/) - Cross-Platform GUI Library (Version 3.2)
 
 ### Licensing
-This software includes several third-party works. Their licenses can be found in the Licenses folder.
+This software includes several third-party works. Their licenses can be found in the Licenses folder.  
 Only my original code is covered under the top-level license.txt file.
 
 > **Note**: Please notify me if I've missed any required credit or license acknowledgements.
