@@ -27,7 +27,8 @@ https://github.com/moozoo64/openclsolarsystem
    ```
 
 ### Initial Setup
-If you see an `initial.bin` error on first launch:
+You will see an `initial.bin` error on first launch and the program will setup a random set of test bodies.  
+To fix this:
 1. Go to `File -> Import SLF`
 2. Select the included `mpcsmall.slf` (contains 32,768 objects)
 3. Save with `File -> Save Initial`
