@@ -1,0 +1,98 @@
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Make Release",
+      "type": "shell",
+      "command": "C:/msys64/usr/bin/bash",
+      "args": [
+        "-l",
+        "-c",
+        "cd /home/michael/openclsolarsystem/src/OpenCLSolarSystem && mingw32-make -j8 BUILD_TYPE=Release ARCH=x64"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "options": {
+        "env": {
+          "MSYSTEM": "UCRT64",
+          "CHERE_INVOKING": "1",
+          "CXXFLAGS": " -IC:/msys64/ucrt64/include/wx-3.2 -IC:/msys64/ucrt64/include -IC:/msys64/ucrt64/include/wx-3.2/wx"
+        }
+      }
+    },
+    {
+      "label": "Make Release Clean",
+      "type": "shell",
+      "command": "C:/msys64/usr/bin/bash",
+      "args": [
+        "-l",
+        "-c",
+        "cd /home/michael/openclsolarsystem/src/OpenCLSolarSystem && mingw32-make -j8 BUILD_TYPE=Release ARCH=x64 clean"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "options": {
+        "env": {
+          "MSYSTEM": "UCRT64",
+          "CHERE_INVOKING": "1",
+          "CXXFLAGS": " -IC:/msys64/ucrt64/include/wx-3.2 -IC:/msys64/ucrt64/include -IC:/msys64/ucrt64/include/wx-3.2/wx"
+        }
+      }
+    },
+    {
+      "label": "Make Debug",
+      "type": "shell",
+      "command": "C:/msys64/usr/bin/bash",
+      "args": [
+        "-l",
+        "-c",
+        "cd /home/michael/openclsolarsystem/src/OpenCLSolarSystem && mingw32-make -j8 BUILD_TYPE=Debug ARCH=x64"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "options": {
+        "env": {
+          "MSYSTEM": "UCRT64",
+          "CHERE_INVOKING": "1"
+        }
+      }
+    },
+    {
+      "label": "Make Debug Clean",
+      "type": "shell",
+      "command": "C:/msys64/usr/bin/bash",
+      "args": [
+        "-l",
+        "-c",
+        "cd /home/michael/openclsolarsystem/src/OpenCLSolarSystem && mingw32-make -j8 BUILD_TYPE=Debug ARCH=x64 clean"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "options": {
+        "env": {
+          "MSYSTEM": "UCRT64",
+          "CHERE_INVOKING": "1"
+        }
+      }
+    },
+    {
+      "label": "Show Variables",
+      "type": "shell",
+      "command": "echo",
+      "args": [
+        "Workspace: ${workspaceFolder}",
+        "Workspace Name: ${workspaceFolderBasename}",
+      ]
+    }
+  ]
+}

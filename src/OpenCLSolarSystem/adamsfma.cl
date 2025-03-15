@@ -197,6 +197,95 @@ int centerBodyIndex)
 	dispPos[gid] = dispPosFloat;
 }
 
+__kernel void rungeKutta4Startup(
+    __global double4* pos,
+    __global double4* vel,
+    __global double4* acc,
+    double deltaTime,
+    __global double4* newPos,
+    __global double4* newVel,
+    int stage,
+    int step,
+    int numParticles,
+    __global double4* posLast,
+    __global double4* velLast,
+    __global double4* velHistory,
+    __global double4* accHistory,
+    __global double4* k1,
+    __global double4* k2,
+    __global double4* k3,
+    __global double4* k4)
+{
+    unsigned int gid = get_global_id(0);
+    double4 position = pos[gid];
+    double4 velocity = vel[gid];
+    double4 acceleration = acc[gid];
+    
+    // Determine which RK4 substep we're on
+    int substep = step & 0x3;  // step % 4
+    long mainStep = step >> 2; // step / 4
+    
+    if(substep == 0) {
+        // First RK4 step - store k1
+        k1[gid] = velocity;          // k1_pos
+        k1[gid + numParticles] = acceleration;  // k1_vel
+        
+        // Calculate intermediate position for next substep
+        double4 pos_mid = position + (deltaTime * 0.5) * velocity * (KMTOGM);
+        newPos[gid] = pos_mid;
+        newVel[gid] = velocity + (deltaTime * 0.5) * acceleration;
+    }
+    else if(substep == 1) {
+        // Second RK4 step - store k2
+        k2[gid] = velocity;          // k2_pos
+        k2[gid + numParticles] = acceleration;  // k2_vel
+        
+        // Calculate intermediate position for next substep
+        double4 pos_mid = position + (deltaTime * 0.5) * velocity * (KMTOGM);
+        newPos[gid] = pos_mid;
+        newVel[gid] = velocity + (deltaTime * 0.5) * acceleration;
+    }
+    else if(substep == 2) {
+        // Third RK4 step - store k3
+        k3[gid] = velocity;          // k3_pos
+        k3[gid + numParticles] = acceleration;  // k3_vel
+        
+        // Calculate final position for last substep
+        double4 pos_end = position + deltaTime * velocity * (KMTOGM);
+        newPos[gid] = pos_end;
+        newVel[gid] = velocity + deltaTime * acceleration;
+    }
+    else {
+        // Fourth RK4 step - calculate final values
+        k4[gid] = velocity;          // k4_pos
+        k4[gid + numParticles] = acceleration;  // k4_vel
+        
+        // Save history for Adams-Bashforth bootstrap
+        velLast[gid] = vel[gid];
+        posLast[gid] = pos[gid];
+        
+        long historyIndex = (mainStep & 0xF) * numParticles + gid;
+        velHistory[historyIndex] = velocity;
+        accHistory[historyIndex] = acceleration;
+        
+        // Calculate final position and velocity using all k values
+        double4 newPosition = pos[gid] + (deltaTime/6.0) * 
+            (k1[gid] + 2.0*k2[gid] + 2.0*k3[gid] + k4[gid]) * (KMTOGM);
+        
+        double4 newVelocity = vel[gid] + (deltaTime/6.0) * 
+            (k1[gid + numParticles] + 2.0*k2[gid + numParticles] + 
+             2.0*k3[gid + numParticles] + k4[gid + numParticles]);
+        
+        // Preserve mass and relativistic parameter
+        newPosition.w = position.w;
+        newVelocity.w = velocity.w;
+        
+        // Store final results
+        newPos[gid] = newPosition;
+        newVel[gid] = newVelocity;
+    }
+}
+
 #define B2C1 1.500000000000000000
 #define B2C2 -0.50000000000000000
 #define M2C1 0.500000000000000000
