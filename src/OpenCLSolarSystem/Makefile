@@ -67,8 +67,8 @@ endif
 AR       := ar -r
 CXX      := c++
 CC       := gcc
-CXXFLAGS := -std=gnu++17 $(WARNING_FLAGS) -faligned-new $(OptimizeFlag) -Wall $(DebugLevel) $(shell wx-config --cxxflags --unicode=yes) -DCL_TARGET_OPENCL_VERSION=300
-CFLAGS   := -std=gnu++17 $(OptimizeFlag) -Wall $(DebugLevel) $(shell wx-config --cxxflags --unicode=yes)
+CXXFLAGS := $(CXXFLAGS) -std=gnu++17 $(WARNING_FLAGS) -faligned-new $(OptimizeFlag) -Wall $(DebugLevel) $(shell wx-config --cxxflags --unicode=yes) -DCL_TARGET_OPENCL_VERSION=300
+CFLAGS   := $(CFLAGS) -std=gnu++17 $(OptimizeFlag) -Wall $(DebugLevel) $(shell wx-config --cxxflags --unicode=yes)
 AS       := as
 
 ##
