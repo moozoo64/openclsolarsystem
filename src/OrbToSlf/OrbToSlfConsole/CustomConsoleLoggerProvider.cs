@@ -17,7 +17,7 @@
 //   Routines to solve Kepler's equation
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
-
+// I believe I based this on https://github.com/dotnet/runtime/blob/main/src/libraries/Microsoft.Extensions.Logging.Console/src/SimpleConsoleFormatter.cs
 namespace OrbToSlfConsole
 {
   using System;
