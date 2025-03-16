@@ -1,5 +1,5 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Planets.cs" company="Michael William Simmons">
+// <copyright file="ApproximatePlanets.cs" company="Michael William Simmons">
 //   (c) 2013-2025 Michael William Simmons
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
@@ -26,28 +26,12 @@ namespace OrbToSlf
   using Microsoft.Extensions.Logging;
   using System;
 
-  public interface IPlanets
-  {
-    bool IsSupported(string planet);
-    Double4[] Earth(double t, out double semiMajorAxis);
-    Double4[] EMB(double t, out double semiMajorAxis);
-    Double4[] Moon(double t, out double semiMajorAxis);
-    Double4[] Jupiter(double t, out double semiMajorAxis);
-    Double4[] Mars(double t, out double semiMajorAxis);
-    Double4[] Mercury(double t, out double semiMajorAxis);
-    Double4[] Neptune(double t, out double semiMajorAxis);
-    Double4[] Pluto(double t, out double semiMajorAxis);
-    Double4[] Saturn(double t, out double semiMajorAxis);
-    Double4[] Uranus(double t, out double semiMajorAxis);
-    Double4[] Venus(double t, out double semiMajorAxis);
-  }
-
   /// <summary>
   ///     Computes the positions of the planets using the method detailed in
   ///     "Keplerian Elements for Approximate Positions of the Major Planets"
   ///     by EM Standish, Solar System Dynamics Group" JPL/Caltech
   /// </summary>
-  public class Planets : IPlanets
+  public class ApproximatePlanets : IPlanets
   {
     private IConfiguration config;
     private ILogger<Utilities> logger;
@@ -57,7 +41,7 @@ namespace OrbToSlf
     private const double AuInKm = 149597870691;
 
 
-    public Planets(IConfiguration config, ILogger<Utilities> logger)
+    public ApproximatePlanets(IConfiguration config, ILogger<Utilities> logger)
     {
       this.config = config;
       this.logger = logger;

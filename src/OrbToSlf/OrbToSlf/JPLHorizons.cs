@@ -69,11 +69,13 @@ namespace OrbToSlf
 #if NET48
         if (horizonsResponseTask.Status != TaskStatus.RanToCompletion)
         {
-            throw new Exception("Failed to fetch data");
+          this.logger.LogError("Failed to fetch data");
+          throw new Exception("Failed to fetch data");
         }
 #else
       if (!horizonsResponseTask.IsCompletedSuccessfully)
       {
+        this.logger.LogError("Failed to fetch data");
         throw new Exception("Failed to fetch data");
       }
 #endif
@@ -89,7 +91,7 @@ namespace OrbToSlf
 
           if (lineCount % 100 == 0)
           {
-            Console.WriteLine("{0}", lineCount);
+            this.logger.LogInformation("{0}", lineCount);
           }
           // We skip over lines until we hit ------
           if (line.StartsWith("$$SOE"))

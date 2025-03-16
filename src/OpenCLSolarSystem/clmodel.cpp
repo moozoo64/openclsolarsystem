@@ -13,11 +13,23 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
+
+/**
+ * CLModel - Manages OpenCL computation resources for N-body solar system simulation
+ *
+ * This class handles:
+ * - OpenCL device selection and context creation
+ * - Kernel compilation and management
+ * - Buffer allocation and data transfer
+ * - Execution of integration kernels for position/velocity updates
+ * - Synchronization with OpenGL for visualization
+ */
 #include "global.hpp"
 #include "clmodel.hpp"
 
 CLModel::CLModel()
 {
+  // Initialize all pointers to NULL to ensure clean state
   this->deviceId = NULL;
   this->context = NULL;
   this->devices = NULL;
@@ -29,6 +41,7 @@ CLModel::CLModel()
   this->startupKernel = NULL;
   this->copyToDisplayKernel = NULL;
 
+  // Initialize numeric values to safe defaults
   this->maxWorkGroupSize = 0;
   this->maxDimensions = 0;
   this->maxWorkItemSizes = NULL;
@@ -53,14 +66,15 @@ CLModel::CLModel()
   this->posLast = NULL;
   this->velLast = NULL;
 
+  // Set simulation parameters to initial values
   this->updateDisplay = false;
   this->initialisedOk = false;
   this->gotKhrFp64 = false;
   this->gotAmdFp64 = false;
   this->gotKhrGlSharing = false;
   this->gotAppleGlSharing = false;
-  this->delT = 4 * 60 * 60.0f;
-  this->espSqr = 0.000001f;
+  this->delT = 4 * 60 * 60.0f; // 4 hour timestep
+  this->espSqr = 0.000001f;    // Smoothing length squared
   this->time = 0.0f;
   this->julianDate = 0.0f;
   this->numGrav = 16;
@@ -84,6 +98,14 @@ void CL_CALLBACK PfnNotify(const char *errInfo, const void *private_info, size_t
   wxLogError("PfnNotify Error: %s\n", errInfo);
 }
 
+/**
+ * Finds an OpenCL device matching the specified criteria and creates a context
+ *
+ * @param desiredDeviceVendorId Preferred vendor ID (0 for any)
+ * @param deviceType Type of device to find (GPU/CPU)
+ * @param desiredPlatformName Name of preferred platform
+ * @return true if suitable device found and context created
+ */
 bool CLModel::FindDeviceAndCreateContext(cl_uint desiredDeviceVendorId, cl_device_type deviceType, char *desiredPlatformName)
 {
 #ifdef __WXDEBUG__
@@ -460,7 +482,6 @@ bool CLModel::FindDeviceAndCreateContext(cl_uint desiredDeviceVendorId, cl_devic
 #pragma GCC diagnostic pop
     }
 
-    // this->commandQueue = clCreateCommandQueue(this->context, this->deviceId, 0, &status);
     if (status != CL_SUCCESS)
     {
       wxLogError(wxT("Command queue creation failed failed %s"), this->ErrorMessage(status));
@@ -1090,7 +1111,7 @@ void CLModel::ExecuteKernels()
   status = clEnqueueCopyBuffer(commandQueue, this->newPos, this->gravPos, 0, 0, sizeof(cl_double4) * this->numGrav, 0, 0, 0);
   if (status != CL_SUCCESS)
   {
-    wxLogError(wxT("clEnqueueCopyBuffer newPos to currPos failed %s"), this->ErrorMessage(status));
+    wxLogError(wxT("clEnqueueCopyBuffer newPos to gravPos failed %s"), this->ErrorMessage(status));
     throw status;
   }
   // Copy new velocities to current velocities
@@ -2036,6 +2057,6 @@ wxString CLModel::ErrorMessage(cl_int status)
   case CL_INVALID_GL_SHAREGROUP_REFERENCE_KHR:
     return wxT("CL_INVALID_GL_SHAREGROUP_REFERENCE_KHR");
   default:
-    return wxT("UnKnown Error");
+    return wxString::Format(wxT("Unknown Error Code: %d"), status);
   }
 }
