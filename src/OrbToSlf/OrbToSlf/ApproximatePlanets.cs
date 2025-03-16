@@ -34,14 +34,14 @@ namespace OrbToSlf
   public class ApproximatePlanets : IPlanets
   {
     private IConfiguration config;
-    private ILogger<Utilities> logger;
+    private ILogger<ApproximatePlanets> logger;
     /// <summary>
     ///     The au in km.
     /// </summary>
     private const double AuInKm = 149597870691;
 
 
-    public ApproximatePlanets(IConfiguration config, ILogger<Utilities> logger)
+    public ApproximatePlanets(IConfiguration config, ILogger<ApproximatePlanets> logger)
     {
       this.config = config;
       this.logger = logger;

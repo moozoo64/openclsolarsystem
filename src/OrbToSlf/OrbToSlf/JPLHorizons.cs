@@ -35,11 +35,11 @@ namespace OrbToSlf
   public class JPLHorizons : IPlanets
   {
     private IConfiguration config;
-    private ILogger<Utilities> logger;
+    private ILogger<JPLHorizons> logger;
     private const string sunCenter = "500@10";
     private const string earthCenter = "500";
 
-    public JPLHorizons(IConfiguration config, ILogger<Utilities> logger)
+    public JPLHorizons(IConfiguration config, ILogger<JPLHorizons> logger)
     {
       this.config = config;
       this.logger = logger;

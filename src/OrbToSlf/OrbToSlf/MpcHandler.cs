@@ -32,10 +32,10 @@ namespace OrbToSlf
   {
 
     private IConfiguration config;
-    private ILogger<AstroHandler> logger;
+    private ILogger<MpcHandler> logger;
     private IUtilities utilities;
 
-    public MpcHandler(IConfiguration config, ILogger<AstroHandler> logger, IUtilities utilities)
+    public MpcHandler(IConfiguration config, ILogger<MpcHandler> logger, IUtilities utilities)
     {
       this.config = config;
       this.logger = logger;

@@ -31,7 +31,7 @@ namespace OrbToSlf
   public class Process : IProcess
   {
     private IConfiguration config;
-    private ILogger<Utilities> logger;
+    private ILogger<Process> logger;
     private IUtilities utilities;
     private IPlanets planets;
     private IRemoteBodyInfosSource remoteBodyInfosSource;
@@ -47,7 +47,7 @@ namespace OrbToSlf
     private string planetInfoFileName;
     private string slfOutFileName;
 
-    public Process(IConfiguration config, ILogger<Utilities> logger, IUtilities utilities,IPlanets planets, IRemoteBodyInfosSource remoteBodyInfosSource)
+    public Process(IConfiguration config, ILogger<Process> logger, IUtilities utilities,IPlanets planets, IRemoteBodyInfosSource remoteBodyInfosSource)
     {
       this.config = config;
       this.logger = logger;
