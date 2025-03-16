@@ -137,21 +137,24 @@ The OrbToSlf program generates a .slf file from either:
 - or astrorb.dat
 
 Command line options are:
-- `ASTORB` - use astorb.dat instead of MPC
-- `NEOFirst` - Add NEO and NEO! asteroids before other types
-- `AddDuplicate` - creates and adds a duplicate solar system
-- `Numbers` - in order
-- `maxbodies` - the maximum number of asteroids included in the output
-- `numOort` - the number of random oort cloud bodies to add
-- `xOffset` - The x axis to offset the duplicate system (if AddDuplicate is on)
-- `yOffset` - The y axis to offset the duplicate system (if AddDuplicate is on)
-- `vxOffset` - The x velocity offset of the duplicate system (if AddDuplicate is on)
+- `ASTORB` or `Astorb={true|false}` - Use astorb.dat instead of MPC
+- `NEOFirst` or `NEOFirst={true|false}` - Add NEO and NEO! asteroids before other types
+- `AddDuplicate` or `AddDuplicate={true|false}` - Creates and adds a duplicate solar system
+- `MaxBodies=value` - The maximum number of asteroids included in the output 
+- `NumOort=value` - The number of random oort cloud bodies to add
+- `XOffset=value` - The x axis to offset the duplicate system (if AddDuplicate is on)
+- `YOffset=value` - The y axis to offset the duplicate system (if AddDuplicate is on)
+- `VXOffset=value` - The x velocity offset of the duplicate system (if AddDuplicate is on)
+- `VYOffset=value` - The y velocity offset of the duplicate system (if AddDuplicate is on)
 
-e.g. OrbToSlf.exe 600000 300000 NEOFirst
-Will add at most 600000 asteroids (real), 300000 random oort cloud bodies. NEO and NEO! objects will be added before other types
+Examples:
+```bash
+# Add 600000 real asteroids and 300000 oort cloud bodies, with NEOs first
+OrbToSlf.exe MaxBodies=600000 NumOort=300000 NEOFirst
 
-Alternatively SLF files can be made by the free version of Solex which can be found at http://www.solexorb.it/  
-After running the program and loading in bodies look for the file FINAL.SLF in the USERDATA directory.
+# Use astorb.dat and create duplicate system with offset
+OrbToSlf.exe ASTORB AddDuplicate XOffset=1000 YOffset=1000 VXOffset=0.5
+```
 
 ## Fun Stuff 🚀
 Because SLF files are text files you can edit them to add additional bodies like:
