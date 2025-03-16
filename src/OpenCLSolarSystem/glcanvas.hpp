@@ -121,6 +121,8 @@ public:
   void OnEraseBackground(wxEraseEvent &event);
   void OnChar(wxKeyEvent &event);
   void OnMouseEvent(wxMouseEvent &event);
+  void SetFrustum();
+  void SetupProjectionAndModelView();
   GLuint *getVbo();
   bool VSync(bool vsync);
 
