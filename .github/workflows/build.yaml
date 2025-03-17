@@ -103,7 +103,7 @@ jobs:
         if: always() # This ensures the step runs even if tests fail
         uses: actions/upload-artifact@v4
         with:
-          name: test-results
+          name: test-results-${{matrix.env}}-${{ matrix.build }}
           path: src/OrbToSlf/OrbToSlfConsole/bin/Release/TestResults
 
       - name: Determine tag name
