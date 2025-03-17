@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "OrbToSlfConsole": {
+      "commandName": "Project",
+      "commandLineArgs": "maxbodies=32768"
+    }
+  }
+}

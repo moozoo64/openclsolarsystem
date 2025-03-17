@@ -102,9 +102,6 @@ namespace OrbToSlf
           {
             bodyInfo.Radius = radius;
           }
-          {
-            bodyInfo.Radius = 0.0;
-          }
 
           bodyInfo.Type = string.Empty; // parts[3];
 
@@ -121,9 +118,6 @@ namespace OrbToSlf
           {
             bodyInfo.Density = density;
           }
-          {
-            bodyInfo.Density = 0.0;
-          }
 
           double mass;
           if (!double.TryParse(parts[6], out mass))
@@ -133,9 +127,6 @@ namespace OrbToSlf
           else
           {
             bodyInfo.Mass = mass;
-          }
-          {
-            bodyInfo.Mass = 0.0;
           }
 
           bodyInfo.Epoch = 0.0;
