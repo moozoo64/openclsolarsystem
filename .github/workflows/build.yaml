@@ -26,7 +26,7 @@ env:
   RELEASE_VERSION: ${{ github.event.inputs.create_release && github.run_number }}
   SHOULD_RELEASE: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/master') || github.event.inputs.create_release == 'true' }}
   SHOULD_UPLOAD_ARTIFACT: ${{ github.ref == 'refs/heads/develop' && github.event.inputs.create_release == 'true' }}
-  BUILD_DATE: ${{ format('{0:yyyy-MM-dd}', github.event.repository.updated_at) }}
+  BUILD_DATE: ${{ github.event.repository.updated_at }}
 
 jobs:
   windows-msys2:
