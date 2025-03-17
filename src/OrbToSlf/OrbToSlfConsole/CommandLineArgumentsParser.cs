@@ -14,7 +14,7 @@
 //   limitations under the License.
 // </copyright>
 // <summary>
-//   Routines to solve Kepler's equation
+//   Parses the command line arguments and returns a dictionary of the arguments.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -32,8 +32,12 @@ namespace OrbToSlfConsole
             var numOort = "0";
             var xOffset = "0.0";
             var yOffset = "0.0";
+            var zOffset = "0.0";
             var vxOffset = "0.0";
             var vyOffset = "0.0";
+            var vzOffset = "0.0";
+            bool processOffset = false;
+            bool showUsage = false;
             foreach (var arg in args)
             {
                 switch (arg)
@@ -46,6 +50,7 @@ namespace OrbToSlfConsole
                         break;
                     case "AddDuplicate":
                         addDuplicate = true.ToString();
+                        processOffset = true;
                         break;
                     default:
                         if (arg.ToLowerInvariant().StartsWith("astrob"))
@@ -59,6 +64,7 @@ namespace OrbToSlfConsole
                         if (arg.ToLowerInvariant().StartsWith("addduplicate"))
                         {
                           addDuplicate = arg.Split('=')[1];
+                          processOffset= true;
                         }
                         if (arg.ToLowerInvariant().StartsWith("maxbodies"))
                         {
@@ -68,28 +74,41 @@ namespace OrbToSlfConsole
                         {
                             numOort = arg.Split('=')[1];
                         }
-                        else if (arg.ToLowerInvariant().StartsWith("xoffset"))
+                        else if (processOffset && arg.ToLowerInvariant().StartsWith("xoffset"))
                         {
                             xOffset = arg.Split('=')[1];
                         }
-                        else if (arg.ToLowerInvariant().StartsWith("yoffset"))
+                        else if (processOffset && arg.ToLowerInvariant().StartsWith("yoffset"))
                         {
                             yOffset = arg.Split('=')[1];
                         }
-                        else if (arg.ToLowerInvariant().StartsWith("vxoffset"))
+                        else if (processOffset && arg.ToLowerInvariant().StartsWith("zoffset"))
+                        {
+                            zOffset = arg.Split('=')[1];
+                        }
+                        else if (processOffset && arg.ToLowerInvariant().StartsWith("vxoffset"))
                         {
                             vxOffset = arg.Split('=')[1];
                         }
-                        else if (arg.ToLowerInvariant().StartsWith("vyoffset"))
+                        else if (processOffset && arg.ToLowerInvariant().StartsWith("vyoffset"))
                         {
                             vyOffset = arg.Split('=')[1];
                         }
+                        else if (processOffset && arg.ToLowerInvariant().StartsWith("vyoffset"))
+                        {
+                            vzOffset = arg.Split('=')[1];
+                        }
                         else
                         {
-                             Console.WriteLine("Unknown argument {0}", arg);
+                          Console.WriteLine("Unknown argument {0}", arg);
+                          showUsage = true;
                         }
                         break;
-                }
+                    }
+            }
+            if(showUsage)
+            {
+              Console.WriteLine("Usage: OrbToSlfConsole [MaxBodies=#] [NumOort=#] [ASTORB] [NEOFirst] [AddDuplicate=false | [AddDuplicate|AddDuplicate=true] [XOffset=#] [YOffset=#] [VXOffset=#] [VYOffset=#]]");
             }
 
             commandLineConfig.Add("MaxBodies", maxBodies);

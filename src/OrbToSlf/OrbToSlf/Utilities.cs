@@ -70,11 +70,7 @@ namespace OrbToSlf
     {
       return Math.PI * angle / 180.0;
     }
-
-  
-
- 
-
+    
     /// <summary>
     ///     The read body details like mass etc from a file.
     /// </summary>
@@ -240,12 +236,12 @@ namespace OrbToSlf
               "{0,23:0.0000000000000000E+00} {1,23:0.0000000000000000E+00} {2,23:0.0000000000000000E+00}",
               (stateVectors[0].X / Constants.Gm) - body.XOffset,
               (stateVectors[0].Y / Constants.Gm) - body.YOffset,
-              stateVectors[0].Z / Constants.Gm);
+              stateVectors[0].Z / Constants.Gm - body.ZOffset);
           fileOut.WriteLine(
               "{0,23:0.0000000000000000E+00} {1,23:0.0000000000000000E+00} {2,23:0.0000000000000000E+00}",
               (stateVectors[1].X / 1000) - body.VxOffset,
               stateVectors[1].Y / 1000 - body.VyOffset,
-              stateVectors[1].Z / 1000);
+              stateVectors[1].Z / 1000 - body.VzOffset);
           count++;
         }
         this.logger.LogInformation("Wrote to {0}", fileOutStream.Name);
