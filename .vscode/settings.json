@@ -1,27 +1,4 @@
 {
-  "makefile.makePath": "mingw32-make.exe",
-  "makefile.makefilePath": "${workspaceFolder}/src/OpenCLSolarSystem",
-  "makefile.configurations": [
-    {
-      "name": "Debug",
-      "makeDirectory": "${workspaceFolder}/src/OpenCLSolarSystem",
-      "makeArgs": [
-        "-j8",
-        "BUILD_TYPE=Debug",
-        "ARCH=x64"
-      ]
-    },
-    {
-      "name": "Release",
-      "makeDirectory": "${workspaceFolder}/src/OpenCLSolarSystem",
-      "makeArgs": [
-        "-j8",
-        "BUILD_TYPE=Release",
-        "ARCH=x64"
-      ]
-    }
-  ],
-  "makefile.launchConfigurations": [],
   "githubLocalActions.actCommand": "act -P windows-latest=-self-hosted ",
   "terminal.integrated.profiles.windows": {
     "bash (MSYS2)": {
@@ -33,7 +10,7 @@
       "env": {
         "MSYSTEM": "UCRT64",
         "CHERE_INVOKING": "1"
-        //        "MSYS2_PATH_TYPE": "inherit"
+        //"MSYS2_PATH_TYPE": "inherit"
       }
     }
   }

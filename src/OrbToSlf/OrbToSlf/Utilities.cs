@@ -70,11 +70,7 @@ namespace OrbToSlf
     {
       return Math.PI * angle / 180.0;
     }
-
-  
-
- 
-
+    
     /// <summary>
     ///     The read body details like mass etc from a file.
     /// </summary>
@@ -106,9 +102,6 @@ namespace OrbToSlf
           {
             bodyInfo.Radius = radius;
           }
-          {
-            bodyInfo.Radius = 0.0;
-          }
 
           bodyInfo.Type = string.Empty; // parts[3];
 
@@ -125,9 +118,6 @@ namespace OrbToSlf
           {
             bodyInfo.Density = density;
           }
-          {
-            bodyInfo.Density = 0.0;
-          }
 
           double mass;
           if (!double.TryParse(parts[6], out mass))
@@ -137,9 +127,6 @@ namespace OrbToSlf
           else
           {
             bodyInfo.Mass = mass;
-          }
-          {
-            bodyInfo.Mass = 0.0;
           }
 
           bodyInfo.Epoch = 0.0;
@@ -240,12 +227,12 @@ namespace OrbToSlf
               "{0,23:0.0000000000000000E+00} {1,23:0.0000000000000000E+00} {2,23:0.0000000000000000E+00}",
               (stateVectors[0].X / Constants.Gm) - body.XOffset,
               (stateVectors[0].Y / Constants.Gm) - body.YOffset,
-              stateVectors[0].Z / Constants.Gm);
+              stateVectors[0].Z / Constants.Gm - body.ZOffset);
           fileOut.WriteLine(
               "{0,23:0.0000000000000000E+00} {1,23:0.0000000000000000E+00} {2,23:0.0000000000000000E+00}",
               (stateVectors[1].X / 1000) - body.VxOffset,
               stateVectors[1].Y / 1000 - body.VyOffset,
-              stateVectors[1].Z / 1000);
+              stateVectors[1].Z / 1000 - body.VzOffset);
           count++;
         }
         this.logger.LogInformation("Wrote to {0}", fileOutStream.Name);

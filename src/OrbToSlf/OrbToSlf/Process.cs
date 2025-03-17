@@ -40,8 +40,10 @@ namespace OrbToSlf
     private bool addDuplicateStarSystem;
     private double xOffset;
     private double yOffset;
+    private double zOffset;
     private double vxOffset;
     private double vyOffset;
+    private double vzOffset;
     private int maxBodies;
     private int numOort;
     private string planetInfoFileName;
@@ -58,8 +60,10 @@ namespace OrbToSlf
       this.addDuplicateStarSystem = config.GetValue<bool>("AddDuplicate");
       this.xOffset = config.GetValue<double>("XOffset");
       this.yOffset = config.GetValue<double>("YOffset");
+      this.zOffset = config.GetValue<double>("ZOffset");
       this.vxOffset = config.GetValue<double>("VxOffset");
       this.vyOffset = config.GetValue<double>("VyOffset");
+      this.vzOffset = config.GetValue<double>("VzOffset");
       this.maxBodies = config.GetValue<int>("MaxBodies");
       this.numOort = config.GetValue<int>("NumOort");
       this.planetInfoFileName = config.GetValue<string>("PlanetInfoFileName");
@@ -276,8 +280,10 @@ namespace OrbToSlf
             AbsoluteMagnitude = bodyInfoB.AbsoluteMagnitude,
             XOffset = this.xOffset,
             YOffset = this.yOffset,
+            ZOffset = this.zOffset,
             VxOffset = this.vxOffset,
             VyOffset = this.vyOffset,
+            VzOffset = this.vzOffset,
             StateVectors = bodyInfoB.StateVectors,
             ReadIn = bodyInfoB.ReadIn,
             Type = bodyInfoB.Type
