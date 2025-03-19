@@ -3,8 +3,6 @@ name: ubuntu
 on:
   workflow_dispatch:
   push:
-    branches:
-      - master
     paths: ['.github/workflows/ubuntu.yaml','**/CMakeLists.txt', '**/Makefile', '**/*.h', '**/*.hpp', '**/*.c', '**/*.cpp', '**/*.cl', '**/*.cs', '**/*.sln', '**/*.csproj', '**/appsettings.json']
   pull_request:
     types: [opened, synchronize, reopened]
