@@ -1,0 +1,60 @@
+name: ubuntu
+
+on:
+  workflow_dispatch:
+  push:
+  pull_request:
+
+jobs:
+  linux:
+    runs-on: ubuntu-24.04
+
+    steps:
+    - name: Install dependencies for wxWidgets
+      run: |
+        sudo apt-get update
+        sudo apt-get install build-essential git cmake ninja-build libgl1-mesa-dev libedit-dev libgtk-3-dev libhunspell-dev pkg-config 
+
+    - name: Checkout WxWidgets
+      uses: actions/checkout@v4
+      with:
+        repository: wxWidgets/wxWidgets
+        ref: v3.2.7.1
+        submodules: recursive
+        path: wxWidgets
+
+    - name: Build and install wxWidgets
+      run: |
+        mkdir -p wxWidgets/build-release
+        cd wxWidgets/build-release
+        ../configure --disable-debug_flag --with-gtk=3 --enable-stl
+        make -j$(nproc) && sudo make install
+
+    - name: Install OpenCLSolarSystem dependencies
+      run: sudo apt install build-essential git cmake ninja-build libgl1-mesa-dev libglew-dev opencl-headers ocl-icd-opencl-dev
+
+    - name: Checkout OpenCLSolarSystem
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Build OpenCLSolarSystem
+      run: |
+        cd openclsolarsystem
+        cmake -B build -S src/OpenCLSolarSystem -DCMAKE_BUILD_TYPE=Release -DwxWidgets_CONFIG_EXECUTABLE=/usr/local/bin/wx-config -DOpenGL_GL_PREFERENCE=GLVND
+        cmake --build build --config Release -j8
+
+    - name: Setup dotnet 
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.x.x'
+
+    - name: Build OrbToSlf using dotnet
+      run: |
+        cd src/OrbToSlf
+        # Build main projects to a specific output directory
+        dotnet publish OrbToSlfConsole/OrbToSlfConsole.csproj --configuration Release --framework net8.0 --output ./OrbToSlfConsole/bin/Release/publish
+        # Build and run tests with coverage
+        dotnet test --configuration Release --collect:"XPlat Code Coverage" --results-directory:"./OrbToSlfConsole/bin/Release/TestResults" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura,opencover
+
+

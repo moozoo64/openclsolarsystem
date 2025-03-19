@@ -80,48 +80,6 @@ The higher the order and the smaller the time step the more accurate the result.
 The option "Detect Close Encounters" combined with Center on Earth can be used to find Close earth encounters.  
 This can be compared with the lists from http://neo.jpl.nasa.gov/cgi-bin/neo_ca
 
-## Tools and Libraries Required to Compile the Source Under Windows
-
-See the build configuration at: https://github.com/moozoo64/openclsolarsystem/blob/master/.github/workflows/build.yaml
-
-### 1. Install MSYS2 Base Requirements
-Install these packages using pacman:
-```bash
-pacman -S base-devel git zip
-```
-
-### 2. Install Development Tools
-Choose either UCRT64 or CLANG64 toolchain. Below example uses UCRT64:
-```bash
-pacman -S mingw-w64-ucrt-x86_64-gcc
-pacman -S mingw-w64-ucrt-x86_64-gdb
-pacman -S mingw-w64-ucrt-x86_64-toolchain
-pacman -S mingw-w64-ucrt-x86_64-glew
-pacman -S mingw-w64-ucrt-x86_64-cmake
-pacman -S mingw-w64-ucrt-x86_64-opencl-headers
-pacman -S mingw-w64-ucrt-x86_64-opencl-icd
-pacman -S mingw-w64-ucrt-x86_64-wxwidgets3.2-common
-pacman -S mingw-w64-ucrt-x86_64-wxwidgets3.2-msw
-pacman -S mingw-w64-ucrt-x86_64-wxwidgets3.2-msw-cb_headers
-```
-
-> **Note**: For CLANG64, replace `ucrt` with `clang` in the above commands
-
-### 3. Building OpenCLSolarSystem
-```bash
-git clone https://github.com/moozoo64/openclsolarsystem.git
-cd openclsolarsystem/src/OpenCLSolarSystem
-mingw32-make -j8 BUILD_TYPE=Release ARCH=x64 clean
-mingw32-make -j8 BUILD_TYPE=Release ARCH=x64
-```
-
-### 4. Building OrbToSlf
-First install .NET 8 SDK, then:
-```bash
-cd src/OrbToSlf
-dotnet build --configuration Release --framework net8.0
-```
-
 ## Creating an initial.bin datafile
 
 A Solex SLF formatted data file of the solar system is needed. 
@@ -164,6 +122,82 @@ Because SLF files are text files you can edit them to add additional bodies like
 - And more!
 
 > **Note**: As long as something very massive is not added (e.g., massive black hole), the simulation should remain highly accurate.
+
+## Tools and Libraries Required to Compile the Source Under Windows
+
+See the build configuration at: https://github.com/moozoo64/openclsolarsystem/blob/master/.github/workflows/build.yaml
+
+### 1. Install MSYS2 Base Requirements
+Install these packages using pacman:
+```bash
+pacman -S base-devel git zip
+```
+
+### 2. Install Development Tools
+Choose either UCRT64 or CLANG64 toolchain. Below example uses UCRT64:
+```bash
+pacman -S mingw-w64-ucrt-x86_64-gcc
+pacman -S mingw-w64-ucrt-x86_64-gdb
+pacman -S mingw-w64-ucrt-x86_64-toolchain
+pacman -S mingw-w64-ucrt-x86_64-glew
+pacman -S mingw-w64-ucrt-x86_64-cmake
+pacman -S mingw-w64-ucrt-x86_64-opencl-headers
+pacman -S mingw-w64-ucrt-x86_64-opencl-icd
+pacman -S mingw-w64-ucrt-x86_64-wxwidgets3.2-common
+pacman -S mingw-w64-ucrt-x86_64-wxwidgets3.2-msw
+pacman -S mingw-w64-ucrt-x86_64-wxwidgets3.2-msw-cb_headers
+```
+
+> **Note**: For CLANG64, replace `ucrt` with `clang` in the above commands
+
+### 3. Building OpenCLSolarSystem
+```bash
+git clone https://github.com/moozoo64/openclsolarsystem.git
+cd openclsolarsystem
+cmake -B build -S src/OpenCLSolarSystem -DCMAKE_BUILD_TYPE=Release
+cmake --build build --config Release -j8
+```
+
+### 4. Building OrbToSlf
+First install .NET 8 SDK, then:
+```bash
+cd src/OrbToSlf
+dotnet publish OrbToSlfConsole/OrbToSlfConsole.csproj --configuration Release --framework net8.0 --output ./OrbToSlfConsole/bin/Release/publish
+```
+
+## Tools and Libraries Required to Compile the Source Under Ubuntu 24.04
+
+> ⚠️ **Important**: Builds but I'm not able to confirm it runs
+
+See the build configuration at: https://github.com/moozoo64/openclsolarsystem/blob/master/.github/workflows/ubuntu.yaml
+
+### 1. Install dependencies for wxWidgets and OpenClSolarSystem
+```bash
+sudo apt-get update
+sudo apt-get upgrade
+sudo apt-get install build-essential git cmake ninja-build libgl1-mesa-dev libedit-dev libgtk-3-dev libhunspell-dev pkg-config libglew-dev opencl-headers ocl-icd-opencl-dev dotnet-sdk-8.0
+```
+
+### 2. Checkout and build wxWidgets
+```bash
+git clone --branch v3.2.7.1 --single-branch --recurse-submodules https://github.com/wxWidgets/wxWidgets.git
+mkdir -p wxWidgets/build-release
+cd wxWidgets/build-release
+../configure --disable-debug_flag --with-gtk=3 --enable-stl
+make -j$(nproc) && sudo make install
+```
+
+### 3. Checkout and build OpenCLSolarSystem and OrbToSlf
+```bash
+git clone https://github.com/moozoo64/openclsolarsystem.git
+cd openclsolarsystem
+cmake -B build -S src/OpenCLSolarSystem -DCMAKE_BUILD_TYPE=Release -DwxWidgets_CONFIG_EXECUTABLE=/usr/local/bin/wx-config -DOpenGL_GL_PREFERENCE=GLVND
+cmake --build build --config Release -j8
+cd src/OrbToSlf
+dotnet publish OrbToSlfConsole/OrbToSlfConsole.csproj --configuration Release --framework net8.0 --output ./OrbToSlfConsole/bin/Release/publish
+cd ./OrbToSlfConsole/bin/Release/publish
+./OrbToSlfConsole
+```
 
 ## References and Acknowledgements 📚
 

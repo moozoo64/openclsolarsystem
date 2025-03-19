@@ -1,7 +1,7 @@
 name: CI
 
 on:
-  workflow_dispatch: # allows manual triggering
+  workflow_dispatch:
     inputs:
       create_release:
         description: 'Create new release'
@@ -20,7 +20,8 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: write # for creating release
+  contents: write
+  
 env:
   BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
   RELEASE_VERSION: ${{ github.event.inputs.create_release && github.run_number }}
