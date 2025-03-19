@@ -40,6 +40,12 @@ jobs:
         cd wxWidgets/build-release
         ../configure --disable-debug_flag --with-gtk=3 --enable-stl
         make -j$(nproc) && sudo make install
+        # Verify wx-config installation and setup
+        sudo ldconfig
+        which wx-config
+        wx-config --version
+        wx-config --libs
+        wx-config --cxxflags
 
     - name: Install OpenCLSolarSystem dependencies
       run: sudo apt install build-essential git cmake ninja-build libgl1-mesa-dev libglew-dev opencl-headers ocl-icd-opencl-dev
