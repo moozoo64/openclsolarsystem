@@ -3,10 +3,15 @@ name: ubuntu
 on:
   workflow_dispatch:
   push:
+    branches:
+      - master
+    paths: ['.github/workflows/ubuntu.yaml','**/CMakeLists.txt', '**/Makefile', '**/*.h', '**/*.hpp', '**/*.c', '**/*.cpp', '**/*.cl', '**/*.cs', '**/*.sln', '**/*.csproj', '**/appsettings.json']
   pull_request:
+    types: [opened, synchronize, reopened]
+    paths: ['.github/workflows/ubuntu.yaml', '**/CMakeLists.txt', '**/Makefile', '**/*.h', '**/*.hpp', '**/*.c', '**/*.cpp', '**/*.cl', '**/*.cs', '**/*.sln', '**/*.csproj', '**/appsettings.json']
 
 jobs:
-  linux:
+  ubuntu:
     runs-on: ubuntu-24.04
 
     steps:
@@ -23,6 +28,14 @@ jobs:
         submodules: recursive
         path: wxWidgets
 
+    - name: Cache wxWidgets
+      uses: actions/cache@v3
+      with:
+        path: wxWidgets/build-release
+        key: wxwidgets-${{ runner.os }}-${{ hashFiles('wxWidgets/**') }}
+        restore-keys: |
+          wxwidgets-${{ runner.os }}-
+
     - name: Build and install wxWidgets
       run: |
         mkdir -p wxWidgets/build-release
@@ -36,13 +49,14 @@ jobs:
     - name: Checkout OpenCLSolarSystem
       uses: actions/checkout@v4
       with:
+        path: openclsolarsystem
         fetch-depth: 0
 
     - name: Build OpenCLSolarSystem
       run: |
         cd openclsolarsystem
         cmake -B build -S src/OpenCLSolarSystem -DCMAKE_BUILD_TYPE=Release -DwxWidgets_CONFIG_EXECUTABLE=/usr/local/bin/wx-config -DOpenGL_GL_PREFERENCE=GLVND
-        cmake --build build --config Release -j8
+        cmake --build build --config Release -j$(nproc)
 
     - name: Setup dotnet 
       uses: actions/setup-dotnet@v4
