@@ -4,13 +4,13 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Make Release",
+      "label": "CMake Release",
       "type": "shell",
       "command": "C:/msys64/usr/bin/bash",
       "args": [
         "-l",
         "-c",
-        "cd /home/michael/openclsolarsystem/src/OpenCLSolarSystem && mingw32-make -j8 BUILD_TYPE=Release ARCH=x64"
+        "cd /home/michael/openclsolarsystem &&  cmake -B build -S src/OpenCLSolarSystem -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release -j$(nproc) && bash ./.vscode/post_cmake.sh build"
       ],
       "group": {
         "kind": "build",
@@ -19,19 +19,18 @@
       "options": {
         "env": {
           "MSYSTEM": "UCRT64",
-          "CHERE_INVOKING": "1",
-          "CXXFLAGS": " -IC:/msys64/ucrt64/include/wx-3.2 -IC:/msys64/ucrt64/include -IC:/msys64/ucrt64/include/wx-3.2/wx"
+          "CHERE_INVOKING": "1"
         }
       }
     },
     {
-      "label": "Make Release Clean",
+      "label": "Clean Release",
       "type": "shell",
       "command": "C:/msys64/usr/bin/bash",
       "args": [
         "-l",
         "-c",
-        "cd /home/michael/openclsolarsystem/src/OpenCLSolarSystem && mingw32-make -j8 BUILD_TYPE=Release ARCH=x64 clean"
+        "cd /home/michael/openclsolarsystem && rm -rf build"
       ],
       "group": {
         "kind": "build",
@@ -40,19 +39,18 @@
       "options": {
         "env": {
           "MSYSTEM": "UCRT64",
-          "CHERE_INVOKING": "1",
-          "CXXFLAGS": " -IC:/msys64/ucrt64/include/wx-3.2 -IC:/msys64/ucrt64/include -IC:/msys64/ucrt64/include/wx-3.2/wx"
+          "CHERE_INVOKING": "1"
         }
       }
     },
     {
-      "label": "Make Debug",
+      "label": "CMake Debug",
       "type": "shell",
       "command": "C:/msys64/usr/bin/bash",
       "args": [
         "-l",
         "-c",
-        "cd /home/michael/openclsolarsystem/src/OpenCLSolarSystem && mingw32-make -j8 BUILD_TYPE=Debug ARCH=x64"
+        "cd /home/michael/openclsolarsystem &&  cmake -B build-debug -S src/OpenCLSolarSystem -DCMAKE_BUILD_TYPE=Debug && cmake --build build-debug --config Debug -j$(nproc) && bash ./.vscode/post_cmake.sh build-debug"
       ],
       "group": {
         "kind": "build",
@@ -66,13 +64,13 @@
       }
     },
     {
-      "label": "Make Debug Clean",
+      "label": "Clean Debug",
       "type": "shell",
       "command": "C:/msys64/usr/bin/bash",
       "args": [
         "-l",
         "-c",
-        "cd /home/michael/openclsolarsystem/src/OpenCLSolarSystem && mingw32-make -j8 BUILD_TYPE=Debug ARCH=x64 clean"
+        "cd /home/michael/openclsolarsystem && rm -rf build-debug"
       ],
       "group": {
         "kind": "build",
