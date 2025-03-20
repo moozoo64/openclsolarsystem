@@ -40,12 +40,7 @@ jobs:
         cd wxWidgets/build-release
         ../configure --disable-debug_flag --with-gtk=3 --enable-stl --with-opengl
         make -j$(nproc) && sudo make install
-        # Verify wx-config installation and setup
         sudo ldconfig
-        which wx-config
-        wx-config --version
-        wx-config --libs
-        wx-config --cxxflags
 
     - name: Install OpenCLSolarSystem dependencies
       run: sudo apt install build-essential git cmake ninja-build libgl1-mesa-dev libglew-dev opencl-headers ocl-icd-opencl-dev
@@ -74,5 +69,3 @@ jobs:
         dotnet publish OrbToSlfConsole/OrbToSlfConsole.csproj --configuration Release --framework net8.0 --output ./OrbToSlfConsole/bin/Release/publish
         # Build and run tests with coverage
         dotnet test --configuration Release --collect:"XPlat Code Coverage" --results-directory:"./OrbToSlfConsole/bin/Release/TestResults" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura,opencover
-
-

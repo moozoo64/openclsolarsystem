@@ -175,7 +175,7 @@ See the build configuration at: https://github.com/moozoo64/openclsolarsystem/bl
 ```bash
 sudo apt-get update
 sudo apt-get upgrade
-sudo apt-get install build-essential git cmake ninja-build libgl1-mesa-dev libedit-dev libgtk-3-dev libhunspell-dev pkg-config libglew-dev opencl-headers ocl-icd-opencl-dev dotnet-sdk-8.0
+sudo apt-get install build-essential git cmake ninja-build libgl1 libgl1-mesa-dev libglu1-mesa-dev libedit-dev libgtk-3-dev libhunspell-dev pkg-config libglew-dev opencl-headers ocl-icd-opencl-dev dotnet-sdk-8.0
 ```
 
 ### 2. Checkout and build wxWidgets
