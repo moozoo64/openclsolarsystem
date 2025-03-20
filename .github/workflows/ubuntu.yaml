@@ -3,6 +3,8 @@ name: ubuntu
 on:
   workflow_dispatch:
   push:
+    branches:
+      - master
     paths: ['.github/workflows/ubuntu.yaml','**/CMakeLists.txt', '**/Makefile', '**/*.h', '**/*.hpp', '**/*.c', '**/*.cpp', '**/*.cl', '**/*.cs', '**/*.sln', '**/*.csproj', '**/appsettings.json']
   pull_request:
     types: [opened, synchronize, reopened]
@@ -54,7 +56,7 @@ jobs:
     - name: Build OpenCLSolarSystem
       run: |
         cd openclsolarsystem
-        cmake -B build -S src/OpenCLSolarSystem --debug-find --log-level=VERBOSE -DCMAKE_BUILD_TYPE=Release -DwxWidgets_CONFIG_EXECUTABLE=/usr/local/bin/wx-config -DOpenGL_GL_PREFERENCE=GLVND
+        cmake -B build -S src/OpenCLSolarSystem -DCMAKE_BUILD_TYPE=Release -DwxWidgets_CONFIG_EXECUTABLE=/usr/local/bin/wx-config -DOpenGL_GL_PREFERENCE=GLVND
         cmake --build build --config Release -j$(nproc)
 
     - name: Setup dotnet 
