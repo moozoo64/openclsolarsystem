@@ -18,7 +18,7 @@ jobs:
     - name: Install OpenCLSolarSystem dependencies
       run: |
         sudo apt update
-        sudo apt install build-essential git cmake ninja-build libgl1-mesa-dev libglew-dev opencl-headers ocl-icd-opencl-dev libwxgtk-gl3.2-1t64 libwxgtk3.2-dev
+        sudo apt install build-essential git cmake ninja-build libgl1-mesa-dev libglew-dev opencl-headers ocl-icd-opencl-dev libwxgtk-gl3.2-1t64 libwxgtk3.2-dev wx3.2-headers
 
     - name: Checkout OpenCLSolarSystem
       uses: actions/checkout@v4
