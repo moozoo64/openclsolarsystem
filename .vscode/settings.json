@@ -1,5 +1,5 @@
 {
-  "githubLocalActions.actCommand": "act -P windows-latest=-self-hosted ",
+  "githubLocalActions.actCommand": "act -P windows-latest=-self-hosted -P ubuntu-24.04=catthehacker/ubuntu:full-latest",
   "terminal.integrated.profiles.windows": {
     "bash (MSYS2)": {
       "path": "C:\\msys64\\usr\\bin\\bash.exe",
