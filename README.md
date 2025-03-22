@@ -174,8 +174,8 @@ See the build configuration at: https://github.com/moozoo64/openclsolarsystem/bl
 ### 1. Install dependencies for wxWidgets and OpenClSolarSystem
 ```bash
 sudo apt-get update
-sudo apt install build-essential git cmake ninja-build libgl1-mesa-dev libglew-dev opencl-headers ocl-icd-opencl-dev libwxgtk3.2-dev
-sudo apt install libglew2.2 libwxgtk-gl3.2-1t64 libwxgtk3.2-1t64 libwxbase3.2-1t64 ocl-icd-libopencl1
+sudo apt install build-essential git cmake ninja-build libgl1-mesa-dev libglew-dev opencl-headers ocl-icd-opencl-dev libwxgtk3.2-dev dotnet-sdk-8.0
+sudo apt install libglew2.2 libwxgtk-gl3.2-1t64 libwxgtk3.2-1t64 libwxbase3.2-1t64 ocl-icd-libopencl1 dotnet-runtime-8.0
 ```
 
 ### 2. Checkout and build OpenCLSolarSystem and OrbToSlf
@@ -185,7 +185,7 @@ cd openclsolarsystem
 cmake -B build -S src/OpenCLSolarSystem -DCMAKE_BUILD_TYPE=Release
 cmake --build build --config Release -j$(nproc)
 cd src/OrbToSlf
-dotnet publish OrbToSlfConsole/OrbToSlfConsole.csproj --configuration Release --framework net8.0 --output ./OrbToSlfConsole/bin/Release/publish
+dotnet publish OrbToSlfConsole/OrbToSlfConsole.csproj --configuration Release --framework net8.0 --self-contained false -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true --output ./OrbToSlfConsole/bin/Release/publish
 cd ./OrbToSlfConsole/bin/Release/publish
 ./OrbToSlfConsole
 ```

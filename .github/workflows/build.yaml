@@ -95,7 +95,7 @@ jobs:
         run: |
           cd src/OrbToSlf
           # Build main projects to a specific output directory
-          dotnet publish OrbToSlfConsole/OrbToSlfConsole.csproj --configuration Release --framework net8.0 --output ./OrbToSlfConsole/bin/Release/publish
+          dotnet publish OrbToSlfConsole/OrbToSlfConsole.csproj --configuration Release --framework net8.0 --self-contained false -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true --output ./OrbToSlfConsole/bin/Release/publish
           # Build and run tests with coverage
           dotnet test --configuration Release --collect:"XPlat Code Coverage" --results-directory:"./OrbToSlfConsole/bin/Release/TestResults" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura,opencover
 
