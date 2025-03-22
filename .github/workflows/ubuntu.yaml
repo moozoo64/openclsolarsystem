@@ -90,7 +90,7 @@ jobs:
         cp -r openclsolarsystem/src/OrbToSlf/OrbToSlfConsole/bin/Release/publish/* .debpkg/usr/share/openclsolarsystem/OrbToSlf
         # Copy icon to all required sizes
         for size in 16 32 48 64 128 256; do
-          convert openclsolarsystem/src/Icon/icon.png -resize ${size}x${size} .debpkg/usr/share/icons/hicolor/${size}x${size}/apps/openclsolarsystem.png
+          convert openclsolarsystem/src/OpenCLSolarSystem/icon.png -resize ${size}x${size} .debpkg/usr/share/icons/hicolor/${size}x${size}/apps/openclsolarsystem.png
         done
         # Copy the .desktop file
         cp openclsolarsystem/src/OpenCLSolarSystem/openclsolarsystem.desktop .debpkg/usr/share/applications/
