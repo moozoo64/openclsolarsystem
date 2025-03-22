@@ -88,7 +88,7 @@ jobs:
         maintainer: 'Michael Simmons <moozoo.wizard@gmail.com>'
         version:  '1.0.${{ github.run_number }}'
         arch: 'amd64'
-        depends: 'libglew2.2, libwxgtk-gl3.2-1t64, libwxgtk3.2-0t64, libwxbase3.2-1t64, ocl-icd-libopencl1'
+        depends: 'libglew2.2, libwxgtk-gl3.2-1t64, libwxgtk3.2-1t64, libwxbase3.2-1t64, ocl-icd-libopencl1'
         desc: 'opencl solar system simulator'
         homepage: 'https://github.com/moozoo64/openclsolarsystem'
       id: build
