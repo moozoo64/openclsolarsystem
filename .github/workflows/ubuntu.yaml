@@ -2,6 +2,11 @@ name: CI-ubuntu
 
 on:
   workflow_dispatch:
+    inputs:
+      create_release:
+        description: 'Create new release'
+        required: true
+        type: boolean
   push:
     branches:
       - master
@@ -9,6 +14,15 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
     paths: ['.github/workflows/ubuntu.yaml', '**/CMakeLists.txt', '**/Makefile', '**/*.h', '**/*.hpp', '**/*.c', '**/*.cpp', '**/*.cl', '**/*.cs', '**/*.sln', '**/*.csproj', '**/appsettings.json']
+permissions:
+  contents: write
+  
+env:
+  BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+  RELEASE_VERSION: ${{ github.event.inputs.create_release && github.run_number }}
+  SHOULD_RELEASE: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/master') || github.event.inputs.create_release == 'true' }}
+  SHOULD_UPLOAD_ARTIFACT: ${{ github.ref == 'refs/heads/develop' && github.event.inputs.create_release == 'true' }}
+  BUILD_DATE: ${{ github.event.repository.updated_at }}
 
 jobs:
   ubuntu:
@@ -44,3 +58,42 @@ jobs:
         dotnet publish OrbToSlfConsole/OrbToSlfConsole.csproj --configuration Release --framework net8.0 --output ./OrbToSlfConsole/bin/Release/publish
         # Build and run tests with coverage
         dotnet test --configuration Release --collect:"XPlat Code Coverage" --results-directory:"./OrbToSlfConsole/bin/Release/TestResults" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura,opencover
+
+    - name: Determine tag name
+      id: tag
+      shell: bash
+      run: |
+        BUILD_NUMBER="$(git rev-list --count HEAD)"
+        SHORT_HASH="$(git rev-parse --short=7 HEAD)"
+        if [[ "${{ env.BRANCH_NAME }}" == "master" ]]; then
+          echo "name=b${BUILD_NUMBER}" >> $GITHUB_OUTPUT
+        else
+          SAFE_NAME=$(echo "${{ env.BRANCH_NAME }}" | tr '/' '-')
+          echo "name=${SAFE_NAME}-b${BUILD_NUMBER}-${SHORT_HASH}" >> $GITHUB_OUTPUT
+          fi
+   
+    - name: Create package directory structure
+      run: |
+        mkdir -p .debpkg/usr/bin
+        mkdir -p .debpkg/usr/share/openclsolarsystem/OrbToSlf
+        cp -r openclsolarsystem/build/bin .debpkg/usr/bin/
+        cp -r openclsolarsystem/src/OrbToSlf/OrbToSlfConsole/bin/Release/publish .debpkg/usr/share/openclsolarsystem/OrbToSlf
+
+    - name: Build .deb package
+      uses: jiro4989/build-deb-action@v4
+      with:
+        package: openclsolarsystem
+        package_root: .debpkg
+        maintainer: 'Michael Simmons <moozoo.wizard@gmail.com>'
+        version:  '1.0.${{ github.run_number }}'
+        arch: 'amd64'
+        depends: 'libglew2.2 libwxgtk-gl3.2-1t64 libwxgtk3.2-0t64 libwxbase3.2-1t64 ocl-icd-libopencl1'
+        desc: 'opencl solar system simulator'
+        homepage: 'https://github.com/moozoo64/openclsolarsystem'
+      id: build
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: OpenClSolarSystem-${{ steps.tag.outputs.name }}-Release-deb
+        path: ${{ steps.build.outputs.file_name }}
