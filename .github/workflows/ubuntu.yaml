@@ -87,6 +87,7 @@ jobs:
         # Add desktop file directory
         mkdir -p .debpkg/usr/share/applications
         cp -r openclsolarsystem/build/bin/* .debpkg/usr/bin/
+        cp openclsolarsystem/src/OrbToSlf/OrbToSlfConsole/mpcsmall.slf .debpkg/usr/share/openclsolarsystem
         cp -r openclsolarsystem/src/OrbToSlf/OrbToSlfConsole/bin/Release/publish/* .debpkg/usr/share/openclsolarsystem/OrbToSlf
         # Copy icon to all required sizes
         for size in 16 32 48 64 128 256; do

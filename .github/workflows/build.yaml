@@ -135,7 +135,8 @@ jobs:
           Copy-Item ./licenses ./build/bin/ -Recurse
           Copy-Item ./README.md ./build/bin/
           Copy-Item ./license.txt ./build/bin/
-          Copy-Item ./src/OrbToSlf/OrbToSlfConsole/bin/Release/publish/* ./build/bin//OrbToSlf/ -Recurse
+          Copy-Item ./src/OrbToSlf/OrbToSlfConsole/mpcsmall.slf ./build/bin/
+          Copy-Item ./src/OrbToSlf/OrbToSlfConsole/bin/Release/publish/* ./build/bin/OrbToSlf/ -Recurse
           7z a OpenClSolarSystem-${{ steps.tag.outputs.name }}-${{matrix.env}}-${{ matrix.build }}.zip ./build/bin/*
           # Generate checksums
           $hash = Get-FileHash -Algorithm SHA256 OpenClSolarSystem-${{ steps.tag.outputs.name }}-${{matrix.env}}-${{ matrix.build }}.zip
