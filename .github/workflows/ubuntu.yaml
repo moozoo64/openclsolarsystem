@@ -92,8 +92,9 @@ jobs:
         homepage: 'https://github.com/moozoo64/openclsolarsystem'
       id: build
 
-    - name: Upload artifact
-      uses: actions/upload-artifact@v3
+    - name: Upload artifacts
+      if: ${{ env.SHOULD_RELEASE == 'true' || env.SHOULD_UPLOAD_ARTIFACT == 'true' }}
+      uses: actions/upload-artifact@v4
       with:
-        name: OpenClSolarSystem-${{ steps.tag.outputs.name }}-Release-deb
+        name: OpenClSolarSystem-${{ steps.tag.outputs.name }}-ubuntu1204.deb
         path: ${{ steps.build.outputs.file_name }}
