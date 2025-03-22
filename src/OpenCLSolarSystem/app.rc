@@ -1,0 +1,27 @@
+#include <windows.h>
+
+IDI_ICON1 ICON "icon.ico"
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION     1,0,0,0
+PRODUCTVERSION  1,0,0,0
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904E4"
+        BEGIN
+            VALUE "CompanyName", "Michael Simmons"
+            VALUE "FileDescription", "OpenCL Solar System Simulator"
+            VALUE "FileVersion", "1.0.0.0"
+            VALUE "InternalName", "OpenCLSolarSystem"
+            VALUE "LegalCopyright", "Copyright (C) 2025"
+            VALUE "OriginalFilename", "OpenCLSolarSystem.exe"
+            VALUE "ProductName", "OpenCL Solar System"
+            VALUE "ProductVersion", "1.0.0.0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1252
+    END
+END

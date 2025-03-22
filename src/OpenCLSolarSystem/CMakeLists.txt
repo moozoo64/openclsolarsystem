@@ -4,6 +4,13 @@ cmake_minimum_required(VERSION 3.10)
 # Define the project name
 project(OpenCLSolarSystem)
 
+# Add after project() declaration
+if(WIN32)
+    # Enable resource compilation
+    enable_language(RC)
+    set(APP_ICON_RESOURCE "${CMAKE_CURRENT_SOURCE_DIR}/app.rc")
+endif()
+
 # Set output directories
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -63,7 +70,11 @@ set(HEADERS
 )
 
 # Define the executable with both source and header files
-add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
+if(WIN32)
+    add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS} ${APP_ICON_RESOURCE})
+else()
+    add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
+endif()
 
 # Link libraries to the executable
 target_link_libraries(${PROJECT_NAME} PRIVATE

@@ -32,7 +32,7 @@ jobs:
     - name: Install OpenCLSolarSystem dependencies
       run: |
         sudo apt update
-        sudo apt install build-essential git cmake ninja-build libgl1-mesa-dev libglew-dev opencl-headers ocl-icd-opencl-dev libwxgtk3.2-dev
+        sudo apt install build-essential git cmake ninja-build libgl1-mesa-dev libglew-dev opencl-headers ocl-icd-opencl-dev libwxgtk3.2-dev imagemagick
 
     - name: Checkout OpenCLSolarSystem
       uses: actions/checkout@v4
@@ -77,8 +77,23 @@ jobs:
       run: |
         mkdir -p .debpkg/usr/bin
         mkdir -p .debpkg/usr/share/openclsolarsystem/OrbToSlf
+        # Add icon directories
+        mkdir -p .debpkg/usr/share/icons/hicolor/256x256/apps
+        mkdir -p .debpkg/usr/share/icons/hicolor/128x128/apps
+        mkdir -p .debpkg/usr/share/icons/hicolor/64x64/apps
+        mkdir -p .debpkg/usr/share/icons/hicolor/48x48/apps
+        mkdir -p .debpkg/usr/share/icons/hicolor/32x32/apps
+        mkdir -p .debpkg/usr/share/icons/hicolor/16x16/apps
+        # Add desktop file directory
+        mkdir -p .debpkg/usr/share/applications
         cp -r openclsolarsystem/build/bin/* .debpkg/usr/bin/
         cp -r openclsolarsystem/src/OrbToSlf/OrbToSlfConsole/bin/Release/publish/* .debpkg/usr/share/openclsolarsystem/OrbToSlf
+        # Copy icon to all required sizes
+        for size in 16 32 48 64 128 256; do
+          convert openclsolarsystem/src/Icon/icon.png -resize ${size}x${size} .debpkg/usr/share/icons/hicolor/${size}x${size}/apps/openclsolarsystem.png
+        done
+        # Copy the .desktop file
+        cp openclsolarsystem/src/OpenCLSolarSystem/openclsolarsystem.desktop .debpkg/usr/share/applications/
 
     - name: Build .deb package
       uses: jiro4989/build-deb-action@v4
