@@ -1,7 +1,12 @@
-name: ubuntu
+name: CI-ubuntu
 
 on:
   workflow_dispatch:
+    inputs:
+      create_release:
+        description: 'Create new release'
+        required: true
+        type: boolean
   push:
     branches:
       - master
@@ -9,43 +14,25 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
     paths: ['.github/workflows/ubuntu.yaml', '**/CMakeLists.txt', '**/Makefile', '**/*.h', '**/*.hpp', '**/*.c', '**/*.cpp', '**/*.cl', '**/*.cs', '**/*.sln', '**/*.csproj', '**/appsettings.json']
+permissions:
+  contents: write
+  
+env:
+  BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+  RELEASE_VERSION: ${{ github.event.inputs.create_release && github.run_number }}
+  SHOULD_RELEASE: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/master') || github.event.inputs.create_release == 'true' }}
+  SHOULD_UPLOAD_ARTIFACT: ${{ github.ref == 'refs/heads/develop' && github.event.inputs.create_release == 'true' }}
+  BUILD_DATE: ${{ github.event.repository.updated_at }}
 
 jobs:
   ubuntu:
     runs-on: ubuntu-24.04
 
     steps:
-    - name: Install dependencies for wxWidgets
-      run: |
-        sudo apt-get update
-        sudo apt-get install build-essential git cmake ninja-build libgl1 libgl1-mesa-dev libglu1-mesa-dev libedit-dev libgtk-3-dev libhunspell-dev pkg-config
-
-    - name: Checkout WxWidgets
-      uses: actions/checkout@v4
-      with:
-        repository: wxWidgets/wxWidgets
-        ref: v3.2.7.1
-        submodules: recursive
-        path: wxWidgets
-
-    - name: Cache wxWidgets
-      uses: actions/cache@v3
-      with:
-        path: wxWidgets/build-release
-        key: wxwidgets-${{ runner.os }}-${{ hashFiles('wxWidgets/**') }}
-        restore-keys: |
-          wxwidgets-${{ runner.os }}-
-
-    - name: Build and install wxWidgets
-      run: |
-        mkdir -p wxWidgets/build-release
-        cd wxWidgets/build-release
-        ../configure --disable-debug_flag --with-gtk=3 --enable-stl --with-opengl
-        make -j$(nproc) && sudo make install
-        sudo ldconfig
-
     - name: Install OpenCLSolarSystem dependencies
-      run: sudo apt install build-essential git cmake ninja-build libgl1-mesa-dev libglew-dev opencl-headers ocl-icd-opencl-dev
+      run: |
+        sudo apt update
+        sudo apt install build-essential git cmake ninja-build libgl1-mesa-dev libglew-dev opencl-headers ocl-icd-opencl-dev libwxgtk3.2-dev imagemagick
 
     - name: Checkout OpenCLSolarSystem
       uses: actions/checkout@v4
@@ -56,7 +43,7 @@ jobs:
     - name: Build OpenCLSolarSystem
       run: |
         cd openclsolarsystem
-        cmake -B build -S src/OpenCLSolarSystem -DCMAKE_BUILD_TYPE=Release -DwxWidgets_CONFIG_EXECUTABLE=/usr/local/bin/wx-config -DOpenGL_GL_PREFERENCE=GLVND
+        cmake -B build -S src/OpenCLSolarSystem -DCMAKE_BUILD_TYPE=Release
         cmake --build build --config Release -j$(nproc)
 
     - name: Setup dotnet 
@@ -68,6 +55,63 @@ jobs:
       run: |
         cd openclsolarsystem/src/OrbToSlf
         # Build main projects to a specific output directory
-        dotnet publish OrbToSlfConsole/OrbToSlfConsole.csproj --configuration Release --framework net8.0 --output ./OrbToSlfConsole/bin/Release/publish
+        dotnet publish OrbToSlfConsole/OrbToSlfConsole.csproj --configuration Release --framework net8.0 --self-contained false -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true --output ./OrbToSlfConsole/bin/Release/publish
         # Build and run tests with coverage
         dotnet test --configuration Release --collect:"XPlat Code Coverage" --results-directory:"./OrbToSlfConsole/bin/Release/TestResults" -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura,opencover
+
+    - name: Determine tag name
+      id: tag
+      shell: bash
+      run: |
+        cd openclsolarsystem
+        BUILD_NUMBER="$(git rev-list --count HEAD)"
+        SHORT_HASH="$(git rev-parse --short=7 HEAD)"
+        if [[ "${{ env.BRANCH_NAME }}" == "master" ]]; then
+          echo "name=b${BUILD_NUMBER}" >> $GITHUB_OUTPUT
+        else
+          SAFE_NAME=$(echo "${{ env.BRANCH_NAME }}" | tr '/' '-')
+          echo "name=${SAFE_NAME}-b${BUILD_NUMBER}-${SHORT_HASH}" >> $GITHUB_OUTPUT
+          fi
+   
+    - name: Create package directory structure
+      run: |
+        mkdir -p .debpkg/usr/bin
+        mkdir -p .debpkg/usr/share/openclsolarsystem/OrbToSlf
+        # Add icon directories
+        mkdir -p .debpkg/usr/share/icons/hicolor/256x256/apps
+        mkdir -p .debpkg/usr/share/icons/hicolor/128x128/apps
+        mkdir -p .debpkg/usr/share/icons/hicolor/64x64/apps
+        mkdir -p .debpkg/usr/share/icons/hicolor/48x48/apps
+        mkdir -p .debpkg/usr/share/icons/hicolor/32x32/apps
+        mkdir -p .debpkg/usr/share/icons/hicolor/16x16/apps
+        # Add desktop file directory
+        mkdir -p .debpkg/usr/share/applications
+        cp -r openclsolarsystem/build/bin/* .debpkg/usr/bin/
+        cp openclsolarsystem/src/OrbToSlf/OrbToSlfConsole/mpcsmall.slf .debpkg/usr/share/openclsolarsystem
+        cp -r openclsolarsystem/src/OrbToSlf/OrbToSlfConsole/bin/Release/publish/* .debpkg/usr/share/openclsolarsystem/OrbToSlf
+        # Copy icon to all required sizes
+        for size in 16 32 48 64 128 256; do
+          convert openclsolarsystem/src/OpenCLSolarSystem/icon.png -resize ${size}x${size} .debpkg/usr/share/icons/hicolor/${size}x${size}/apps/openclsolarsystem.png
+        done
+        # Copy the .desktop file
+        cp openclsolarsystem/src/OpenCLSolarSystem/openclsolarsystem.desktop .debpkg/usr/share/applications/
+
+    - name: Build .deb package
+      uses: jiro4989/build-deb-action@v4
+      with:
+        package: openclsolarsystem
+        package_root: .debpkg
+        maintainer: 'Michael Simmons <moozoo.wizard@gmail.com>'
+        version:  '1.0.${{ github.run_number }}'
+        arch: 'amd64'
+        depends: 'libglew2.2, libwxgtk-gl3.2-1t64, libwxgtk3.2-1t64, libwxbase3.2-1t64, ocl-icd-libopencl1, dotnet-runtime-8.0'
+        desc: 'opencl solar system simulator'
+        homepage: 'https://github.com/moozoo64/openclsolarsystem'
+      id: build
+
+    - name: Upload artifacts
+      if: ${{ env.SHOULD_RELEASE == 'true' || env.SHOULD_UPLOAD_ARTIFACT == 'true' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: OpenClSolarSystem-${{ steps.tag.outputs.name }}-ubuntu1204.deb
+        path: ${{ steps.build.outputs.file_name }}

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Name=OpenCL Solar System
+Comment=Solar System Simulator using OpenCL
+Exec=OpenCLSolarSystem
+Icon=openclsolarsystem
+Terminal=false
+Type=Application
+Categories=Science;Education;

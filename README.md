@@ -174,27 +174,18 @@ See the build configuration at: https://github.com/moozoo64/openclsolarsystem/bl
 ### 1. Install dependencies for wxWidgets and OpenClSolarSystem
 ```bash
 sudo apt-get update
-sudo apt-get upgrade
-sudo apt-get install build-essential git cmake ninja-build libgl1 libgl1-mesa-dev libglu1-mesa-dev libedit-dev libgtk-3-dev libhunspell-dev pkg-config libglew-dev opencl-headers ocl-icd-opencl-dev dotnet-sdk-8.0
+sudo apt install build-essential git cmake ninja-build libgl1-mesa-dev libglew-dev opencl-headers ocl-icd-opencl-dev libwxgtk3.2-dev dotnet-sdk-8.0
+sudo apt install libglew2.2 libwxgtk-gl3.2-1t64 libwxgtk3.2-1t64 libwxbase3.2-1t64 ocl-icd-libopencl1 dotnet-runtime-8.0
 ```
 
-### 2. Checkout and build wxWidgets
-```bash
-git clone --branch v3.2.7.1 --single-branch --recurse-submodules https://github.com/wxWidgets/wxWidgets.git
-mkdir -p wxWidgets/build-release
-cd wxWidgets/build-release
-../configure --disable-debug_flag --with-gtk=3 --enable-stl
-make -j$(nproc) && sudo make install
-```
-
-### 3. Checkout and build OpenCLSolarSystem and OrbToSlf
+### 2. Checkout and build OpenCLSolarSystem and OrbToSlf
 ```bash
 git clone https://github.com/moozoo64/openclsolarsystem.git
 cd openclsolarsystem
-cmake -B build -S src/OpenCLSolarSystem -DCMAKE_BUILD_TYPE=Release -DwxWidgets_CONFIG_EXECUTABLE=/usr/local/bin/wx-config -DOpenGL_GL_PREFERENCE=GLVND
-cmake --build build --config Release -j8
+cmake -B build -S src/OpenCLSolarSystem -DCMAKE_BUILD_TYPE=Release
+cmake --build build --config Release -j$(nproc)
 cd src/OrbToSlf
-dotnet publish OrbToSlfConsole/OrbToSlfConsole.csproj --configuration Release --framework net8.0 --output ./OrbToSlfConsole/bin/Release/publish
+dotnet publish OrbToSlfConsole/OrbToSlfConsole.csproj --configuration Release --framework net8.0 --self-contained false -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true --output ./OrbToSlfConsole/bin/Release/publish
 cd ./OrbToSlfConsole/bin/Release/publish
 ./OrbToSlfConsole
 ```

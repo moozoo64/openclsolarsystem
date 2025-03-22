@@ -4,6 +4,13 @@ cmake_minimum_required(VERSION 3.10)
 # Define the project name
 project(OpenCLSolarSystem)
 
+# Add after project() declaration
+if(WIN32)
+    # Enable resource compilation
+    enable_language(RC)
+    set(APP_ICON_RESOURCE "${CMAKE_CURRENT_SOURCE_DIR}/app.rc")
+endif()
+
 # Set output directories
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -47,10 +54,27 @@ set(SOURCES
     glcanvas.cpp
     clmodel.cpp
     global.cpp
+    kernels.cpp
 )
 
-# Define the executable
-add_executable(${PROJECT_NAME} ${SOURCES})
+# Define header files needed for IDEs
+set(HEADERS
+    application.hpp
+    frame.hpp 
+    physicalproperties.hpp
+    initialstate.hpp
+    glcanvas.hpp
+    clmodel.hpp
+    global.hpp
+    kernels.hpp
+)
+
+# Define the executable with both source and header files
+if(WIN32)
+    add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS} ${APP_ICON_RESOURCE})
+else()
+    add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
+endif()
 
 # Link libraries to the executable
 target_link_libraries(${PROJECT_NAME} PRIVATE
@@ -67,8 +91,8 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release" AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 endif()
 
 # Post-build commands: copy resource files to the build directory
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/adamsfma.cl ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/mpcsmall.slf ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-    COMMENT "Copying resource files to build directory"
-)
+#add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+#    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/adamsfma.cl ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+#    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/mpcsmall.slf ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+#    COMMENT "Copying resource files to build directory"
+#)
