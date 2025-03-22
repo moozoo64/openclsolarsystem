@@ -77,8 +77,8 @@ jobs:
       run: |
         mkdir -p .debpkg/usr/bin
         mkdir -p .debpkg/usr/share/openclsolarsystem/OrbToSlf
-        cp -r openclsolarsystem/build/bin .debpkg/usr/bin/
-        cp -r openclsolarsystem/src/OrbToSlf/OrbToSlfConsole/bin/Release/publish .debpkg/usr/share/openclsolarsystem/OrbToSlf
+        cp -r openclsolarsystem/build/bin/* .debpkg/usr/bin/
+        cp -r openclsolarsystem/src/OrbToSlf/OrbToSlfConsole/bin/Release/publish/* .debpkg/usr/share/openclsolarsystem/OrbToSlf
 
     - name: Build .deb package
       uses: jiro4989/build-deb-action@v4
