@@ -26,6 +26,7 @@
  */
 #include "global.hpp"
 #include "clmodel.hpp"
+#include "kernels.hpp"
 
 CLModel::CLModel()
 {
@@ -774,16 +775,8 @@ void CLModel::CompileProgramAndCreateKernels()
 #endif
 
   cl_int status = CL_SUCCESS;
-  // load the contents of the kernel file into a in memory string
-  wxString nbodySource;
-  wxFFile nbodyFile("adamsfma.cl", "r");
-  if (!nbodyFile.IsOpened())
-  {
-    wxLogError(wxT("Failed to read adams.cl"));
-    throw -1;
-  }
-
-  nbodyFile.ReadAll(&nbodySource, wxConvISO8859_1);
+  // Replace file loading with embedded source
+  wxString nbodySource = wxString(Kernels::adamsfma, wxConvUTF8);
 
   wxString programSource;
   if (this->gotKhrGlSharing && !this->gotAmdFp64)
