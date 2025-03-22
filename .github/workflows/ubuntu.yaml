@@ -63,6 +63,7 @@ jobs:
       id: tag
       shell: bash
       run: |
+        cd openclsolarsystem
         BUILD_NUMBER="$(git rev-list --count HEAD)"
         SHORT_HASH="$(git rev-parse --short=7 HEAD)"
         if [[ "${{ env.BRANCH_NAME }}" == "master" ]]; then
