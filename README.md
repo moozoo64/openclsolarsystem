@@ -241,6 +241,11 @@ cd ./OrbToSlfConsole/bin/Release/publish
 * [MSYS2](https://www.msys2.org/) - Software Distribution and Building Platform for Windows
 * [wxWidgets](https://www.wxwidgets.org/) - Cross-Platform GUI Library (Version 3.2)
 
+### AI
+
+* I got AI advice and assistance from Grok3 and Microsoft CoPilot and GitHub Copilot mostly on code refactoring and GitHub Actions
+* Grok3 produced createIcon.py
+
 ### Licensing
 
 This software includes several third-party works. Their licenses can be found in the Licenses folder.  
