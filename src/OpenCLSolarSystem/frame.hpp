@@ -128,6 +128,7 @@ private:
   void OnTimer(wxTimerEvent &event);                /**< Handle timer updates */
   void OnClose(wxCloseEvent &event);                /**< Handle window close */
   void OnIdle(wxIdleEvent &event);                  /**< Handle idle updates */
+  void OnGLContextReady(wxCommandEvent &event);     /**< Handle OpenGL context ready */
 
   DECLARE_EVENT_TABLE() /**< wxWidgets event table */
 };

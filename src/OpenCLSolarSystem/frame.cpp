@@ -16,6 +16,8 @@
 #include "global.hpp"
 #include "frame.hpp"
 
+extern const int ID_GL_CONTEXT_READY;
+
 // UI event Ids
 enum
 {
@@ -89,7 +91,7 @@ enum
   ID_SETCENTER14,
   ID_SETCENTER15,
   ID_SETCENTER16,
-  ID_LOGENCOUNTERS
+  ID_LOGENCOUNTERS,
 };
 
 // mapping of UI event ids to functions
@@ -169,6 +171,7 @@ EVT_MENU(ID_LOGENCOUNTERS, Frame::OnLogEncounters)
 EVT_TIMER(ID_TIMER, Frame::OnTimer)
 EVT_IDLE(Frame::OnIdle)
 EVT_CLOSE(Frame::OnClose)
+EVT_MENU(ID_GL_CONTEXT_READY, Frame::OnGLContextReady)
 END_EVENT_TABLE()
 
 // My frame constructor
@@ -371,32 +374,34 @@ void Frame::InitFrame(bool doubleBuffer, bool smooth, bool lighting, bool stereo
     // Create the OpenGL canvas on which the simulation will be displayed
     this->glCanvas = new GLCanvas(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, wxT("GLCanvas"), doubleBuffer, smooth, lighting, stereo);
     this->glCanvas->blending = true;
-    this->glCanvas->CreateOpenGlContext(this->numParticles, this->numGrav);
+    this->glCanvas->numParticles = this->numParticles;
+    this->glCanvas->numGrav = this->numGrav;
+    // this->glCanvas->CreateOpenGlContext(this->numParticles, this->numGrav);
 
-    // Create an openCL model to run the simulation and initialise it
-    this->clModel = new CLModel();
-    this->ChooseDevice(this->config);
-    this->clModel->CreateBufferObjects(this->glCanvas->getVbo(), this->numParticles, this->numGrav);
-    this->clModel->CompileProgramAndCreateKernels();
-    this->glCanvas->SetColours(this->initialState->initialColorData);
-    this->clModel->SetInitalState(this->initialState->initialPositions, this->initialState->initialVelocities);
-    this->clModel->julianDate = this->initialState->initialJulianDate;
-    this->clModel->time = 0.0f;
-    this->clModel->SetKernelArgumentsAndGroupSize();
-    this->clModel->UpdateDisplay();
+    // // Create an openCL model to run the simulation and initialise it
+    // this->clModel = new CLModel();
+    // this->ChooseDevice(this->config);
+    // this->clModel->CreateBufferObjects(this->glCanvas->getVbo(), this->numParticles, this->numGrav);
+    // this->clModel->CompileProgramAndCreateKernels();
+    // this->glCanvas->SetColours(this->initialState->initialColorData);
+    // this->clModel->SetInitalState(this->initialState->initialPositions, this->initialState->initialVelocities);
+    // this->clModel->julianDate = this->initialState->initialJulianDate;
+    // this->clModel->time = 0.0f;
+    // this->clModel->SetKernelArgumentsAndGroupSize();
+    // this->clModel->UpdateDisplay();
 
-    // set the keyboard focus to the simmulation display so that the keyboard functions work
-    this->glCanvas->SetFocus();
+    // // set the keyboard focus to the simmulation display so that the keyboard functions work
+    // this->glCanvas->SetFocus();
 
     // Update the menu items to reflect the current state
-    this->UpdateMenuItems();
+    // this->UpdateMenuItems();
 
-    menuBar = this->GetMenuBar();
-    wxMenuItem *menuItem;
-    menuItem = menuBar->FindItem(ID_SETADAMS11);
-    menuItem->Check(true);
-    menuItem = menuBar->FindItem(ID_SETRELATIVISTIC);
-    menuItem->Check(true);
+    // menuBar = this->GetMenuBar();
+    // wxMenuItem *menuItem;
+    // menuItem = menuBar->FindItem(ID_SETADAMS11);
+    // menuItem->Check(true);
+    // menuItem = menuBar->FindItem(ID_SETRELATIVISTIC);
+    // menuItem->Check(true);
 
     wxLogDebug(wxT("Init Frame Succeeded"));
   }
@@ -1303,4 +1308,33 @@ void Frame::OnResetColours(wxCommandEvent &event)
   this->initialState->SetDefaultBodyColours();
   this->glCanvas->SetColours(this->initialState->initialColorData);
   this->Refresh(true);
+}
+
+void Frame::OnGLContextReady(wxCommandEvent &event)
+{
+  // Create an openCL model to run the simulation and initialise it
+  this->clModel = new CLModel();
+  this->ChooseDevice(this->config);
+  this->clModel->CreateBufferObjects(this->glCanvas->getVbo(), this->numParticles, this->numGrav);
+  this->clModel->CompileProgramAndCreateKernels();
+  this->glCanvas->SetColours(this->initialState->initialColorData);
+  this->clModel->SetInitalState(this->initialState->initialPositions, this->initialState->initialVelocities);
+  this->clModel->julianDate = this->initialState->initialJulianDate;
+  this->clModel->time = 0.0f;
+  this->clModel->SetKernelArgumentsAndGroupSize();
+  this->clModel->UpdateDisplay();
+  this->clModelOk = true;
+
+  // set the keyboard focus to the simmulation display so that the keyboard functions work
+  this->glCanvas->SetFocus();
+
+  // Update the menu items to reflect the current state
+  this->UpdateMenuItems();
+
+  wxMenuBar *menuBar = this->GetMenuBar();
+  wxMenuItem *menuItem;
+  menuItem = menuBar->FindItem(ID_SETADAMS11);
+  menuItem->Check(true);
+  menuItem = menuBar->FindItem(ID_SETRELATIVISTIC);
+  menuItem->Check(true);
 }

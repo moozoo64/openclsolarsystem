@@ -30,13 +30,14 @@ class GLCanvas : public wxGLCanvas
 {
 private:
   // OpenGL State
-  bool vboCreated;  /**< Vertex Buffer Objects initialized flag */
-  bool active;      /**< Canvas is active and ready to render */
-  bool stereo;      /**< Stereoscopic rendering enabled */
-  bool checkStereo; /**< Need to verify stereo support */
+  bool vboCreated;                   /**< Vertex Buffer Objects initialized flag */
+  bool active;                       /**< Canvas is active and ready to render */
+  bool stereo;                       /**< Stereoscopic rendering enabled */
+  bool checkStereo;                  /**< Need to verify stereo support */
+  bool glContextInitialized = false; /**< OpenGL context initialized flag */
 
   // Scene Parameters
-  int numParticles;  /**< Total number of particles to render */
+
   float aspectRatio; /**< Display aspect ratio (width/height) */
 
   // Rendering Settings
@@ -84,8 +85,9 @@ private:
       centerCam;              /**< Center/mono camera */
 
 public:
-  int numGrav;   /**< Number of gravitational bodies */
-  bool blending; /**< Alpha blending enabled */
+  int numGrav;      /**< Number of gravitational bodies */
+  int numParticles; /**< Total number of particles to render */
+  bool blending;    /**< Alpha blending enabled */
 
   /**
    * @brief Constructor for OpenGL canvas

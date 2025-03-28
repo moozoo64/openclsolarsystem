@@ -43,7 +43,7 @@ jobs:
     - name: Build OpenCLSolarSystem
       run: |
         cd openclsolarsystem
-        cmake -B build -S src/OpenCLSolarSystem -DCMAKE_BUILD_TYPE=Release
+        cmake -B build -S src/OpenCLSolarSystem -DCMAKE_BUILD_TYPE=Release -DOpenGL_GL_PREFERENCE=GLVND
         cmake --build build --config Release -j$(nproc)
 
     - name: Setup dotnet 
@@ -104,7 +104,7 @@ jobs:
         maintainer: 'Michael Simmons <moozoo.wizard@gmail.com>'
         version:  '1.0.${{ github.run_number }}'
         arch: 'amd64'
-        depends: 'libglew2.2, libwxgtk-gl3.2-1t64, libwxgtk3.2-1t64, libwxbase3.2-1t64, ocl-icd-libopencl1, dotnet-runtime-8.0'
+        depends: 'libglew2.2, libglu1-mesa, libwxgtk-gl3.2-1t64, libwxgtk3.2-1t64, libwxbase3.2-1t64, libcanberra-gtk3-0t64, ocl-icd-libopencl1, dotnet-runtime-8.0'
         desc: 'opencl solar system simulator'
         homepage: 'https://github.com/moozoo64/openclsolarsystem'
       id: build
