@@ -154,6 +154,7 @@ void GLCanvas::OnPaint(wxPaintEvent &WXUNUSED(event))
   if (!this->vboCreated)
   {
     wxLogError(wxT("OnPaint before vboCreated"));
+    return;
   }
 
   wxGLCanvas::SetCurrent(*this->glContext);
