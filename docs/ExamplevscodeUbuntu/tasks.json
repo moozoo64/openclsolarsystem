@@ -1,0 +1,72 @@
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "CMake Release",
+      "type": "shell",
+      "command": "bash",
+      "args": [
+        "-l",
+        "-c",
+        "cmake -B build-release -S src/OpenCLSolarSystem -DCMAKE_BUILD_TYPE=Release && cmake --build build-release --config Release -j$(nproc) && bash ./.vscode/post_cmake.sh build-release"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      }
+    },
+    {
+      "label": "Clean Release",
+      "type": "shell",
+      "command": "bash",
+      "args": [
+        "-l",
+        "-c",
+        "rm -rf build-release"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      }
+    },
+    {
+      "label": "CMake Debug",
+      "type": "shell",
+      "command": "bash",
+      "args": [
+        "-l",
+        "-c",
+        "cmake -B build -S src/OpenCLSolarSystem -DCMAKE_BUILD_TYPE=Debug && cmake --build build --config Debug -j$(nproc) && bash ./.vscode/post_cmake.sh build"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "Clean Debug",
+      "type": "shell",
+      "command": "bash",
+      "args": [
+        "-l",
+        "-c",
+        "rm -rf build"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      }
+    },
+    {
+      "label": "Show Variables",
+      "type": "shell",
+      "command": "echo",
+      "args": [
+        "Workspace: ${workspaceFolder}",
+        "Workspace Name: ${workspaceFolderBasename}",
+      ]
+    }
+  ]
+}
