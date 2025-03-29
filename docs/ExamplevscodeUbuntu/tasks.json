@@ -10,7 +10,7 @@
       "args": [
         "-l",
         "-c",
-        "cmake -B build-release -S src/OpenCLSolarSystem -DCMAKE_BUILD_TYPE=Release && cmake --build build-release --config Release -j$(nproc) && bash ./.vscode/post_cmake.sh build-release"
+        "cmake -G Ninja -B build-release -Wno-dev -S src/OpenCLSolarSystem -DCMAKE_BUILD_TYPE=Release && cmake --build build-release --config Release -j$(nproc) && bash ./.vscode/post_cmake.sh build-release"
       ],
       "group": {
         "kind": "build",
@@ -38,7 +38,7 @@
       "args": [
         "-l",
         "-c",
-        "cmake -B build -S src/OpenCLSolarSystem -DCMAKE_BUILD_TYPE=Debug && cmake --build build --config Debug -j$(nproc) && bash ./.vscode/post_cmake.sh build"
+        "cmake -G Ninja -B build -Wno-dev -S src/OpenCLSolarSystem -DCMAKE_BUILD_TYPE=Debug && cmake --build build --config Debug -j$(nproc) && bash ./.vscode/post_cmake.sh build"
       ],
       "group": {
         "kind": "build",
