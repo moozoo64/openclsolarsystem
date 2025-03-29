@@ -1,0 +1,96 @@
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "CMake Release",
+      "type": "shell",
+      "command": "C:/msys64/usr/bin/bash",
+      "args": [
+        "-l",
+        "-c",
+        "cd /home/michael/openclsolarsystem &&  cmake -B build -S src/OpenCLSolarSystem -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release -j$(nproc) && bash ./.vscode/post_cmake.sh build"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "options": {
+        "env": {
+          "MSYSTEM": "UCRT64",
+          "CHERE_INVOKING": "1"
+        }
+      }
+    },
+    {
+      "label": "Clean Release",
+      "type": "shell",
+      "command": "C:/msys64/usr/bin/bash",
+      "args": [
+        "-l",
+        "-c",
+        "cd /home/michael/openclsolarsystem && rm -rf build"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "options": {
+        "env": {
+          "MSYSTEM": "UCRT64",
+          "CHERE_INVOKING": "1"
+        }
+      }
+    },
+    {
+      "label": "CMake Debug",
+      "type": "shell",
+      "command": "C:/msys64/usr/bin/bash",
+      "args": [
+        "-l",
+        "-c",
+        "cd /home/michael/openclsolarsystem &&  cmake -B build-debug -S src/OpenCLSolarSystem -DCMAKE_BUILD_TYPE=Debug && cmake --build build-debug --config Debug -j$(nproc) && bash ./.vscode/post_cmake.sh build-debug"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "options": {
+        "env": {
+          "MSYSTEM": "UCRT64",
+          "CHERE_INVOKING": "1"
+        }
+      }
+    },
+    {
+      "label": "Clean Debug",
+      "type": "shell",
+      "command": "C:/msys64/usr/bin/bash",
+      "args": [
+        "-l",
+        "-c",
+        "cd /home/michael/openclsolarsystem && rm -rf build-debug"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "options": {
+        "env": {
+          "MSYSTEM": "UCRT64",
+          "CHERE_INVOKING": "1"
+        }
+      }
+    },
+    {
+      "label": "Show Variables",
+      "type": "shell",
+      "command": "echo",
+      "args": [
+        "Workspace: ${workspaceFolder}",
+        "Workspace Name: ${workspaceFolderBasename}",
+      ]
+    }
+  ]
+}
