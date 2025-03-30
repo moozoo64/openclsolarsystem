@@ -8,15 +8,21 @@
       "name": "(gdb) Launch OpenclSolarSystem",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${workspaceFolder}/build-debug/bin/OpenCLSolarSystem.exe",
+      "program": "${workspaceFolder}/build/bin/OpenCLSolarSystem",
       "args": [],
       "stopAtEntry": false,
-      "cwd": "${workspaceFolder}/build-debug/bin",
-      "environment": [],
+      "cwd": "${workspaceFolder}/build/bin",
+      // preload libcanberra-gtk3.so.0 because VS Code bug https://github.com/microsoft/vscode/issues/241636
+      "environment": [
+        {
+          "name": "LD_PRELOAD",
+          "value": "/usr/lib/x86_64-linux-gnu/libcanberra-gtk3.so.0"
+        }
+      ],
       "externalConsole": false,
       "MIMode": "gdb",
       //"preLaunchTask": "Make Debug",
-      "miDebuggerPath": "C:/msys64/ucrt64/bin/gdb.exe",
+      //"miDebuggerPath": "C:/msys64/ucrt64/bin/gdb.exe",
       "setupCommands": [
         {
           "description": "Enable pretty-printing for gdb",

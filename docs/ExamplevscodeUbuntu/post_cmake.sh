@@ -16,9 +16,9 @@ cd "$BUILD_DIR/bin" || {
 }
 
 # Copy dependencies
-for dll in $(ldd OpenCLSolarSystem.exe | grep -E "ucrt64|clang64|glew" | awk '{print $3}'); do
-    echo "Copying $dll"
-    cp "$dll" .
-done
+# for dll in $(ldd OpenCLSolarSystem.exe | grep -E "ucrt64|clang64|glew" | awk '{print $3}'); do
+#     echo "Copying $dll"
+#     cp "$dll" .
+# done
 
-echo "Dependencies copied successfully to $BUILD_DIR/bin"
+# echo "Dependencies copied successfully to $BUILD_DIR/bin"
