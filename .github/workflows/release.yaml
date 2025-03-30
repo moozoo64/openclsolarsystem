@@ -36,7 +36,7 @@ jobs:
 
   create-release:
     needs: [build-windows, build-ubuntu]
-    if: success() && github.ref == 'refs/heads/master'
+    if: success()
     runs-on: windows-latest
     steps:
       - name: Checkout repository
@@ -64,6 +64,7 @@ jobs:
           merge-multiple: true
 
       - name: Create Release
+        if: github.ref == 'refs/heads/master'
         uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
