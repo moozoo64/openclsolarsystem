@@ -1,10 +1,10 @@
 name: Create Release
 
 on:
-  # push:
-  #   branches:
-  #     - master
-  #   paths: ['.github/workflows/release.yaml', '**/CMakeLists.txt', '**/Makefile', '**/*.h', '**/*.hpp', '**/*.c', '**/*.cpp', '**/*.cl', '**/*.cs', '**/*.sln', '**/*.csproj', '**/appsettings.json']
+  push:
+    branches:
+      - master
+    paths: ['.github/workflows/release.yaml', '**/CMakeLists.txt', '**/Makefile', '**/*.h', '**/*.hpp', '**/*.c', '**/*.cpp', '**/*.cl', '**/*.cs', '**/*.sln', '**/*.csproj', '**/appsettings.json']
   workflow_dispatch:
     inputs:
       create_release:
@@ -36,7 +36,7 @@ jobs:
 
   create-release:
     needs: [build-windows, build-ubuntu]
-    if: success() && github.ref == 'refs/heads/master'
+    if: success()
     runs-on: windows-latest
     steps:
       - name: Checkout repository
@@ -64,6 +64,7 @@ jobs:
           merge-multiple: true
 
       - name: Create Release
+        if: github.ref == 'refs/heads/master'
         uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
