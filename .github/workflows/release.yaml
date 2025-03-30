@@ -1,0 +1,109 @@
+name: Create Release
+
+on:
+  # push:
+  #   branches:
+  #     - master
+  #   paths: ['.github/workflows/release.yaml', '**/CMakeLists.txt', '**/Makefile', '**/*.h', '**/*.hpp', '**/*.c', '**/*.cpp', '**/*.cl', '**/*.cs', '**/*.sln', '**/*.csproj', '**/appsettings.json']
+  workflow_dispatch:
+    inputs:
+      create_release:
+        description: 'Create new release'
+        required: true
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+  
+env:
+  BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+  RELEASE_VERSION: ${{ github.event.inputs.create_release && github.run_number }}
+  BUILD_DATE: ${{ github.event.repository.updated_at }}
+
+jobs:
+  build-windows:
+    uses: ./.github/workflows/build.yaml
+    with:
+      create_release: ${{ github.event_name == 'push' || github.event.inputs.create_release == true }}
+    secrets: inherit
+
+  build-ubuntu:
+    uses: ./.github/workflows/ubuntu.yaml
+    with:
+      create_release: ${{ github.event_name == 'push' || github.event.inputs.create_release == true }}
+    secrets: inherit
+
+  create-release:
+    needs: [build-windows, build-ubuntu]
+    if: success() && github.ref == 'refs/heads/master'
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Determine tag name
+        id: tag
+        shell: bash
+        run: |
+          BUILD_NUMBER="$(git rev-list --count HEAD)"
+          SHORT_HASH="$(git rev-parse --short=7 HEAD)"
+          if [[ "${{ env.BRANCH_NAME }}" == "master" ]]; then
+            echo "name=b${BUILD_NUMBER}" >> $GITHUB_OUTPUT
+          else
+            SAFE_NAME=$(echo "${{ env.BRANCH_NAME }}" | tr '/' '-')
+            echo "name=${SAFE_NAME}-b${BUILD_NUMBER}-${SHORT_HASH}" >> $GITHUB_OUTPUT
+          fi
+          
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: OpenClSolarSystem-${{ steps.tag.outputs.name }}-*
+          path: artifacts
+          merge-multiple: true
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          files: |
+            artifacts/**/OpenClSolarSystem-*.zip
+            artifacts/**/OpenClSolarSystem-*.sha256
+            artifacts/**/OpenClSolarSystem-*.deb
+          tag_name: ${{ steps.tag.outputs.name || 'v1.0.0' }}
+          name: Release ${{ steps.tag.outputs.name }}
+          body: |
+            ## OpenCLSolarSystem Release ${{ steps.tag.outputs.name }}
+            
+            ### Build Information
+            - Version: ${{ steps.tag.outputs.name }}
+            - Commit: ${{ github.sha }}
+            - Build Date: ${{ env.BUILD_DATE }}
+            
+            ### Available Builds
+            - Windows: UCRT64 (x86_64)
+            - Windows: CLANG64 (x86_64)
+            - Ubuntu 24.04 Package (.deb)
+            
+            ### Installation
+            #### Windows:
+            1. Download the zip file for your preferred build
+            2. Verify the SHA256 checksum
+            3. Extract and run OpenCLSolarSystem.exe
+            
+            #### Ubuntu:
+            1. Download the .deb package
+            2. Verify the SHA256 checksum
+            3. Install with `sudo dpkg -i OpenClSolarSystem-*.deb`
+            
+            ### SHA256 Verification for Windows builds
+            ```powershell
+            Get-FileHash OpenClSolarSystem-*.zip -Algorithm SHA256
+            ```
+            
+            ### SHA256 Verification for Ubuntu builds
+            ```bash
+            sha256sum OpenClSolarSystem-*.deb
+            ```

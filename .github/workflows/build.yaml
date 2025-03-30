@@ -1,16 +1,23 @@
 name: CI-msys2
 
 on:
+  workflow_call:
+    inputs:
+      create_release:
+        description: 'Create new release'
+        required: false
+        type: boolean
+        default: false
   workflow_dispatch:
     inputs:
       create_release:
         description: 'Create new release'
         required: true
         type: boolean
-  push:
-    branches:
-      - master
-    paths: ['.github/workflows/build.yaml', '**/CMakeLists.txt', '**/Makefile', '**/*.h', '**/*.hpp', '**/*.c', '**/*.cpp', '**/*.cl', '**/*.cs', '**/*.sln', '**/*.csproj', '**/appsettings.json']
+  # push:
+  #   branches:
+  #     - master
+  #   paths: ['.github/workflows/build.yaml', '**/CMakeLists.txt', '**/Makefile', '**/*.h', '**/*.hpp', '**/*.c', '**/*.cpp', '**/*.cl', '**/*.cs', '**/*.sln', '**/*.csproj', '**/appsettings.json']
   pull_request:
     types: [opened, synchronize, reopened]
     paths: ['.github/workflows/build.yaml', '**/CMakeLists.txt', '**/Makefile', '**/*.h', '**/*.hpp', '**/*.c', '**/*.cpp', '**/*.cl', '**/*.cs', '**/*.sln', '**/*.csproj', '**/appsettings.json']
@@ -156,52 +163,3 @@ jobs:
           path: OpenClSolarSystem-${{ steps.tag.outputs.name }}-${{matrix.env}}-${{ matrix.build }}.sha256
           name: OpenClSolarSystem-${{ steps.tag.outputs.name }}-${{matrix.env}}-${{ matrix.build }}.sha256
 
-    outputs:
-      tag_name: ${{ steps.tag.outputs.name }}
-
-  create-release:
-    needs: windows-msys2
-    if: |
-      always() &&
-      needs.windows-msys2.result == 'success' &&
-      needs.windows-msys2.outputs.tag_name != '' &&
-      ((github.event_name == 'push' && github.ref == 'refs/heads/master') || (github.ref == 'refs/heads/master' && github.event.inputs.create_release == 'true'))
-    runs-on: windows-latest
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          pattern: OpenClSolarSystem-*
-          path: artifacts
-          merge-multiple: true
-
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          files: |
-            artifacts/**/OpenClSolarSystem-*.zip
-            artifacts/**/OpenClSolarSystem-*.sha256
-          tag_name: ${{ needs.windows-msys2.outputs.tag_name }}
-          name: Release ${{ needs.windows-msys2.outputs.tag_name }}
-          body: |
-            ## OpenCLSolarSystem Release ${{ needs.windows-msys2.outputs.tag_name }}
-            
-            ### Build Information
-            - Version: ${{ needs.windows-msys2.outputs.tag_name }}
-            - Commit: ${{ github.sha }}
-             Build Date: ${{ env.BUILD_DATE }}
-            
-            ### Available Builds
-            - UCRT64 (x86_64)
-            - CLANG64 (x86_64)
-            
-            ### Installation
-            1. Download the zip file for your preferred build
-            2. Verify the SHA256 checksum
-            3. Extract and run OpenCLSolarSystem.exe
-            
-            ### SHA256 Verification
-            ```powershell
-            Get-FileHash OpenClSolarSystem-*.zip -Algorithm SHA256
-            ```
