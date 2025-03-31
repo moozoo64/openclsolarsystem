@@ -90,7 +90,6 @@ enum
   ID_SETCENTER13,
   ID_SETCENTER14,
   ID_SETCENTER15,
-  ID_SETCENTER16,
   ID_LOGENCOUNTERS,
 };
 
@@ -158,7 +157,6 @@ EVT_MENU(ID_SETCENTER12, Frame::OnSetCenter)
 EVT_MENU(ID_SETCENTER13, Frame::OnSetCenter)
 EVT_MENU(ID_SETCENTER14, Frame::OnSetCenter)
 EVT_MENU(ID_SETCENTER15, Frame::OnSetCenter)
-EVT_MENU(ID_SETCENTER16, Frame::OnSetCenter)
 EVT_MENU(ID_SETNEWTONIAN, Frame::OnSetAcceleration)
 EVT_MENU(ID_SETRELATIVISTIC, Frame::OnSetAcceleration)
 EVT_MENU(ID_SETRELATIVISTICL, Frame::OnSetAcceleration)
@@ -345,7 +343,6 @@ void Frame::InitFrame(bool doubleBuffer, bool smooth, bool lighting, bool stereo
     menuCenterOn->AppendRadioItem(ID_SETCENTER13, this->initialState->physicalProperties[13].Name);
     menuCenterOn->AppendRadioItem(ID_SETCENTER14, this->initialState->physicalProperties[14].Name);
     menuCenterOn->AppendRadioItem(ID_SETCENTER15, this->initialState->physicalProperties[15].Name);
-    menuCenterOn->AppendRadioItem(ID_SETCENTER16, this->initialState->physicalProperties[16].Name);
 
     // Create a menu that lets the user choose how asteroids are displayed.
     wxMenu *menuOptions = new wxMenu;
@@ -376,32 +373,6 @@ void Frame::InitFrame(bool doubleBuffer, bool smooth, bool lighting, bool stereo
     this->glCanvas->blending = true;
     this->glCanvas->numParticles = this->numParticles;
     this->glCanvas->numGrav = this->numGrav;
-    // this->glCanvas->CreateOpenGlContext(this->numParticles, this->numGrav);
-
-    // // Create an openCL model to run the simulation and initialise it
-    // this->clModel = new CLModel();
-    // this->ChooseDevice(this->config);
-    // this->clModel->CreateBufferObjects(this->glCanvas->getVbo(), this->numParticles, this->numGrav);
-    // this->clModel->CompileProgramAndCreateKernels();
-    // this->glCanvas->SetColours(this->initialState->initialColorData);
-    // this->clModel->SetInitalState(this->initialState->initialPositions, this->initialState->initialVelocities);
-    // this->clModel->julianDate = this->initialState->initialJulianDate;
-    // this->clModel->time = 0.0f;
-    // this->clModel->SetKernelArgumentsAndGroupSize();
-    // this->clModel->UpdateDisplay();
-
-    // // set the keyboard focus to the simmulation display so that the keyboard functions work
-    // this->glCanvas->SetFocus();
-
-    // Update the menu items to reflect the current state
-    // this->UpdateMenuItems();
-
-    // menuBar = this->GetMenuBar();
-    // wxMenuItem *menuItem;
-    // menuItem = menuBar->FindItem(ID_SETADAMS11);
-    // menuItem->Check(true);
-    // menuItem = menuBar->FindItem(ID_SETRELATIVISTIC);
-    // menuItem->Check(true);
 
     wxLogDebug(wxT("Init Frame Succeeded"));
   }
@@ -817,9 +788,6 @@ void Frame::OnSetCenter(wxCommandEvent &event)
   case ID_SETCENTER15:
     this->clModel->centerBody = 15;
     break;
-  case ID_SETCENTER16:
-    this->clModel->centerBody = 16;
-    break;
   default:
     this->clModel->centerBody = 0;
     break;
@@ -1068,8 +1036,6 @@ void Frame::UpdateMenuItems()
     menuItem->SetItemLabel(this->initialState->physicalProperties[14].Name);
     menuItem = menuBar->FindItem(ID_SETCENTER15);
     menuItem->SetItemLabel(this->initialState->physicalProperties[15].Name);
-    menuItem = menuBar->FindItem(ID_SETCENTER16);
-    menuItem->SetItemLabel(this->initialState->physicalProperties[16].Name);
   }
 }
 

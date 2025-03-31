@@ -108,12 +108,6 @@ bool Application::OnInit()
     wxLogDebug(wxT("Application::OnInit threadId: %ld"), wxThread::GetCurrentId());
     // #endif
 
-#if defined(__WXDEBUG__)
-    wxLogMessage(wxT("__WXDEBUG__ is defined"));
-#else
-    wxLogMessage(wxT("__WXDEBUG__ is not defined"));
-#endif
-
     // Process the command line arguments
     this->Args(argc, argv);
     this->frame->InitFrame(this->doubleBuffer, this->smooth, this->lighting, this->stereo, this->numParticles, this->numGrav, this->useLastDevice, this->desiredPlatform, this->tryForCPUFirst);

@@ -5,8 +5,7 @@
       "includePath": [
         "${workspaceFolder}/**",
         "C:/msys64/ucrt64/include/wx-3.2",
-        "C:/msys64/ucrt64/include",
-        "C:/msys64/ucrt64/include/wx-3.2/wx"
+        "C:/msys64/ucrt64/lib/wx/include/msw-unicode-3.2"
       ],
       "compilerPath": "C:/msys64/ucrt64/bin/g++.exe",
       "cStandard": "c17",
