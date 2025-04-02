@@ -189,8 +189,6 @@ dotnet publish OrbToSlfConsole/OrbToSlfConsole.csproj --configuration Release --
 
 ## Tools and Libraries Required to Compile the Source Under Ubuntu 24.04
 
-> ⚠️ **Important**: Builds but not running yet.
-
 See the build configuration at: [Ubuntu Workflow Build Configuration](https://github.com/moozoo64/openclsolarsystem/blob/master/.github/workflows/ubuntu.yaml)
 
 ### 1. Install dependencies for wxWidgets and OpenClSolarSystem
