@@ -41,9 +41,10 @@ To fix this:
 3. Save with `File -> Save Initial` with the file name initial.bin in the programs directory.
 
 > 💡 **Tip**: For full 1.4 million objects simulation:
-
-> 1. Run `OrbToSlfConsole.exe` in the OrbToSlf folder
-> 2. Import the generated `Final.slf`
+>
+> 1. Download and install the dotnet 8 runtime if its not already installed. [Dotnet Download](https://dotnet.microsoft.com/en-us/download)
+> 2. Run `OrbToSlfConsole.exe` in the OrbToSlf folder
+> 3. Import the generated `Final.slf`
 
 ### Recommended Settings ⚙️
 
