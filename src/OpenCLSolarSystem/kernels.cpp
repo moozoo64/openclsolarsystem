@@ -62,7 +62,10 @@ __global double4* acc)
 	acc[gid] = newAcc + accSun;
 }
 
-#define relativisticC1 8.86221439924785E-03
+// 6*GM_sun/c^2 in the position unit (Gm), since invDist is 1/Gm.
+// GM_sun = 1.32712440018e11 km^3/s^2 (SLF convention), c = 299792.458 km/s
+// 6*GM/c^2 = 8.859750229502 km = 8.859750229502E-06 Gm
+#define relativisticC1 8.859750229502E-06
 
 __kernel
 void relativistic( 

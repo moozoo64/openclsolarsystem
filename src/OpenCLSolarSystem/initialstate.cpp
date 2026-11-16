@@ -16,6 +16,14 @@
 #include "global.hpp"
 #include "initialstate.hpp"
 
+// Gravitational constant scaled for SLF units, so that pos.w = mass * G_SLF_SCALED
+// gives acceleration in km/s^2 with mass in 10^24 kg and distance in Gm:
+//   a[m/s^2] = G * (m*1e24) / (R*1e9)^2 = G*1e6 * m/R^2  ->  a[km/s^2] = G*1e3 * m/R^2
+// G must be the value the SLF masses were derived with (Solex / OrbToSlf
+// Constants.GravitationalConstant = 6.6725985e-11), NOT CODATA, otherwise every GM
+// is off by ~1.86e-4.  Check: Sun GM 1.32712440018e20 m^3/s^2 / 1988916.9121e24 kg.
+static const double G_SLF_SCALED = 6.67259849874148E-08;
+
 InitialState::InitialState()
 {
 	this->initialVelocities = NULL;
@@ -784,15 +792,13 @@ bool InitialState::ImportSLF( wxString fileName )
 			this->initialPositions[i].s[0] = xPos;
 			this->initialPositions[i].s[1] = yPos;
 			this->initialPositions[i].s[2] = zPos;
-			//this->initialPositions[i].w = mass * 6.67384E-08;
-
 			if( mass < 1.0E-30f )
 			{
-				this->initialPositions[i].s[3] = 2.83E-09 * 6.67384E-08;
+				this->initialPositions[i].s[3] = 2.83E-09 * G_SLF_SCALED;
 			}
 			else
 			{
-				this->initialPositions[i].s[3] = mass * 6.67384E-08;
+				this->initialPositions[i].s[3] = mass * G_SLF_SCALED;
 			}
 
 			this->initialVelocities[i].s[0] = xVel;
