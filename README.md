@@ -61,9 +61,6 @@ To fix this:
 1. Center on body Earth
 2. Use the mouse scroll wheel to zoom in
 
-> ⚠️ **Known Issue**: Initial "Number of Bodies" shows maximum but is actually 2560.  
-> **Workaround**: Change the value to another number and back.
-
 ## Command Line Options
 
 | Option    | Description |

@@ -41,12 +41,12 @@ public:
   wxString ErrorMessage(cl_int status);
 
   // Device/Platform Information
-  wxString *deviceName;               /**< Name of selected OpenCL device */
-  wxString *deviceCLVersion;          /**< OpenCL version supported by device */
-  wxString *platformName;             /**< Name of OpenCL platform */
-  wxString *adamsBashforthKernelName; /**< Name of Adams-Bashforth integration kernel */
-  wxString *adamsMoultonKernelName;   /**< Name of Adams-Moulton integration kernel */
-  wxString *accelerationKernelName;   /**< Name of acceleration computation kernel */
+  wxString deviceName;                /**< Name of selected OpenCL device */
+  wxString deviceCLVersion;           /**< OpenCL version supported by device */
+  wxString platformName;              /**< Name of OpenCL platform */
+  wxString adamsBashforthKernelName;  /**< Name of Adams-Bashforth integration kernel */
+  wxString adamsMoultonKernelName;    /**< Name of Adams-Moulton integration kernel */
+  wxString accelerationKernelName;    /**< Name of acceleration computation kernel */
   double deviceCLVersionNumber;       /**< Numeric OpenCL version (e.g., 2.0) */
 
   // Simulation Parameters
@@ -133,11 +133,13 @@ private:
   // Private methods
   void SetAdamsKernelArgs(cl_kernel adamsKernel);
   void SetStartupKernelArgs();
+  size_t GlobalWorkSize();
   void EnqueueKernel(cl_kernel kernel, const wxChar *kernelName);
   void EnqueueBarrier();
   void EnqueueCopyNewToCurrent();
   void ExecuteStartupStep();
   bool IsDeviceSuitable(cl_device_id deviceIdToCheck);
+  wxString GetDeviceName(cl_device_id deviceIdToName);
 };
 
 #endif // CLMODEL_H

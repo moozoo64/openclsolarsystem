@@ -1191,32 +1191,32 @@ void Frame::OnSetIntegrator(wxCommandEvent &event)
   switch (event.GetId())
   {
   case ID_SETADAMS4:
-    this->clModel->adamsBashforthKernelName = new wxString("adamsBashforth4");
-    this->clModel->adamsMoultonKernelName = new wxString("adamsMoulton3");
+    this->clModel->adamsBashforthKernelName = wxT("adamsBashforth4");
+    this->clModel->adamsMoultonKernelName = wxT("adamsMoulton3");
     break;
   case ID_SETADAMS8:
-    this->clModel->adamsBashforthKernelName = new wxString("adamsBashforth8");
-    this->clModel->adamsMoultonKernelName = new wxString("adamsMoulton7");
+    this->clModel->adamsBashforthKernelName = wxT("adamsBashforth8");
+    this->clModel->adamsMoultonKernelName = wxT("adamsMoulton7");
     break;
   case ID_SETADAMS10:
-    this->clModel->adamsBashforthKernelName = new wxString("adamsBashforth10");
-    this->clModel->adamsMoultonKernelName = new wxString("adamsMoulton9");
+    this->clModel->adamsBashforthKernelName = wxT("adamsBashforth10");
+    this->clModel->adamsMoultonKernelName = wxT("adamsMoulton9");
     break;
   case ID_SETADAMS11:
-    this->clModel->adamsBashforthKernelName = new wxString("adamsBashforth11");
-    this->clModel->adamsMoultonKernelName = new wxString("adamsMoulton10");
+    this->clModel->adamsBashforthKernelName = wxT("adamsBashforth11");
+    this->clModel->adamsMoultonKernelName = wxT("adamsMoulton10");
     break;
   case ID_SETADAMS12:
-    this->clModel->adamsBashforthKernelName = new wxString("adamsBashforth12");
-    this->clModel->adamsMoultonKernelName = new wxString("adamsMoulton11");
+    this->clModel->adamsBashforthKernelName = wxT("adamsBashforth12");
+    this->clModel->adamsMoultonKernelName = wxT("adamsMoulton11");
     break;
   case ID_SETADAMS16:
-    this->clModel->adamsBashforthKernelName = new wxString("adamsBashforth16");
-    this->clModel->adamsMoultonKernelName = new wxString("adamsMoulton15");
+    this->clModel->adamsBashforthKernelName = wxT("adamsBashforth16");
+    this->clModel->adamsMoultonKernelName = wxT("adamsMoulton15");
     break;
   default:
-    this->clModel->adamsBashforthKernelName = new wxString("adamsBashforth11");
-    this->clModel->adamsMoultonKernelName = new wxString("adamsMoulton10");
+    this->clModel->adamsBashforthKernelName = wxT("adamsBashforth11");
+    this->clModel->adamsMoultonKernelName = wxT("adamsMoulton10");
     break;
   }
   this->ResetAll();
@@ -1228,16 +1228,16 @@ void Frame::OnSetAcceleration(wxCommandEvent &event)
   switch (event.GetId())
   {
   case ID_SETNEWTONIAN:
-    this->clModel->accelerationKernelName = new wxString("newtonian");
+    this->clModel->accelerationKernelName = wxT("newtonian");
     break;
   case ID_SETRELATIVISTIC:
-    this->clModel->accelerationKernelName = new wxString("relativistic");
+    this->clModel->accelerationKernelName = wxT("relativistic");
     break;
   case ID_SETRELATIVISTICL:
-    this->clModel->accelerationKernelName = new wxString("relativisticLocal");
+    this->clModel->accelerationKernelName = wxT("relativisticLocal");
     break;
   default:
-    this->clModel->accelerationKernelName = new wxString("relativistic");
+    this->clModel->accelerationKernelName = wxT("relativistic");
     break;
   }
   this->ResetAll();
@@ -1262,7 +1262,7 @@ void Frame::OnAbout(wxCommandEvent &WXUNUSED(event))
 {
   wxString message;
   message.Printf(wxT("Solar System Simulation\n (c) 2013-2025 Michael Simmons\nbody count:%d\nWith Mass:%d\nMax Count Possible:%d\nPredictor %s\nCorrector %s\nPlatform: %s\nDevice: %s\nCL Version: %s\nWeb: https://github.com/moozoo64/openclsolarsystem"),
-                 this->numParticles, this->numGrav, this->clModel->maxNumParticles, this->clModel->adamsBashforthKernelName->c_str(), this->clModel->adamsMoultonKernelName->c_str(), this->clModel->platformName->c_str(), this->clModel->deviceName->c_str(), this->clModel->deviceCLVersion->c_str());
+                 this->numParticles, this->numGrav, this->clModel->maxNumParticles, this->clModel->adamsBashforthKernelName.c_str(), this->clModel->adamsMoultonKernelName.c_str(), this->clModel->platformName.c_str(), this->clModel->deviceName.c_str(), this->clModel->deviceCLVersion.c_str());
   wxMessageBox(message, wxT("About NBody"), wxOK | wxICON_INFORMATION);
 }
 void Frame::OnLogEncounters(wxCommandEvent &event)

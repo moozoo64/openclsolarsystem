@@ -23,6 +23,7 @@ REPO = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
 G_SLF_SCALED = 6.67259849874148E-08
 # Default softening; must match espSqr in CLModel::CLModel
 EPS_SQR = 0.0
+# Default work-group size, as CLModel::groupSize
 GROUP_SIZE = 64
 
 
@@ -38,7 +39,8 @@ def parse_args():
     ap.add_argument("--acc", default="relativistic", help="acceleration kernel (newtonian, relativistic)")
     ap.add_argument("--ab", default="adamsBashforth11")
     ap.add_argument("--am", default="adamsMoulton10")
-    ap.add_argument("--bodies", type=int, default=64, help="multiple of 64")
+    ap.add_argument("--bodies", type=int, default=64, help="number of bodies to load")
+    ap.add_argument("--group", type=int, default=GROUP_SIZE, help="work-group size (CLModel::groupSize)")
     ap.add_argument("--grav", type=int, default=16, help="number of gravitating bodies")
     ap.add_argument("--eps", type=float, default=EPS_SQR, help="softening length squared in Gm^2 (1e-6 = before M1)")
     ap.add_argument("--platform", default="", help="substring of the OpenCL platform name (default: first with fp64)")
@@ -84,8 +86,9 @@ def pick_device(platform_sub):
 def main():
     a = parse_args()
     n, ngrav = a.bodies, a.grav
-    if n % GROUP_SIZE:
-        raise SystemExit(f"--bodies must be a multiple of {GROUP_SIZE}")
+    ngrav = min(ngrav, n)  # as CLModel::CreateBufferObjects
+    # As CLModel::GlobalWorkSize: rounded up to whole work-groups, the kernels skip the extra work-items
+    global_size = (n + a.group - 1) // a.group * a.group
     steps = a.steps if a.steps is not None else int(round(a.days * 86400 / a.dt))
 
     pos, vel = load_slf(a.slf, n)
@@ -111,11 +114,11 @@ def main():
     accK = getattr(prg, a.acc)
     # Same argument order as CLModel::SetKernelArgumentsAndGroupSize
     if a.acc == "newtonian":
-        accK.set_args(gravPos, currPos, i32(ngrav), f64(a.eps), acc)
+        accK.set_args(gravPos, currPos, i32(ngrav), f64(a.eps), acc, i32(n))
     elif a.acc == "relativisticLocal":
-        accK.set_args(gravPos, currPos, currVel, i32(ngrav), f64(a.eps), acc, cl.LocalMemory(32 * GROUP_SIZE))
+        accK.set_args(gravPos, currPos, currVel, i32(ngrav), f64(a.eps), acc, cl.LocalMemory(32 * a.group), i32(n))
     else:
-        accK.set_args(gravPos, currPos, currVel, i32(ngrav), f64(a.eps), acc)
+        accK.set_args(gravPos, currPos, currVel, i32(ngrav), f64(a.eps), acc, i32(n))
     abK, amK = getattr(prg, a.ab), getattr(prg, a.am)
     startK = prg.rungeKutta4Startup if a.startup == "rk4" else prg.adamsStartup
 
@@ -124,7 +127,7 @@ def main():
                    posLast, velLast, velHist, accHist, *extra)
 
     def run(k):
-        cl.enqueue_nd_range_kernel(q, k, (n,), (GROUP_SIZE,))
+        cl.enqueue_nd_range_kernel(q, k, (global_size,), (a.group,))
 
     def copy_new_to_current():
         cl.enqueue_copy(q, currPos, newPos, byte_count=n * 32)

@@ -19,7 +19,7 @@
 // Parses the arguments passed on the command line
 bool Application::Args(int argc, wxChar **argv)
 {
-  this->numParticles = 2560;
+  this->numParticles = 2048; // one of the "Number of Bodies" menu values, so the menu shows it
   this->numGrav = 16;
   this->useLastDevice = true;
   this->tryForCPUFirst = false;
@@ -78,7 +78,7 @@ Application::Application()
   this->smooth = false;
   this->doubleBuffer = true;
   this->stereo = false;
-  this->numParticles = 2560;
+  this->numParticles = 2048; // one of the "Number of Bodies" menu values, so the menu shows it
   this->numGrav = 16;
   this->useLastDevice = true;
   this->tryForCPUFirst = false;

@@ -54,6 +54,19 @@ python compare.py eps0.npy eps6.npy
 After 1 year the softening had moved the Moon about 635 km relative to the Earth
 (Earth 7.6 km, Mercury 1.2 km).
 
+## Example: relativisticLocal (H3)
+
+`relativisticLocal` must give exactly the same result as `relativistic`. Test it with more
+gravitating bodies than the work-group size, and a last block that is only partly full:
+
+```sh
+python harness.py --steps 365 --grav 40 --bodies 128 --group 16 --acc relativistic      --out rel.npy
+python harness.py --steps 365 --grav 40 --bodies 128 --group 16 --acc relativisticLocal --out local.npy
+python compare.py rel.npy local.npy
+```
+
+After the H3 fix the two are bit-identical. Before it, the Moon was off by about 600,000 km after 61 days.
+
 ## Options
 
 `python harness.py --help` lists them all. The main ones:
@@ -69,7 +82,8 @@ After 1 year the softening had moved the Moon about 635 km relative to the Earth
 | `--ab`, `--am` | `adamsBashforth11`, `adamsMoulton10` | predictor and corrector kernels |
 | `--startup` | `rk4` | `adams` for the pre-H1 host flow (needs an old kernel file) |
 | `--substeps` | 10 | RK4 sub-steps per startup step |
-| `--bodies`, `--grav` | 64, 16 | bodies loaded and how many of them gravitate |
+| `--bodies`, `--grav` | 64, 16 | bodies loaded and how many of them gravitate (`--grav` is capped at `--bodies`) |
+| `--group` | 64 | work-group size; any `--bodies` works, the launch is rounded up as in the app |
 | `--platform` | first with fp64 | substring of the OpenCL platform name, e.g. `NVIDIA`, `Intel`, `Portable` |
 
 The constants `G_SLF_SCALED` and `EPS_SQR` at the top of `harness.py` must match

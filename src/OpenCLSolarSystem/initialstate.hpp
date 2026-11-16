@@ -97,6 +97,7 @@ public:
    * @return true if import successful
    */
   bool ImportSLF(wxString fileName);
+  long CountLines(wxString fileName);
 
   /**
    * @brief Exports current state to Solex SLF format

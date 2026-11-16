@@ -266,13 +266,27 @@ void GLCanvas::OnPaint(wxPaintEvent &WXUNUSED(event))
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
 
-    // Draw the Sun as a large point
-    glPointSize(4);
-    glDrawArrays(GL_POINTS, 0, 1);
+    // Bodies 0 .. numLarge-1 are drawn as larger points: the Sun and the first planets
+    // (at most the first 16, and only the gravitating ones). The rest are single pixels.
+    int numLarge = this->numGrav < 16 ? this->numGrav : 16;
+    if (numLarge > this->numParticles)
+    {
+      numLarge = this->numParticles;
+    }
 
-    // Draw the first 16 "planets"
-    glPointSize(3);
-    glDrawArrays(GL_POINTS, 1, 16);
+    // Draw the Sun as a large point
+    if (numLarge > 0)
+    {
+      glPointSize(4);
+      glDrawArrays(GL_POINTS, 0, 1);
+    }
+
+    // Draw the planets
+    if (numLarge > 1)
+    {
+      glPointSize(3);
+      glDrawArrays(GL_POINTS, 1, numLarge - 1);
+    }
 
     // Draw the rest as single pixels
     if (!this->blending)
@@ -281,7 +295,10 @@ void GLCanvas::OnPaint(wxPaintEvent &WXUNUSED(event))
     }
     glPointSize(1);
     glDisable(GL_POINT_SMOOTH);
-    glDrawArrays(GL_POINTS, 16, this->numParticles - 16);
+    if (this->numParticles > numLarge)
+    {
+      glDrawArrays(GL_POINTS, numLarge, this->numParticles - numLarge);
+    }
 
     glDisableClientState(GL_COLOR_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);

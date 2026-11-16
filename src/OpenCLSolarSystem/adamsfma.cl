@@ -22,9 +22,13 @@ __constant double4* gravPos,
 __global double4* pos, 
 int numGrav, 
 double epsSqr, 
-__global double4* acc) 
+__global double4* acc,
+int numParticles) 
 { 
 	unsigned int gid = get_global_id(0); 
+	// The global size is rounded up to a multiple of the work-group size,
+	// so the last work-group can have work-items past the last body
+	if (gid >= (uint)numParticles) return;
 	double4 myPos = pos[gid]; 
 	double4 newAcc = (double4)(0.0f, 0.0f, 0.0f, 0.0f);
 	double4 r;
@@ -75,9 +79,13 @@ __global double4* pos,
 __global double4* vel,
 int numGrav, 
 double epsSqr, 
-__global double4* acc) 
+__global double4* acc,
+int numParticles) 
 { 
 	unsigned int gid = get_global_id(0); 
+	// The global size is rounded up to a multiple of the work-group size,
+	// so the last work-group can have work-items past the last body
+	if (gid >= (uint)numParticles) return;
 	double4 myPos = pos[gid];
 	double4 myVel = vel[gid];
 	double4 sumAcc = (double4)(0.0f, 0.0f, 0.0f, 0.0f);
@@ -123,79 +131,90 @@ __global double4* acc)
 	acc[gid] = sumAcc + accSun;
 }
 
+// Same as relativistic, but the gravitating bodies are staged through local memory one
+// work-group sized block at a time. localGravPos must hold get_local_size(0) entries.
+// The bodies are summed in the same order as relativistic (Kahan summation over bodies
+// 1..numGrav-1, then the Sun added last), so the two kernels give the same result.
 __kernel
-void relativisticLocal( 
+void relativisticLocal(
 __constant double4* gravPos,
 __global double4* pos,
 __global double4* vel,
-int numGrav, 
-double epsSqr, 
+int numGrav,
+double epsSqr,
 __global double4* acc,
-__local double4* localGravPos) 
-{ 
+__local double4* localGravPos,
+int numParticles)
+{
 	uint gid = get_global_id(0);
-	uint lid = get_local_id(0); 
-	double4 myPos = pos[gid];
-	double4 myVel = vel[gid];
+	uint lid = get_local_id(0);
+	uint blockSize = get_local_size(0);
+	uint numBlocks = ((uint)numGrav + blockSize - 1) / blockSize;
+	// The global size is rounded up to a multiple of the work-group size. Work-items
+	// past the last body still help load localGravPos and reach the barriers.
+	bool active = gid < (uint)numParticles;
+	double4 myPos = active ? pos[gid] : (double4)(0.0, 0.0, 0.0, 0.0);
+	double4 myVel = active ? vel[gid] : (double4)(0.0, 0.0, 0.0, 0.0);
 
 	double4 r;
 	double distSqr;
 	double invDist;
 	double invDistCube;
 	double s;
-	
-	uint blockSize = get_local_size(0);
-	uint numBlocks = 1 + (numGrav/blockSize);
-	double4 newAcc = (double4)(0.0f, 0.0f, 0.0f, 0.0f);
-	double4 accSun = (double4)(0.0f, 0.0f, 0.0f, 0.0f);
-    double4 gravPosN;
-	uint gravPosToLoad;
-	
+	double4 accSun = (double4)(0.0, 0.0, 0.0, 0.0);
+	double4 sumAcc = (double4)(0.0, 0.0, 0.0, 0.0);
+	double4 compensation = (double4)(0.0, 0.0, 0.0, 0.0);
+
 	for(uint block = 0; block < numBlocks; block++)
 	{
-		gravPosToLoad = block*numBlocks+lid;
-		if(gravPosToLoad < numGrav)
+		// Each work-item loads one body of this block
+		uint blockStart = block * blockSize;
+		uint gravPosToLoad = blockStart + lid;
+		if(gravPosToLoad < (uint)numGrav)
 		{
 			localGravPos[lid] = gravPos[gravPosToLoad];
 		}
-		
 		barrier(CLK_LOCAL_MEM_FENCE);
-		uint start = 0;
-		if(block == 0)
+
+		uint blockCount = min(blockSize, (uint)numGrav - blockStart);
+		for(uint i = 0; i < blockCount; i++)
 		{
-			start = 1;
-		}
-		if(block == 0 && gid != 0)
-		{
-			// Do the Sun (but not on itself)
-			gravPosN =localGravPos[0];
+			uint gravBody = blockStart + i;
+
+			// A body does not pull on itself (r = 0 would give inf * 0 = NaN)
+			if (gravBody == gid) continue;
+
+			double4 gravPosN = localGravPos[i];
 			r = gravPosN - myPos;
 			r.w =0.0;
 			distSqr = r.x * r.x + r.y * r.y + r.z * r.z;
-			invDist = rsqrt(distSqr + epsSqr); 
-			invDistCube = invDist * invDist * invDist; 
+			invDist = rsqrt(distSqr + epsSqr);
+			invDistCube = invDist * invDist * invDist;
 			s = gravPosN.w * invDistCube;
-			s = s * (1.0 + myVel.w + (relativisticC1*invDist));
-			accSun= s * r;
+
+			if (gravBody == 0)
+			{
+				// The Sun, with the relativistic correction
+				s = s * (1.0 + myVel.w + (relativisticC1*invDist));
+				accSun = s * r;
+			}
+			else
+			{
+				double4 thisAcc = (s * r) - compensation;
+				double4 total = sumAcc + thisAcc;
+				compensation = (total - sumAcc ) - thisAcc;
+				sumAcc = total;
+			}
 		}
-		for( uint gravBody = start ;gravBody < blockSize && (block*numBlocks + gravBody) < numGrav; gravBody++)
-		{
-			//Do the rest
-			// A body does not pull on itself (r = 0 would give inf * 0 = NaN).
-			// Same index expression as the load into localGravPos above.
-			if ((block*numBlocks + gravBody) == gid) continue;
-			gravPosN =localGravPos[gravBody];
-			r = gravPosN - myPos;
-			r.w =0.0;
-			distSqr = r.x * r.x + r.y * r.y + r.z * r.z;
-			invDist = rsqrt(distSqr + epsSqr); 
-			invDistCube = invDist * invDist * invDist; 
-			s = gravPosN.w * invDistCube; 
-			newAcc += s * r;
-		}
-	    barrier(CLK_LOCAL_MEM_FENCE);
+
+		// Everyone must be done with this block before it is overwritten
+		barrier(CLK_LOCAL_MEM_FENCE);
 	}
-	acc[gid] = newAcc + accSun;
+
+	if (active)
+	{
+		acc[gid] = sumAcc + accSun;
+	}
 }
 
 __kernel
@@ -203,11 +222,15 @@ void copyToDisplay(
 __constant double4* gravPos,
 __global double4* pos,
 __global float4* dispPos,
-int centerBodyIndex) 
+int centerBodyIndex,
+int numParticles) 
 { 
 	double4 dispPosDouble;
 	float4 dispPosFloat;
 	unsigned int gid = get_global_id(0);
+	// The global size is rounded up to a multiple of the work-group size,
+	// so the last work-group can have work-items past the last body
+	if (gid >= (uint)numParticles) return;
 	dispPosDouble = pos[gid] - gravPos[centerBodyIndex];
 	
 	dispPosFloat.x = (float) dispPosDouble.x;
@@ -384,6 +407,9 @@ __global double4* sumVel,
 __global double4* sumAcc)
 {
 	unsigned int gid = get_global_id(0);
+	// The global size is rounded up to a multiple of the work-group size,
+	// so the last work-group can have work-items past the last body
+	if (gid >= (uint)numParticles) return;
 	double4 velocity = vel[gid];
 	double4 acceleration = acc[gid];
 	double h = deltaTime / numSubSteps;
@@ -463,6 +489,9 @@ __global double4* velHistory,
 __global double4* accHistory)
 {
 	unsigned int gid = get_global_id(0);
+	// The global size is rounded up to a multiple of the work-group size,
+	// so the last work-group can have work-items past the last body
+	if (gid >= (uint)numParticles) return;
 	double4 position = pos[gid]; 
 	double4 velocity = vel[gid];
 	double4 acceleration = acc[gid];
@@ -608,6 +637,9 @@ __global double4* velHistory,
 __global double4* accHistory)
 {
 	unsigned int gid = get_global_id(0);
+	// The global size is rounded up to a multiple of the work-group size,
+	// so the last work-group can have work-items past the last body
+	if (gid >= (uint)numParticles) return;
 	double4 position = pos[gid]; 
 	double4 velocity = vel[gid];
 	double4 acceleration = acc[gid];
@@ -747,6 +779,9 @@ __global double4* velHistory,
 __global double4* accHistory)
 {
 	unsigned int gid = get_global_id(0);
+	// The global size is rounded up to a multiple of the work-group size,
+	// so the last work-group can have work-items past the last body
+	if (gid >= (uint)numParticles) return;
 	double4 position = pos[gid]; 
 	double4 velocity = vel[gid];
 	double4 acceleration = acc[gid];
@@ -883,6 +918,9 @@ __global double4* velHistory,
 __global double4* accHistory)
 {
 	unsigned int gid = get_global_id(0);
+	// The global size is rounded up to a multiple of the work-group size,
+	// so the last work-group can have work-items past the last body
+	if (gid >= (uint)numParticles) return;
 	double4 position = pos[gid]; 
 	double4 velocity = vel[gid];
 	double4 acceleration = acc[gid];
@@ -1014,6 +1052,9 @@ __global double4* velHistory,
 __global double4* accHistory)
 {
 	unsigned int gid = get_global_id(0);
+	// The global size is rounded up to a multiple of the work-group size,
+	// so the last work-group can have work-items past the last body
+	if (gid >= (uint)numParticles) return;
 	double4 position = pos[gid]; 
 	double4 velocity = vel[gid];
 	double4 acceleration = acc[gid];
@@ -1142,6 +1183,9 @@ __global double4* velHistory,
 __global double4* accHistory)
 {
 	unsigned int gid = get_global_id(0);
+	// The global size is rounded up to a multiple of the work-group size,
+	// so the last work-group can have work-items past the last body
+	if (gid >= (uint)numParticles) return;
 	double4 position = pos[gid]; 
 	double4 velocity = vel[gid];
 	double4 acceleration = acc[gid];
@@ -1265,6 +1309,9 @@ __global double4* velHistory,
 __global double4* accHistory)
 {
 	unsigned int gid = get_global_id(0);
+	// The global size is rounded up to a multiple of the work-group size,
+	// so the last work-group can have work-items past the last body
+	if (gid >= (uint)numParticles) return;
 	double4 position = pos[gid]; 
 	double4 velocity = vel[gid];
 	double4 acceleration = acc[gid];
@@ -1376,6 +1423,9 @@ __kernel void adamsMoulton7(
 	__global double4* accHistory)
 {
 	unsigned int gid = get_global_id(0);
+	// The global size is rounded up to a multiple of the work-group size,
+	// so the last work-group can have work-items past the last body
+	if (gid >= (uint)numParticles) return;
 	double4 position = pos[gid]; 
 	double4 velocity = vel[gid];
 	double4 acceleration = acc[gid];
@@ -1484,6 +1534,9 @@ __global double4* velHistory,
 __global double4* accHistory)
 {
 	unsigned int gid = get_global_id(0);
+	// The global size is rounded up to a multiple of the work-group size,
+	// so the last work-group can have work-items past the last body
+	if (gid >= (uint)numParticles) return;
 	double4 position = pos[gid]; 
 	double4 velocity = vel[gid];
 	double4 acceleration = acc[gid];
@@ -1565,6 +1618,9 @@ __global double4* velHistory,
 __global double4* accHistory)
 {
 	unsigned int gid = get_global_id(0);
+	// The global size is rounded up to a multiple of the work-group size,
+	// so the last work-group can have work-items past the last body
+	if (gid >= (uint)numParticles) return;
 	double4 position = pos[gid]; 
 	double4 velocity = vel[gid];
 	double4 acceleration = acc[gid];
@@ -1639,6 +1695,9 @@ __global double4* velHistory,
 __global double4* accHistory)
 {
 	unsigned int gid = get_global_id(0);
+	// The global size is rounded up to a multiple of the work-group size,
+	// so the last work-group can have work-items past the last body
+	if (gid >= (uint)numParticles) return;
 	double4 position = pos[gid]; 
 	double4 velocity = vel[gid];
 	double4 acceleration = acc[gid];
@@ -1816,6 +1875,9 @@ __global double4* velHistory,
 __global double4* accHistory)
 {
 	unsigned int gid = get_global_id(0);
+	// The global size is rounded up to a multiple of the work-group size,
+	// so the last work-group can have work-items past the last body
+	if (gid >= (uint)numParticles) return;
 	double4 position = pos[gid]; 
 	double4 velocity = vel[gid];
 	double4 acceleration = acc[gid];

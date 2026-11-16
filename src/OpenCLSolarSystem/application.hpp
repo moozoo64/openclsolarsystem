@@ -46,7 +46,7 @@ private:
   bool tryForCPUFirst;   /**< Prefer CPU over GPU for computations */
 
   // Simulation parameters
-  int numParticles; /**< Number of particles in the simulation (default: 2560) */
+  int numParticles; /**< Number of particles in the simulation (default: 2048) */
   int numGrav;      /**< Number of gravitational bodies (default: 16) */
 
   // Application components

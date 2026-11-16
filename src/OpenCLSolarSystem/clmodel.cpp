@@ -85,9 +85,9 @@ CLModel::CLModel()
   this->numStages = 1;
   this->stage = this->numStages;
   this->startupSubSteps = 10; // RK4 sub-steps per step while seeding the Adams history
-  this->adamsBashforthKernelName = new wxString("adamsBashforth11");
-  this->adamsMoultonKernelName = new wxString("adamsMoulton10");
-  this->accelerationKernelName = new wxString("relativistic");
+  this->adamsBashforthKernelName = wxT("adamsBashforth11");
+  this->adamsMoultonKernelName = wxT("adamsMoulton10");
+  this->accelerationKernelName = wxT("relativistic");
 }
 
 CLModel::~CLModel()
@@ -154,9 +154,11 @@ bool CLModel::FindDeviceAndCreateContext(cl_uint desiredDeviceVendorId, cl_devic
       throw status;
     }
 
-    // search the platforms
+    // Search every platform for a suitable device.
+    // If desiredDeviceVendorId is set, the device must also have that vendor id.
+    // Otherwise, if desiredPlatformName is set, only that platform (CL_PLATFORM_VENDOR) is searched.
     bool foundDevice = false;
-    for (unsigned i = 0; i < numPlatforms; ++i)
+    for (unsigned i = 0; i < numPlatforms && !foundDevice; ++i)
     {
       platform = platforms[i];
 
@@ -165,7 +167,7 @@ bool CLModel::FindDeviceAndCreateContext(cl_uint desiredDeviceVendorId, cl_devic
       if (status != CL_SUCCESS)
       {
         wxLogError(wxT("clGetPlatformInfo failed to get CL_PLATFORM_VENDOR size %s"), this->ErrorMessage(status));
-        throw status;
+        continue;
       }
 
       delete[] thePlatformName;
@@ -174,14 +176,18 @@ bool CLModel::FindDeviceAndCreateContext(cl_uint desiredDeviceVendorId, cl_devic
       if (status != CL_SUCCESS)
       {
         wxLogError(wxT("clGetPlatformInfo failed to get CL_PLATFORM_VENDOR %s"), this->ErrorMessage(status));
-        throw status;
+        continue;
       }
+
+      wxString platformVendor(thePlatformName, wxConvUTF8);
+      wxLogDebug(wxT("Platform %u: %s"), i, platformVendor);
 
       // is this the platform we are looking for
       if (desiredDeviceVendorId == 0 && desiredPlatformName != NULL)
       {
         if (strcmp(thePlatformName, desiredPlatformName) != 0)
         {
+          wxLogDebug(wxT("  skipped, not the requested platform"));
           continue;
         }
       }
@@ -189,28 +195,27 @@ bool CLModel::FindDeviceAndCreateContext(cl_uint desiredDeviceVendorId, cl_devic
       // Get the id's of the devices under this platform
       cl_uint numberOfDevices = 0;
       status = clGetDeviceIDs(platform, deviceType, 0, NULL, &numberOfDevices);
-      if (status != CL_SUCCESS)
+      if (status != CL_SUCCESS || numberOfDevices == 0)
       {
-        if (status != CL_DEVICE_NOT_FOUND)
+        if (status != CL_SUCCESS && status != CL_DEVICE_NOT_FOUND)
         {
           wxLogError(wxT("clGetDeviceIDs failed to get number of devices %s"), this->ErrorMessage(status));
-          throw status;
         }
-        else
-        {
-          status = CL_SUCCESS;
-          continue;
-        }
+        wxLogDebug(wxT("  no devices of the requested type"));
+        status = CL_SUCCESS;
+        continue;
       }
 
-      wxLogDebug(wxT("platform has %d devices"), numberOfDevices);
+      wxLogDebug(wxT("  %u devices of the requested type"), numberOfDevices);
 
       deviceIds = new cl_device_id[numberOfDevices];
       status = clGetDeviceIDs(platform, deviceType, numberOfDevices, deviceIds, NULL);
       if (status != CL_SUCCESS)
       {
         wxLogError(wxT("clGetDeviceIDs failed to get devices %s"), this->ErrorMessage(status));
-        throw status;
+        delete[] deviceIds;
+        deviceIds = NULL;
+        continue;
       }
 
       // Now search for the device
@@ -221,45 +226,36 @@ bool CLModel::FindDeviceAndCreateContext(cl_uint desiredDeviceVendorId, cl_devic
         if (status != CL_SUCCESS)
         {
           wxLogError(wxT("clGetDeviceInfo failed to get CL_DEVICE_VENDOR_ID %s"), this->ErrorMessage(status));
-          throw status;
+          continue;
         }
 
-        if (desiredDeviceVendorId != 0)
+        wxLogDebug(wxT("  Device %u: %s vendor id 0x%X"), j, GetDeviceName(deviceIds[j]), (unsigned int)deviceVendorId);
+
+        if (desiredDeviceVendorId != 0 && deviceVendorId != desiredDeviceVendorId)
         {
-          if (deviceVendorId == desiredDeviceVendorId)
-          {
-            this->deviceId = deviceIds[j];
-            this->deviceVendorId = deviceVendorId;
-            foundDevice = true;
-            this->platformName = new wxString(thePlatformName, wxConvUTF8);
-            break;
-          }
+          wxLogDebug(wxT("    skipped, not vendor id 0x%X"), (unsigned int)desiredDeviceVendorId);
+          continue;
         }
-        else
+
+        if (!this->IsDeviceSuitable(deviceIds[j]))
         {
-          if (this->IsDeviceSuitable(deviceIds[j]))
-          {
-            this->deviceId = deviceIds[j];
-            this->deviceVendorId = deviceVendorId;
-            foundDevice = true;
-            this->platformName = new wxString(thePlatformName, wxConvUTF8);
-            break;
-          }
+          continue;
         }
+
+        wxLogDebug(wxT("    selected"));
+        this->deviceId = deviceIds[j];
+        this->deviceVendorId = deviceVendorId;
+        this->platformName = platformVendor;
+        foundDevice = true;
+        break;
       }
-
-      delete[] thePlatformName;
-      thePlatformName = NULL;
-      break;
 
       delete[] deviceIds;
       deviceIds = NULL;
-
-      if (foundDevice)
-      {
-        break;
-      }
     }
+
+    delete[] thePlatformName;
+    thePlatformName = NULL;
 
     delete[] platforms;
     platforms = NULL;
@@ -286,7 +282,7 @@ bool CLModel::FindDeviceAndCreateContext(cl_uint desiredDeviceVendorId, cl_devic
       throw status;
     }
 
-    this->deviceName = new wxString(deviceName, wxConvUTF8);
+    this->deviceName = wxString(deviceName, wxConvUTF8);
     delete[] deviceName;
     deviceName = NULL;
 
@@ -307,22 +303,22 @@ bool CLModel::FindDeviceAndCreateContext(cl_uint desiredDeviceVendorId, cl_devic
       throw status;
     }
 
-    this->deviceCLVersion = new wxString(deviceCLVersion, wxConvUTF8);
+    this->deviceCLVersion = wxString(deviceCLVersion, wxConvUTF8);
     delete[] deviceCLVersion;
     deviceCLVersion = NULL;
 
     // Format of CL_DEVICE_VERSION is OpenCL<space><major_version.minor_version><space><vendor-specific information>
     // Parse it and extract the major.minor version number as a double
-    if (this->deviceCLVersion != NULL && this->deviceCLVersion->length() > 0)
+    if (this->deviceCLVersion.length() > 0)
     {
-      wxStringTokenizer *lineTokenizer = new wxStringTokenizer(this->deviceCLVersion->c_str());
-      if (lineTokenizer->HasMoreTokens())
+      wxStringTokenizer lineTokenizer(this->deviceCLVersion);
+      if (lineTokenizer.HasMoreTokens())
       {
         // Skip "OpenCL"
-        lineTokenizer->GetNextToken();
-        if (lineTokenizer->HasMoreTokens())
+        lineTokenizer.GetNextToken();
+        if (lineTokenizer.HasMoreTokens())
         {
-          wxString version = lineTokenizer->GetNextToken();
+          wxString version = lineTokenizer.GetNextToken();
 
           if (!version.ToDouble(&(this->deviceCLVersionNumber)))
           {
@@ -514,7 +510,7 @@ bool CLModel::FindDeviceAndCreateContext(cl_uint desiredDeviceVendorId, cl_devic
     size_t maxWorkItemSizesSize = maxDimensions * sizeof(size_t);
 
     delete[] this->maxWorkItemSizes;
-    this->maxWorkItemSizes = new size_t[maxWorkItemSizesSize];
+    this->maxWorkItemSizes = new size_t[maxDimensions];
 
     status = clGetDeviceInfo(this->deviceId, CL_DEVICE_MAX_WORK_ITEM_SIZES, maxWorkItemSizesSize, (void *)this->maxWorkItemSizes, NULL);
     if (status != CL_SUCCESS)
@@ -573,6 +569,7 @@ bool CLModel::FindDeviceAndCreateContext(cl_uint desiredDeviceVendorId, cl_devic
     delete[] deviceIds;
     delete[] extensions;
     delete[] deviceName;
+    delete[] deviceCLVersion;
     delete[] contextDeviceIds;
     success = false;
   }
@@ -644,18 +641,45 @@ bool CLModel::IsDeviceSuitable(cl_device_id deviceIdToCheck)
       throw status;
     }
 
-    if ((deviceHasKhrGlSharing || deviceHasAppleGlSharing) && (preferedVectorWidthDouble != 0 || deviceHasAmdFp64 || deviceHasKhrFp64))
+    bool hasGlSharing = deviceHasKhrGlSharing || deviceHasAppleGlSharing;
+    bool hasFp64 = preferedVectorWidthDouble != 0 || deviceHasAmdFp64 || deviceHasKhrFp64;
+    if (hasGlSharing && hasFp64)
     {
       isSuitable = true;
+    }
+    else
+    {
+      wxLogDebug(wxT("    skipped, missing%s%s"), hasGlSharing ? wxT("") : wxT(" OpenGL sharing"), hasFp64 ? wxT("") : wxT(" double precision"));
     }
   }
   catch (int ex)
   {
+    // A device that can't be queried is skipped rather than ending the search
+    delete[] extensions;
+    wxLogDebug(wxT("    skipped, device query failed"));
     isSuitable = false;
-    throw ex;
   }
 
   return isSuitable;
+}
+
+// The device name (CL_DEVICE_NAME), for logging
+wxString CLModel::GetDeviceName(cl_device_id deviceIdToName)
+{
+  size_t nameSize = 0;
+  if (clGetDeviceInfo(deviceIdToName, CL_DEVICE_NAME, 0, NULL, &nameSize) != CL_SUCCESS || nameSize == 0)
+  {
+    return wxT("(unknown)");
+  }
+
+  char *name = new char[nameSize];
+  wxString result = wxT("(unknown)");
+  if (clGetDeviceInfo(deviceIdToName, CL_DEVICE_NAME, nameSize, name, NULL) == CL_SUCCESS)
+  {
+    result = wxString(name, wxConvUTF8);
+  }
+  delete[] name;
+  return result.Trim().Trim(false);
 }
 
 void CLModel::CreateBufferObjects(GLuint *vbo, int numParticles, int numGrav)
@@ -668,9 +692,13 @@ void CLModel::CreateBufferObjects(GLuint *vbo, int numParticles, int numGrav)
   cl_int status = CL_SUCCESS;
   this->step = 0;
   this->stage = this->numStages;
+  this->numParticles = (cl_int)numParticles;
   this->numGrav = numGrav;
-  this->numParticles = (cl_int)((numParticles / this->groupSize) * this->groupSize);
-  ;
+  if (this->numGrav > this->numParticles)
+  {
+    wxLogDebug(wxT("numGrav %d reduced to the number of bodies %d"), this->numGrav, this->numParticles);
+    this->numGrav = this->numParticles;
+  }
 
   // Create cl_mem objects
   // Get an openCL buffer to the openGL Vertex Array of points.
@@ -844,11 +872,13 @@ void CLModel::CompileProgramAndCreateKernels()
       clGetProgramBuildInfo(this->program, this->deviceId, CL_PROGRAM_BUILD_LOG, 0, NULL, &log_size);
 
       // Allocate memory for the log
-      char *log = (char *)malloc(log_size);
+      char *log = new char[log_size + 1];
 
       // Get the log
       clGetProgramBuildInfo(this->program, this->deviceId, CL_PROGRAM_BUILD_LOG, log_size, log, NULL);
-      wxLogError(log);
+      log[log_size] = 0;
+      wxLogError(wxT("%s"), wxString(log, wxConvUTF8));
+      delete[] log;
     }
     throw status;
   }
@@ -863,20 +893,23 @@ void CLModel::CompileProgramAndCreateKernels()
     throw status;
   }
   // Allocate memory for the log
-  char *log = (char *)malloc(log_size);
+  char *log = new char[log_size + 1];
 
   // Get the log
   status = clGetProgramBuildInfo(this->program, this->deviceId, CL_PROGRAM_BUILD_LOG, log_size, log, NULL);
   if (status != CL_SUCCESS)
   {
+    delete[] log;
     wxLogError(wxT("clGetProgramBuildInfo failed %s"), this->ErrorMessage(status));
     throw status;
   }
-  wxLogDebug(log);
+  log[log_size] = 0;
+  wxLogDebug(wxT("%s"), wxString(log, wxConvUTF8));
+  delete[] log;
 #endif
 
   // setup kernels (pointers?) to required compiled kernels
-  this->accKernel = clCreateKernel(this->program, this->accelerationKernelName->c_str(), &status);
+  this->accKernel = clCreateKernel(this->program, this->accelerationKernelName.c_str(), &status);
   if (status != CL_SUCCESS)
   {
     wxLogError(wxT("clCreateKernel failed %s"), this->ErrorMessage(status));
@@ -890,16 +923,16 @@ void CLModel::CompileProgramAndCreateKernels()
     throw status;
   }
 
-  wxLogDebug(wxT("Using adamsBashforthKernel %s"), this->adamsBashforthKernelName->c_str());
-  this->adamsBashforthKernel = clCreateKernel(this->program, this->adamsBashforthKernelName->c_str(), &status);
+  wxLogDebug(wxT("Using adamsBashforthKernel %s"), this->adamsBashforthKernelName.c_str());
+  this->adamsBashforthKernel = clCreateKernel(this->program, this->adamsBashforthKernelName.c_str(), &status);
   if (status != CL_SUCCESS)
   {
     wxLogError(wxT("clCreateKernel adamsBashforthKernel failed %s"), this->ErrorMessage(status));
     throw status;
   }
 
-  wxLogDebug(wxT("Using adamsKernel %s"), this->adamsMoultonKernelName->c_str());
-  this->adamsMoultonKernel = clCreateKernel(this->program, this->adamsMoultonKernelName->c_str(), &status);
+  wxLogDebug(wxT("Using adamsKernel %s"), this->adamsMoultonKernelName.c_str());
+  this->adamsMoultonKernel = clCreateKernel(this->program, this->adamsMoultonKernelName.c_str(), &status);
   if (status != CL_SUCCESS)
   {
     wxLogError(wxT("clCreateKernel adamsMoultonKernel failed %s"), this->ErrorMessage(status));
@@ -1060,10 +1093,17 @@ void CLModel::ExecuteStartupStep()
   }
 }
 
+// The number of work-items to launch: numParticles rounded up to a whole number of
+// work-groups. The kernels ignore the work-items past the last body.
+size_t CLModel::GlobalWorkSize()
+{
+  return ((size_t)this->numParticles + this->groupSize - 1) / this->groupSize * this->groupSize;
+}
+
 // Enqueues a kernel over all the particles and flushes the queue
 void CLModel::EnqueueKernel(cl_kernel kernel, const wxChar *kernelName)
 {
-  size_t globalThreads[] = {(size_t)this->numParticles};
+  size_t globalThreads[] = {this->GlobalWorkSize()};
   size_t localThreads[] = {this->groupSize};
 
   cl_int status = clEnqueueNDRangeKernel(this->commandQueue, kernel, 1, NULL, globalThreads, localThreads, 0, 0, NULL);
@@ -1204,7 +1244,7 @@ void CLModel::UpdateDisplay()
   }
 
   // TODO this should be per kernel. Not the lowest that works for all of them
-  size_t globalThreads[] = {(size_t)this->numParticles};
+  size_t globalThreads[] = {this->GlobalWorkSize()};
   size_t localThreads[] = {this->groupSize};
 
   if (localThreads[0] > this->maxWorkItemSizes[0] || localThreads[0] > this->maxWorkGroupSize)
@@ -1285,7 +1325,8 @@ void CLModel::SetKernelArgumentsAndGroupSize()
     void copyToDisplay(
       __constant double4* pos,
       __global double4* dispPos,
-      int centerBodyIndex
+      int centerBodyIndex,
+      int numParticles
     )
   */
   status = clSetKernelArg(this->copyToDisplayKernel, paramNumber++, sizeof(cl_mem), (void *)&this->gravPos);
@@ -1316,13 +1357,22 @@ void CLModel::SetKernelArgumentsAndGroupSize()
     throw status;
   }
 
+  status = clSetKernelArg(this->copyToDisplayKernel, paramNumber++, sizeof(cl_int), (void *)&this->numParticles);
+  if (status != CL_SUCCESS)
+  {
+    wxLogError(wxT("clSetKernelArg failed for numParticles %s"), this->ErrorMessage(status));
+    throw status;
+  }
+
   /* Set appropriate arguments to the kernel
   __kernel void computeAcc(
      __constant double4* gravPos,
      __global double4* pos,
      int numGrav,
      double epsSqr,
-     __global double4* acc)
+     __global double4* acc,
+     [__local double4* localGravPos,]  (relativisticLocal only)
+     int numParticles)
   */
   paramNumber = 0;
   status = clSetKernelArg(this->accKernel, paramNumber++, sizeof(cl_mem), (void *)&this->gravPos);
@@ -1341,7 +1391,7 @@ void CLModel::SetKernelArgumentsAndGroupSize()
 
   // the acceleration kernel that includes relativistic corrections need the relativistic parameter stored
   // in .w. We pass the whole velocity vector in case it can be used in a more complicated relativistic on MOND type kernel
-  if (!this->accelerationKernelName->IsSameAs(wxT("newtonian"), false))
+  if (!this->accelerationKernelName.IsSameAs(wxT("newtonian"), false))
   {
     status = clSetKernelArg(this->accKernel, paramNumber++, sizeof(cl_mem), (void *)&this->currVel);
     if (status != CL_SUCCESS)
@@ -1372,14 +1422,21 @@ void CLModel::SetKernelArgumentsAndGroupSize()
     throw status;
   }
 
-  if (this->accelerationKernelName->IsSameAs(wxT("relativisticLocal"), false))
+  if (this->accelerationKernelName.IsSameAs(wxT("relativisticLocal"), false))
   {
     status = clSetKernelArg(this->accKernel, paramNumber++, sizeof(cl_double4) * this->groupSize, NULL);
     if (status != CL_SUCCESS)
     {
-      wxLogError(wxT("clSetKernelArg failed for currVel %s"), this->ErrorMessage(status));
+      wxLogError(wxT("clSetKernelArg failed for localGravPos %s"), this->ErrorMessage(status));
       throw status;
     }
+  }
+
+  status = clSetKernelArg(this->accKernel, paramNumber++, sizeof(cl_int), (void *)&this->numParticles);
+  if (status != CL_SUCCESS)
+  {
+    wxLogError(wxT("clSetKernelArg failed for numParticles %s"), this->ErrorMessage(status));
+    throw status;
   }
 
   // set integration kernel args

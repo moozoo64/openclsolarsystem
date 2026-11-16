@@ -554,10 +554,51 @@ bool InitialState::ExportSLF( wxString fileName )
 	return true;
 }
 
+// Counts the lines in a text file (the number of newlines, plus one if the last line has none)
+long InitialState::CountLines( wxString fileName )
+{
+	wxFFile file( fileName, wxT( "rb" ) );
+	if( !file.IsOpened() )
+	{
+		return 0;
+	}
+
+	const char newLine = 10;
+	long lines = 0;
+	char lastChar = newLine;
+	char buffer[65536];
+	size_t count;
+	while( ( count = file.Read( buffer, sizeof( buffer ) ) ) > 0 )
+	{
+		for( size_t k = 0; k < count; k++ )
+		{
+			if( buffer[k] == newLine )
+			{
+				lines++;
+			}
+		}
+		lastChar = buffer[count - 1];
+	}
+
+	if( lastChar != newLine )
+	{
+		lines++;
+	}
+	return lines;
+}
+
 // imports a Solex SLF formated file
 bool InitialState::ImportSLF( wxString fileName )
 {
-	this->initialNumParticles = 2000000;
+	// Each body takes 3 lines after the first (date) line. Count the lines so the arrays
+	// fit the file, rather than assuming a maximum number of bodies.
+	long numLines = CountLines( fileName );
+	if( numLines < 4 )
+	{
+		wxLogError( wxT( "%s has no bodies" ), fileName );
+		return false;
+	}
+	this->initialNumParticles = ( int )( ( numLines - 1 ) / 3 );
 	this->initialNumGrav = 16;
 
 	wxString message;
@@ -613,19 +654,19 @@ bool InitialState::ImportSLF( wxString fileName )
 				break;
 			}
 			wxString line = initialConditions.ReadLine();
-			wxStringTokenizer *lineTokenizer = new wxStringTokenizer( line );
+			wxStringTokenizer lineTokenizer( line );
 			if( i == 0 )
 			{
-				lineTokenizer->GetNextToken();
+				lineTokenizer.GetNextToken();
 			}
 
 			// Get Mass
-			if( !lineTokenizer->HasMoreTokens() )
+			if( !lineTokenizer.HasMoreTokens() )
 			{
 				wxLogDebug( wxT( "Expected mass" ) );
 				break;
 			}
-			wxString massToken = lineTokenizer->GetNextToken();
+			wxString massToken = lineTokenizer.GetNextToken();
 			if( !massToken.ToDouble( &mass ) )
 			{
 				wxLogDebug( wxT( "Invalid mass %s" ), massToken );
@@ -633,12 +674,12 @@ bool InitialState::ImportSLF( wxString fileName )
 			}
 
 			// Get Radius
-			if( !lineTokenizer->HasMoreTokens() )
+			if( !lineTokenizer.HasMoreTokens() )
 			{
 				wxLogDebug( wxT( "Expected radius" ) );
 				break;
 			}
-			wxString radiusToken = lineTokenizer->GetNextToken();
+			wxString radiusToken = lineTokenizer.GetNextToken();
 			if( !radiusToken.ToDouble( &radius ) )
 			{
 				wxLogDebug( wxT( "Invalid radius %s" ), radiusToken );
@@ -646,12 +687,12 @@ bool InitialState::ImportSLF( wxString fileName )
 			}
 
 			// Get absolute magnitude
-			if( !lineTokenizer->HasMoreTokens() )
+			if( !lineTokenizer.HasMoreTokens() )
 			{
 				wxLogDebug( wxT( "Expected absolute magnitude" ) );
 				break;
 			}
-			wxString absoluteMagnitudeToken = lineTokenizer->GetNextToken();
+			wxString absoluteMagnitudeToken = lineTokenizer.GetNextToken();
 			if( !absoluteMagnitudeToken.ToDouble( &absoluteMagnitude ) )
 			{
 				wxLogDebug( wxT( "Invalid absolute magnitude %s" ), absoluteMagnitudeToken );
@@ -659,12 +700,12 @@ bool InitialState::ImportSLF( wxString fileName )
 			}
 
 			// Get relativistic parameter
-			if( !lineTokenizer->HasMoreTokens() )
+			if( !lineTokenizer.HasMoreTokens() )
 			{
 				wxLogDebug( wxT( "Expected relativistic parameter" ) );
 				break;
 			}
-			wxString relativisticParameterToken = lineTokenizer->GetNextToken();
+			wxString relativisticParameterToken = lineTokenizer.GetNextToken();
 			if( relativisticParameterToken.EndsWith( wxT( "#" ),NULL ) )
 			{
 				relativisticParameterToken.RemoveLast();
@@ -675,12 +716,12 @@ bool InitialState::ImportSLF( wxString fileName )
 				return false;
 			}
 			// Get name
-			if( !lineTokenizer->HasMoreTokens() )
+			if( !lineTokenizer.HasMoreTokens() )
 			{
 				wxLogDebug( wxT( "Expected name" ) );
 				break;
 			}
-			wxString nameToken = lineTokenizer->GetNextToken();
+			wxString nameToken = lineTokenizer.GetNextToken();
 
 			if( nameToken.IsSameAs( wxT( "Earth" ) ) || nameToken.IsSameAs( wxT( "Earth-0" ) ))
 			{
@@ -700,15 +741,15 @@ bool InitialState::ImportSLF( wxString fileName )
 				break;
 			}
 			line = initialConditions.ReadLine();
-			lineTokenizer = new wxStringTokenizer( line );
+			lineTokenizer.SetString( line );
 
 			// Get xPos
-			if( !lineTokenizer->HasMoreTokens() )
+			if( !lineTokenizer.HasMoreTokens() )
 			{
 				wxLogDebug( wxT( "Expected x Position" ) );
 				return false;
 			}
-			wxString xPosToken = lineTokenizer->GetNextToken();
+			wxString xPosToken = lineTokenizer.GetNextToken();
 			if( !xPosToken.ToDouble( &xPos ) )
 			{
 				wxLogDebug( wxT( "Invalid xPos %s" ),xPosToken );
@@ -716,12 +757,12 @@ bool InitialState::ImportSLF( wxString fileName )
 			}
 
 			// Get yPos
-			if( !lineTokenizer->HasMoreTokens() )
+			if( !lineTokenizer.HasMoreTokens() )
 			{
 				wxLogDebug( wxT( "Expected y Position" ) );
 				return false;
 			}
-			wxString yPosToken = lineTokenizer->GetNextToken();
+			wxString yPosToken = lineTokenizer.GetNextToken();
 			if( !yPosToken.ToDouble( &yPos ) )
 			{
 				wxLogDebug( wxT( "Invalid yPos" ),yPosToken );
@@ -729,12 +770,12 @@ bool InitialState::ImportSLF( wxString fileName )
 			}
 
 			// Get zPos
-			if( !lineTokenizer->HasMoreTokens() )
+			if( !lineTokenizer.HasMoreTokens() )
 			{
 				wxLogDebug( wxT( "Expected z Position" ) );
 				return false;
 			}
-			wxString zPosToken = lineTokenizer->GetNextToken();
+			wxString zPosToken = lineTokenizer.GetNextToken();
 			if( !zPosToken.ToDouble( &zPos ) )
 			{
 				wxLogDebug( wxT( "Invalid zPos" ),zPosToken );
@@ -748,15 +789,15 @@ bool InitialState::ImportSLF( wxString fileName )
 				break;
 			}
 			line = initialConditions.ReadLine();
-			lineTokenizer = new wxStringTokenizer( line );
+			lineTokenizer.SetString( line );
 
 			// Get xVel
-			if( !lineTokenizer->HasMoreTokens() )
+			if( !lineTokenizer.HasMoreTokens() )
 			{
 				wxLogDebug( wxT( "Expected x Velocity" ) );
 				return false;
 			}
-			wxString xVelToken = lineTokenizer->GetNextToken();
+			wxString xVelToken = lineTokenizer.GetNextToken();
 			if( !xVelToken.ToDouble( &xVel ) )
 			{
 				wxLogDebug( wxT( "Invalid xVel" ),xVelToken );
@@ -764,12 +805,12 @@ bool InitialState::ImportSLF( wxString fileName )
 			}
 
 			//Get yVel
-			if( !lineTokenizer->HasMoreTokens() )
+			if( !lineTokenizer.HasMoreTokens() )
 			{
 				wxLogDebug( wxT( "Expected y Velocity" ) );
 				return false;
 			}
-			wxString yVelToken = lineTokenizer->GetNextToken();
+			wxString yVelToken = lineTokenizer.GetNextToken();
 			if( !yVelToken.ToDouble( &yVel ) )
 			{
 				wxLogDebug( wxT( "Invalid yVel" ),yVelToken );
@@ -777,12 +818,12 @@ bool InitialState::ImportSLF( wxString fileName )
 			}
 
 			// Get zVel
-			if( !lineTokenizer->HasMoreTokens() )
+			if( !lineTokenizer.HasMoreTokens() )
 			{
 				wxLogDebug( wxT( "Expected z Velocity" ) );
 				return false;
 			}
-			wxString zVelToken = lineTokenizer->GetNextToken();
+			wxString zVelToken = lineTokenizer.GetNextToken();
 			if( !zVelToken.ToDouble( &zVel ) )
 			{
 				wxLogDebug( wxT( "Invalid zVel" ),zVelToken );
