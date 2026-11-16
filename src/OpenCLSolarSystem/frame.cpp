@@ -729,7 +729,8 @@ void Frame::OnSetDeltaTime(wxCommandEvent &event)
     this->clModel->delT = 4 * 60 * 60.0f;
     break;
   }
-  this->clModel->step = 0;
+  // The Adams history was built with the old time step, so restart with the RK4 startup
+  this->clModel->RestartIntegration();
   this->clModel->SetKernelArgumentsAndGroupSize();
 }
 

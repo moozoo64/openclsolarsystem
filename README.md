@@ -79,7 +79,8 @@ To fix this:
 ## Stability and Accuracy
 
 During the first 16 time steps the program initialises the Adams Bashforth Moulton history.
-Currently this is done in a very inaccurate manner. I plan to implement a runge kutta 7th order method for this in the future.
+Each of these steps is taken with 4th order Runge Kutta, split into 10 sub-steps (e.g. 24 min sub-steps for a 4 hr Time Delta).
+Changing the Time Delta restarts this initialisation.
 
 The Adams Bashforth Moulton integration method is unstable for higher order methods used with large time steps.  
 With "Adams Bashforth Moulton 11" and a Time Delta to 4 hr the integration appears stable.  

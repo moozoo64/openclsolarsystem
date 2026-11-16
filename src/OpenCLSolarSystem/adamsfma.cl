@@ -32,19 +32,25 @@ __global double4* acc)
 	double invDist;
 	double invDistCube;
 	double s;
+	double4 accSun = (double4)(0.0, 0.0, 0.0, 0.0);
 	
-	// Do the Sun
-	r = gravPos[0] - myPos;
-	r.w =0.0;
-	distSqr = r.x * r.x + r.y * r.y + r.z * r.z;
-	invDist = rsqrt(distSqr + epsSqr); 
-	invDistCube = invDist * invDist * invDist; 
-	s = gravPos[0].w * invDistCube;
-	double4 accSun= s * r; 
+	// Do the Sun (but not on itself)
+	if (gid != 0)
+	{
+		r = gravPos[0] - myPos;
+		r.w =0.0;
+		distSqr = r.x * r.x + r.y * r.y + r.z * r.z;
+		invDist = rsqrt(distSqr + epsSqr); 
+		invDistCube = invDist * invDist * invDist; 
+		s = gravPos[0].w * invDistCube;
+		accSun= s * r; 
+	}
 	
 	//Do the rest
 	for(int gravBody = 1; gravBody < numGrav; gravBody++)
 	{
+		// A body does not pull on itself (r = 0 would give inf * 0 = NaN)
+		if (gravBody == gid) continue;
 		r = gravPos[gravBody] - myPos;
 		r.w =0.0;
 		distSqr = r.x * r.x + r.y * r.y + r.z * r.z;
@@ -80,21 +86,27 @@ __global double4* acc)
 	double invDist;
 	double invDistCube;
 	double s;
+	double4 accSun = (double4)(0.0, 0.0, 0.0, 0.0);
 	
-	// Do the Sun
-	r = gravPos[0] - myPos;
-	r.w =0.0;
-	distSqr = r.x * r.x + r.y * r.y + r.z * r.z;
-	invDist = rsqrt(distSqr + epsSqr); 
-	invDistCube = invDist * invDist * invDist; 
-	s = gravPos[0].w * invDistCube;
-	s = s * (1.0 + myVel.w + (relativisticC1*invDist));
-	double4 accSun= s * r;
+	// Do the Sun (but not on itself)
+	if (gid != 0)
+	{
+		r = gravPos[0] - myPos;
+		r.w =0.0;
+		distSqr = r.x * r.x + r.y * r.y + r.z * r.z;
+		invDist = rsqrt(distSqr + epsSqr); 
+		invDistCube = invDist * invDist * invDist; 
+		s = gravPos[0].w * invDistCube;
+		s = s * (1.0 + myVel.w + (relativisticC1*invDist));
+		accSun= s * r;
+	}
 	
     //Do the rest
 	double4 compensation = (double4)(0.0f, 0.0f, 0.0f, 0.0f);
 	for(int gravBody = 1; gravBody < numGrav; gravBody++)
 	{
+		// A body does not pull on itself (r = 0 would give inf * 0 = NaN)
+		if (gravBody == gid) continue;
 		r = gravPos[gravBody] - myPos;
 		r.w =0.0;
 		distSqr = r.x * r.x + r.y * r.y + r.z * r.z;
@@ -151,7 +163,11 @@ __local double4* localGravPos)
 		uint start = 0;
 		if(block == 0)
 		{
-			// Do the Sun
+			start = 1;
+		}
+		if(block == 0 && gid != 0)
+		{
+			// Do the Sun (but not on itself)
 			gravPosN =localGravPos[0];
 			r = gravPosN - myPos;
 			r.w =0.0;
@@ -161,11 +177,13 @@ __local double4* localGravPos)
 			s = gravPosN.w * invDistCube;
 			s = s * (1.0 + myVel.w + (relativisticC1*invDist));
 			accSun= s * r;
-			start = 1;
 		}
 		for( uint gravBody = start ;gravBody < blockSize && (block*numBlocks + gravBody) < numGrav; gravBody++)
 		{
 			//Do the rest
+			// A body does not pull on itself (r = 0 would give inf * 0 = NaN).
+			// Same index expression as the load into localGravPos above.
+			if ((block*numBlocks + gravBody) == gid) continue;
 			gravPosN =localGravPos[gravBody];
 			r = gravPosN - myPos;
 			r.w =0.0;
@@ -199,11 +217,6 @@ int centerBodyIndex)
 	
 	dispPos[gid] = dispPosFloat;
 }
-
-#define B2C1 1.500000000000000000
-#define B2C2 -0.50000000000000000
-#define M2C1 0.500000000000000000
-#define M2C2 0.500000000000000000
 
 #define B4C1  2.291666666666666666666666666666666666
 #define B4C2 -2.458333333333333333333333333333333333
@@ -339,198 +352,96 @@ int centerBodyIndex)
 #define M16C15    -0.061618445537183739206446437487001860
 #define M16C16     0.003826899553211884423304176390596143
 
+// Seeds the 16 entry Adams history ring buffer for steps 0..15.
+// Classic 4th order Runge-Kutta, with each Adams step of deltaTime split into
+// numSubSteps RK4 sub-steps of h = deltaTime/numSubSteps.
+// The host evaluates the acceleration (acc) at the current pos before each call,
+// and copies newPos/newVel back to pos/vel (and gravPos) after each call.
+//   rkStage 0..3 : which RK4 stage (k1..k4) acc/vel were evaluated for
+//   subStep      : which sub-step within the current Adams step
+// posLast/velLast hold the state y0 at the start of the current sub-step and
+// sumVel/sumAcc accumulate k1 + 2k2 + 2k3 for position and velocity.
+// The history entry for a step is the velocity and acceleration at the true
+// state at the start of that step (rkStage 0 of subStep 0), as the Adams kernels expect.
 __kernel
-void adamsStartup( 
-__global double4* pos, 
+void rungeKutta4Startup(
+__global double4* pos,
 __global double4* vel,
-__global double4* acc, 
-double deltaTime, 
-__global double4* newPos, 
+__global double4* acc,
+double deltaTime,
+__global double4* newPos,
 __global double4* newVel,
-int stage,
+int rkStage,
 int step,
 int numParticles,
 __global double4* posLast,
 __global double4* velLast,
 __global double4* velHistory,
-__global double4* accHistory)
+__global double4* accHistory,
+int subStep,
+int numSubSteps,
+__global double4* sumVel,
+__global double4* sumAcc)
 {
 	unsigned int gid = get_global_id(0);
-	double4 position = pos[gid]; 
 	double4 velocity = vel[gid];
 	double4 acceleration = acc[gid];
-	long index;
+	double h = deltaTime / numSubSteps;
+	double4 basePos;
+	double4 baseVel;
 	double4 newPosition;
 	double4 newVelocity;
-	double4 sum;
-	double4 f;
-	
-	int order = step > 1? (step > 16? 4 : 2) : 1;
-	
-	if (stage == 1)
+
+	if (rkStage == 0)
 	{
-		// Adams-Bashford Predictor
-		// acceleration
-		if(order == 1)
-		{
-			f = acceleration;
-			sum = 1.0 * f;
-		}
-		else if (order == 2)
-		{
-			f = acceleration;
-			sum = B2C1 * f;
-			
-			index = ((step-1) & 0xF) * numParticles + gid;
-			f = accHistory[index];
-			sum = fma(B2C2,f,sum); //sum += B2C2 * f;
-		}
-		else
-		{
-			f = acceleration;
-			sum = B4C1 * f;
-			
-			index = ((step-1) & 0xF) * numParticles + gid;
-			f = accHistory[index];
-			sum = fma(B4C2,f,sum); //sum += B4C2 * f;
-			
-			index = ((step-2) & 0xF) * numParticles + gid;
-			f = accHistory[index];
-			sum = fma(B4C3,f,sum); //sum += B4C3 * f;
+		// k1 at y0, the start of the sub-step
+		basePos = pos[gid];
+		baseVel = velocity;
+		posLast[gid] = basePos;
+		velLast[gid] = baseVel;
 
-			index = ((step-3) & 0xF) * numParticles + gid;
-			f = accHistory[index];
-			sum = fma(B4C4,f,sum); //sum += B4C4 * f;
+		if (subStep == 0)
+		{
+			long index = (step & 0xF) * numParticles + gid;
+			velHistory[index] = velocity;
+			accHistory[index] = acceleration;
 		}
-		
-		newVelocity = velocity + deltaTime * sum;
-		velLast[gid] = velocity;
 
-		// --------------------------------------------
-		// position
-		if(order == 1)
-		{
-			f = velocity;
-			sum = 1.0 * f;
-		}
-		else if (order == 2)
-		{
-			f = velocity;
-			sum = B2C1 * f;
-			
-			index = ((step-1) & 0xF) * numParticles + gid;
-			f = velHistory[index];
-			sum = fma(B2C2,f,sum); //sum += B2C2 * f;
-		}
-		else
-		{
-			f = velocity;
-			sum = B4C1 * f;
-			
-			index = ((step-1) & 0xF) * numParticles + gid;
-			f = velHistory[index];
-			sum = fma(B4C2,f,sum); //sum += B4C2 * f;
-			
-			index = ((step-2) & 0xF) * numParticles + gid;
-			f = velHistory[index];
-			sum = fma(B4C3,f,sum); //sum += B4C3 * f;
-			
-			index = ((step-3) & 0xF) * numParticles + gid;
-			f = velHistory[index];
-			sum = fma(B4C4,f,sum); //sum += B4C4 * f;
-		}
-		
-		newPosition = position + deltaTime * sum * (KMTOGM);
-		posLast[gid] = position;
-		
-		index = ((step) & 0xF) * numParticles + gid;
-		//velocity.w = (double) step;
-		velHistory[index] = velocity;
-		//acceleration.w = (double)step;
-		accHistory[index] = acceleration;
+		sumVel[gid] = velocity;
+		sumAcc[gid] = acceleration;
+
+		// y0 + h/2 k1
+		newPosition = basePos + (0.5 * h * KMTOGM) * velocity;
+		newVelocity = baseVel + (0.5 * h) * acceleration;
 	}
 	else
 	{
-		// Adams-Moulton corrector
-		// acceleration -> velocity
-		
-		if(order == 1)
+		basePos = posLast[gid];
+		baseVel = velLast[gid];
+
+		if (rkStage == 3)
 		{
-			f = acceleration;
-			sum = 1.0 * f;
-		}
-		else if (order == 2)
-		{
-			f = acceleration;
-			sum = M2C1 * f;
-			
-			index = ((step) & 0xF) * numParticles + gid;
-			f = accHistory[index];
-			sum = fma(M2C2,f,sum); //sum += M2C2 * f;
+			// y1 = y0 + h/6 (k1 + 2k2 + 2k3 + k4)
+			newPosition = basePos + (h / 6.0 * KMTOGM) * (sumVel[gid] + velocity);
+			newVelocity = baseVel + (h / 6.0) * (sumAcc[gid] + acceleration);
 		}
 		else
 		{
-			f = acceleration;
-			sum = M4C1 * f;
-			
-			index = ((step) & 0xF) * numParticles + gid;
-			f = accHistory[index];
-			sum = fma(M4C2,f,sum); //sum += M4C2 * f;
-			
-			index = ((step-1) & 0xF) * numParticles + gid;
-			f = accHistory[index];
-			sum = fma(M4C3,f,sum); //sum += M4C3 * f;
-			
-			index = ((step-2) & 0xF) * numParticles + gid;
-			f = accHistory[index];
-			sum = fma(M4C4,f,sum); //sum += M4C4 * f;
+			// rkStage 1: k2, next evaluate at y0 + h/2 k2
+			// rkStage 2: k3, next evaluate at y0 + h k3
+			sumVel[gid] = fma(2.0, velocity, sumVel[gid]);
+			sumAcc[gid] = fma(2.0, acceleration, sumAcc[gid]);
+
+			double c = (rkStage == 1) ? 0.5 * h : h;
+			newPosition = basePos + (c * KMTOGM) * velocity;
+			newVelocity = baseVel + c * acceleration;
 		}
-		
-		// Store corrected velocity
-		newVelocity = velLast[gid] + deltaTime * sum;
-		
-		//------------------------------
-		// velocity -> position
-		if(order == 1)
-		{
-			f = velocity;
-			sum = 1.0 * f;
-		}
-		else if (order == 2)
-		{
-			f = velocity;
-			sum = M2C1 * f;
-			
-			index = ((step) & 0xF) * numParticles + gid;
-			f = velHistory[index];
-			sum = fma(M2C2,f,sum); //sum += M2C2 * f;
-		}
-		else
-		{		
-			f = velocity;
-			sum = M4C1 * f;
-			
-			index = ((step) & 0xF) * numParticles + gid;
-			f = velHistory[index];
-			sum = fma(M4C2,f,sum); //sum += M4C2 * f;
-			
-			index = ((step-1) & 0xF) * numParticles + gid;
-			f = velHistory[index];
-			sum = fma(M4C3,f,sum); //sum += M4C3 * f;
-			
-			index = ((step-2) & 0xF) * numParticles + gid;
-			f = velHistory[index];
-			sum = fma(M4C4,f,sum); //sum += M4C4 * f;
-		}
-		
-		// Store corrected position
-		newPosition = posLast[gid] + deltaTime * sum * (KMTOGM);
 	}
-	
+
 	// Copy across mass and relativistic parameter
-	newPosition.w = position.w;
-	newVelocity.w = velocity.w;
-		
+	newPosition.w = basePos.w;
+	newVelocity.w = baseVel.w;
+
 	newPos[gid] = newPosition;
 	newVel[gid] = newVelocity;
 }

@@ -34,6 +34,7 @@ public:
   void ReadToInitialState(cl_double4 *initalPositions, cl_double4 *initalVelocities);
   void SetKernelArgumentsAndGroupSize();
   void ExecuteKernels();
+  void RestartIntegration();
   int CleanUpCL();
   void UpdateDisplay();
   void RequestUpdate();
@@ -50,7 +51,7 @@ public:
 
   // Simulation Parameters
   cl_double delT;         /**< Integration timestep in seconds */
-  cl_double espSqr;       /**< Gravitational softening factor squared */
+  cl_double espSqr;       /**< Gravitational softening length squared (Gm^2), 0 = none */
   cl_double julianDate;   /**< Current simulation time in Julian Date */
   cl_double time;         /**< Current simulation time in seconds */
   cl_int numGrav;         /**< Number of gravitational bodies */
@@ -72,7 +73,7 @@ private:
   cl_kernel accKernel;            /**< Acceleration computation kernel */
   cl_kernel adamsBashforthKernel; /**< Adams-Bashforth integration kernel */
   cl_kernel adamsMoultonKernel;   /**< Adams-Moulton integration kernel */
-  cl_kernel startupKernel;        /**< Initialization kernel */
+  cl_kernel startupKernel;        /**< RK4 startup kernel that seeds the Adams history */
   cl_kernel copyToDisplayKernel;  /**< Display buffer update kernel */
 
   // Device Capabilities
@@ -96,6 +97,7 @@ private:
   cl_int numParticles; /**< Current number of particles */
   cl_int stage;        /**< Current integration stage */
   cl_int numStages;    /**< Total integration stages */
+  cl_int startupSubSteps; /**< RK4 sub-steps per step while seeding the Adams history */
 
   // OpenCL memory buffers
   cl_mem dispPos;    // [numParticles][4] - Display positions (GL shared buffer)
@@ -109,6 +111,8 @@ private:
   cl_mem accHistory; // [numParticles][16][4] - Acceleration history ring buffer
   cl_mem posLast;    // [numParticles][4] - Previous positions for Adams-Moulton
   cl_mem velLast;    // [numParticles][4] - Previous velocities for Adams-Moulton
+  cl_mem rkSumVel;   // [numParticles][4] - RK4 startup: k1 + 2k2 + 2k3 for position
+  cl_mem rkSumAcc;   // [numParticles][4] - RK4 startup: k1 + 2k2 + 2k3 for velocity
 
   // Dimensions explanation:
   // [numParticles] - Number of bodies in simulation
@@ -128,6 +132,11 @@ private:
 
   // Private methods
   void SetAdamsKernelArgs(cl_kernel adamsKernel);
+  void SetStartupKernelArgs();
+  void EnqueueKernel(cl_kernel kernel, const wxChar *kernelName);
+  void EnqueueBarrier();
+  void EnqueueCopyNewToCurrent();
+  void ExecuteStartupStep();
   bool IsDeviceSuitable(cl_device_id deviceIdToCheck);
 };
 
