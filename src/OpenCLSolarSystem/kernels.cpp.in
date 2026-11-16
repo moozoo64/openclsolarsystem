@@ -1,0 +1,11 @@
+// GENERATED FILE - DO NOT EDIT.
+// Produced by CMake (configure_file) from adamsfma.cl, which is the single
+// source of truth for the OpenCL kernels. Edit adamsfma.cl instead.
+#include "kernels.hpp"
+
+namespace Kernels
+{
+  const char *adamsfma = R"CLSRC(
+@ADAMSFMA_SOURCE@
+)CLSRC";
+}

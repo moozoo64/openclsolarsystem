@@ -18,8 +18,8 @@
 - Prefer small, localized edits in these files:
   - `application.*`, `frame.*`, `glcanvas.*`, `clmodel.*`, `kernels.*`, `global.*`
 - If changing host-side kernel setup, ensure corresponding kernel signatures and argument ordering remain consistent with:
-  - `src/OpenCLSolarSystem/kernels.cpp`
-  - `src/OpenCLSolarSystem/*.cl`
+  - `src/OpenCLSolarSystem/adamsfma.cl`
+- `src/OpenCLSolarSystem/adamsfma.cl` is the single source of the OpenCL kernels. CMake embeds it into a generated `kernels.cpp` in the build directory (from `kernels.cpp.in`); never add a hand-maintained copy of the kernel source.
 - Keep OpenCL kernel changes portable to OpenCL 1.2 where possible.
 - Avoid introducing heavy dependencies unless clearly required.
 
