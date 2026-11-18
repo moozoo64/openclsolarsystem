@@ -98,8 +98,10 @@ A file `mpcsmall.slf` is included in the source. It was generated from:
 
 * The MPC MPCORB.DAT
 * JPLHorizons API for the planets and moon
-* Both sources use the same epoch
-* Generated using the program found in the OrbToSlf directory
+* Both sources use the same epoch (currently JD 2461200.5, the MPCORB.DAT epoch when it was made)
+* Generated using the program found in the OrbToSlf directory, with `OrbToSlfConsole MaxBodies=32768`
+  (OrbToSlf writes `FINAL.SLF`; rename it to `mpcsmall.slf`). After regenerating it, refresh the
+  harness's Horizons reference with `python tools/kernel-harness/fetch_horizons.py --epoch <new epoch>`
 
 The OrbToSlf program generates a .slf file from either:
 

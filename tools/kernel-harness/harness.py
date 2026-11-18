@@ -83,20 +83,27 @@ def pick_device(platform_sub):
     raise SystemExit("no OpenCL device with fp64 found" + (f" on platform matching '{platform_sub}'" if platform_sub else ""))
 
 
-def main():
-    a = parse_args()
-    n, ngrav = a.bodies, a.grav
+def simulate(pos, vel, *, kernel, steps, dt=14400.0, ngrav=16, acc_kernel="relativistic",
+             ab="adamsBashforth11", am="adamsMoulton10", startup="rk4", substeps=10, eps=EPS_SQR,
+             group=GROUP_SIZE, platform="", sample_every=0, sample_bodies=None):
+    """Integrates pos/vel ([n, 4] arrays as from load_slf) for `steps` steps of `dt` seconds.
+
+    Runs the kernels in the same order as CLModel::ExecuteKernels. Returns (final, samples, device):
+      final   [2, n, 4] positions (Gm) and velocities (km/s) after the last step
+      samples if sample_every > 0: list of (time_s, [2, len(sample_bodies), 4]) taken every
+              sample_every steps (and at step 0), else []
+    """
+    n = pos.shape[0]
     ngrav = min(ngrav, n)  # as CLModel::CreateBufferObjects
     # As CLModel::GlobalWorkSize: rounded up to whole work-groups, the kernels skip the extra work-items
-    global_size = (n + a.group - 1) // a.group * a.group
-    steps = a.steps if a.steps is not None else int(round(a.days * 86400 / a.dt))
+    global_size = (n + group - 1) // group * group
+    sample_bodies = list(range(n)) if sample_bodies is None else list(sample_bodies)
 
-    pos, vel = load_slf(a.slf, n)
-    plat, dev = pick_device(a.platform)
+    plat, dev = pick_device(platform)
     ctx = cl.Context([dev])
     q = cl.CommandQueue(ctx)
     # Same prefix and options as CLModel::CompileProgramAndCreateKernels
-    src = "#pragma OPENCL EXTENSION cl_khr_fp64 : enable \r\n" + open(a.kernel, encoding="utf-8").read()
+    src = "#pragma OPENCL EXTENSION cl_khr_fp64 : enable \r\n" + open(kernel, encoding="utf-8").read()
     prg = cl.Program(ctx, src).build(options="-cl-mad-enable")
 
     mf = cl.mem_flags
@@ -104,6 +111,8 @@ def main():
     def buf(count):
         return cl.Buffer(ctx, mf.READ_WRITE, size=count * 32)
 
+    pos = np.ascontiguousarray(pos, dtype=np.float64)
+    vel = np.ascontiguousarray(vel, dtype=np.float64)
     currPos = cl.Buffer(ctx, mf.READ_WRITE | mf.COPY_HOST_PTR, hostbuf=pos)
     gravPos = cl.Buffer(ctx, mf.READ_WRITE | mf.COPY_HOST_PTR, hostbuf=pos[:ngrav].copy())
     currVel = cl.Buffer(ctx, mf.READ_WRITE | mf.COPY_HOST_PTR, hostbuf=vel)
@@ -111,36 +120,46 @@ def main():
     velHist, accHist, sumVel, sumAcc = buf(16 * n), buf(16 * n), buf(n), buf(n)
 
     i32, f64 = np.int32, np.float64
-    accK = getattr(prg, a.acc)
+    accK = getattr(prg, acc_kernel)
     # Same argument order as CLModel::SetKernelArgumentsAndGroupSize
-    if a.acc == "newtonian":
-        accK.set_args(gravPos, currPos, i32(ngrav), f64(a.eps), acc, i32(n))
-    elif a.acc == "relativisticLocal":
-        accK.set_args(gravPos, currPos, currVel, i32(ngrav), f64(a.eps), acc, cl.LocalMemory(32 * a.group), i32(n))
+    if acc_kernel == "newtonian":
+        accK.set_args(gravPos, currPos, i32(ngrav), f64(eps), acc, i32(n))
+    elif acc_kernel == "relativisticLocal":
+        accK.set_args(gravPos, currPos, currVel, i32(ngrav), f64(eps), acc, cl.LocalMemory(32 * group), i32(n))
     else:
-        accK.set_args(gravPos, currPos, currVel, i32(ngrav), f64(a.eps), acc, i32(n))
-    abK, amK = getattr(prg, a.ab), getattr(prg, a.am)
-    startK = prg.rungeKutta4Startup if a.startup == "rk4" else prg.adamsStartup
+        accK.set_args(gravPos, currPos, currVel, i32(ngrav), f64(eps), acc, i32(n))
+    abK, amK = getattr(prg, ab), getattr(prg, am)
+    startK = prg.rungeKutta4Startup if startup == "rk4" else prg.adamsStartup
 
     def adams_args(k, stage, step, *extra):
-        k.set_args(currPos, currVel, acc, f64(a.dt), newPos, newVel, i32(stage), i32(step), i32(n),
+        k.set_args(currPos, currVel, acc, f64(dt), newPos, newVel, i32(stage), i32(step), i32(n),
                    posLast, velLast, velHist, accHist, *extra)
 
     def run(k):
-        cl.enqueue_nd_range_kernel(q, k, (global_size,), (a.group,))
+        cl.enqueue_nd_range_kernel(q, k, (global_size,), (group,))
 
     def copy_new_to_current():
         cl.enqueue_copy(q, currPos, newPos, byte_count=n * 32)
         cl.enqueue_copy(q, gravPos, newPos, byte_count=ngrav * 32)
         cl.enqueue_copy(q, currVel, newVel, byte_count=n * 32)
 
-    t0 = time.time()
+    def read_state():
+        res = np.empty((2, n, 4))
+        cl.enqueue_copy(q, res[0], currPos)
+        cl.enqueue_copy(q, res[1], currVel)
+        q.finish()
+        return res
+
+    samples = []
+    if sample_every > 0:
+        samples.append((0.0, read_state()[:, sample_bodies]))
+
     for step in range(steps):
-        if step < 16 and a.startup == "rk4":
-            for sub in range(a.substeps):
+        if step < 16 and startup == "rk4":
+            for sub in range(substeps):
                 for rk in range(4):
                     run(accK)
-                    adams_args(startK, rk, step, i32(sub), i32(a.substeps), sumVel, sumAcc)
+                    adams_args(startK, rk, step, i32(sub), i32(substeps), sumVel, sumAcc)
                     run(startK)
                     copy_new_to_current()
         else:
@@ -150,11 +169,21 @@ def main():
                 adams_args(k, stage, step)
                 run(k)
                 copy_new_to_current()
+        if sample_every > 0 and (step + 1) % sample_every == 0:
+            samples.append(((step + 1) * dt, read_state()[:, sample_bodies]))
 
-    res = np.empty((2, n, 4))
-    cl.enqueue_copy(q, res[0], currPos)
-    cl.enqueue_copy(q, res[1], currVel)
-    q.finish()
+    return read_state(), samples, dev
+
+
+def main():
+    a = parse_args()
+    steps = a.steps if a.steps is not None else int(round(a.days * 86400 / a.dt))
+    pos, vel = load_slf(a.slf, a.bodies)
+
+    t0 = time.time()
+    res, _, dev = simulate(pos, vel, kernel=a.kernel, steps=steps, dt=a.dt, ngrav=a.grav, acc_kernel=a.acc,
+                           ab=a.ab, am=a.am, startup=a.startup, substeps=a.substeps, eps=a.eps,
+                           group=a.group, platform=a.platform)
     if not np.isfinite(res).all():
         bad = np.unique(np.where(~np.isfinite(res))[1])
         print(f"WARNING: non-finite values for bodies {bad.tolist()}")

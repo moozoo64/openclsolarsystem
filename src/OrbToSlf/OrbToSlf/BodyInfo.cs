@@ -80,7 +80,11 @@ namespace OrbToSlf
         public bool ReadIn { get; set; }
 
         /// <summary>
-        /// The bodies relativistic parameter.
+        /// The bodies relativistic parameter: -9 G M_sun / (c^2 a), Vitagliano's correction to the
+        /// Sun's mass for this body (dimensionless, a in metres). OpenCLSolarSystem's relativistic
+        /// kernel uses it in the Sun's pull: 1 + RelativisticParam + 6 G M_sun / (c^2 r).
+        /// It is 0 for bodies with no elliptic orbit about the Sun (a &lt;= 0, e.g. hyperbolic
+        /// orbits or bodies whose orbit is not known), which leaves only the 6 G M_sun / (c^2 r) term.
         /// </summary>
         public double RelativisticParam { get; set; }
 

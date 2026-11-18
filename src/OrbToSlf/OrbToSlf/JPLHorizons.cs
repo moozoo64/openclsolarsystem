@@ -39,6 +39,14 @@ namespace OrbToSlf
     private const string sunCenter = "500@10";
     private const string earthCenter = "500";
 
+    // SystemBarycentreNote: Mars to Pluto are fetched as their system barycentres (Horizons ids
+    // 4 to 9), not their planet centres (499 to 999). Their masses in Info.csv are system masses
+    // (planet plus moons), and OpenCLSolarSystem moves each one as a single point mass, which
+    // follows the barycentre. A planet centre moves around its barycentre with the moons (Jupiter
+    // 0.6 m/s, Saturn 1.3 m/s, Neptune 0.9 m/s), which would give the simulation errors of
+    // 17,000 to 42,000 km after one year (tools/kernel-harness/README.md, ephemeris check).
+    // Earth and the Moon stay separate bodies (399 and 301).
+
     public JPLHorizons(IConfiguration config, ILogger<JPLHorizons> logger)
     {
       this.config = config;
@@ -198,7 +206,8 @@ namespace OrbToSlf
     {
       var tc = (t - 2451545.0) / 36525;
       semiMajorAxis = 1.52371034 + 0.00001847 * tc;
-      var state = GetHorizonsData("499", sunCenter, t.ToString());
+      // The Mars system barycentre, not the planet centre (see SystemBarycentreNote)
+      var state = GetHorizonsData("4", sunCenter, t.ToString());
       return state;
     }
 
@@ -206,14 +215,16 @@ namespace OrbToSlf
     {
       var tc = (t - 2451545.0) / 36525;
       semiMajorAxis = 5.20288700 - 0.00011607 * tc;
-      var state = GetHorizonsData("599", sunCenter, t.ToString());
+      // The Jupiter system barycentre, not the planet centre (see SystemBarycentreNote)
+      var state = GetHorizonsData("5", sunCenter, t.ToString());
       return state;
     }
     public Double4[] Saturn(double t, out double semiMajorAxis)
     {
       var tc = (t - 2451545.0) / 36525;
       semiMajorAxis = 9.53667594 - 0.00125060 * tc;
-      var state = GetHorizonsData("699", sunCenter, t.ToString());
+      // The Saturn system barycentre, not the planet centre (see SystemBarycentreNote)
+      var state = GetHorizonsData("6", sunCenter, t.ToString());
       return state;
     }
 
@@ -221,7 +232,8 @@ namespace OrbToSlf
     {
       var tc = (t - 2451545.0) / 36525;
       semiMajorAxis = 19.18916464 - 0.00196176 * tc;
-      var state = GetHorizonsData("799", sunCenter, t.ToString());
+      // The Uranus system barycentre, not the planet centre (see SystemBarycentreNote)
+      var state = GetHorizonsData("7", sunCenter, t.ToString());
       return state;
     }
 
@@ -229,7 +241,8 @@ namespace OrbToSlf
     {
       var tc = (t - 2451545.0) / 36525;
       semiMajorAxis = 30.06992276 + 0.00026291 * tc;
-      var state = GetHorizonsData("899", sunCenter, t.ToString());
+      // The Neptune system barycentre, not the planet centre (see SystemBarycentreNote)
+      var state = GetHorizonsData("8", sunCenter, t.ToString());
       return state;
     }
 
@@ -237,7 +250,8 @@ namespace OrbToSlf
     {
       var tc = (t - 2451545.0) / 36525;
       semiMajorAxis = 39.48211675 - 0.00031596 * tc;
-      var state = GetHorizonsData("999", sunCenter, t.ToString());
+      // The Pluto system barycentre, not the planet centre (see SystemBarycentreNote)
+      var state = GetHorizonsData("9", sunCenter, t.ToString());
       return state;
     }
 

@@ -204,6 +204,8 @@ namespace OrbToSlf
             continue;
           }
 
+          // Vitagliano's -9 G M_sun / (c^2 a) correction is only defined for an elliptic orbit.
+          // Hyperbolic orbits (a <= 0) get 0, so only the 6 G M_sun / (c^2 r) term applies to them.
           if (body.SemiMajorAxis > 0)
           {
             body.RelativisticParam = -9 * Constants.GravitationalConstant * Constants.SunMass / (Constants.SpeedOfLight * Constants.SpeedOfLight * body.SemiMajorAxis);

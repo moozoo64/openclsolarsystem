@@ -16,7 +16,7 @@ on:
         type: boolean
   pull_request:
     types: [opened, synchronize, reopened]
-    paths: ['.github/workflows/ubuntu.yaml', '**/CMakeLists.txt', '**/Makefile', '**/*.h', '**/*.hpp', '**/*.c', '**/*.cpp', '**/*.cl', '**/*.cs', '**/*.sln', '**/*.csproj', '**/appsettings.json']
+    paths: ['.github/workflows/ubuntu.yaml', '**/CMakeLists.txt', '**/Makefile', '**/*.h', '**/*.hpp', '**/*.c', '**/*.cpp', '**/*.cl', '**/*.cs', '**/*.sln', '**/*.csproj', '**/appsettings.json', 'tools/kernel-harness/**']
 permissions:
   contents: write
   
@@ -49,7 +49,20 @@ jobs:
         cmake -B build -S src/OpenCLSolarSystem -DCMAKE_BUILD_TYPE=Release -DOpenGL_GL_PREFERENCE=GLVND
         cmake --build build --config Release -j$(nproc)
 
-    - name: Setup dotnet 
+    # Physics regression checks (tools/kernel-harness/checks.py) on the real OpenCL kernels,
+    # run on the CPU with PoCL. Runs before packaging so a failure stops the release.
+    - name: Install kernel check dependencies (PoCL, Python)
+      run: |
+        sudo apt install -y pocl-opencl-icd clinfo python3-venv
+        clinfo -l
+        python3 -m venv .venv
+        .venv/bin/pip install -r openclsolarsystem/tools/kernel-harness/requirements.txt
+
+    - name: Run kernel regression checks
+      run: |
+        .venv/bin/python openclsolarsystem/tools/kernel-harness/checks.py --platform "Portable Computing Language"
+
+    - name: Setup dotnet
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.x.x'

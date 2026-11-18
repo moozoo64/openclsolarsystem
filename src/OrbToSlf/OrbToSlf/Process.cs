@@ -145,19 +145,19 @@ namespace OrbToSlf
       // Add the planets
       bodyInfo = bodyInfos["Mercury".ToUpperInvariant()];
       bodyInfo.StateVectors = planets.Mercury(epoch, out var planetSemiMajorAxis);
-      bodyInfo.SemiMajorAxis = planetSemiMajorAxis * Constants.AuInKm;
+      bodyInfo.SemiMajorAxis = planetSemiMajorAxis * Constants.AuInMetres;
       bodyInfo.Epoch = epoch;
 
       bodyInfo = bodyInfos["Venus".ToUpperInvariant()];
       bodyInfo.StateVectors = planets.Venus(epoch, out planetSemiMajorAxis);
-      bodyInfo.SemiMajorAxis = planetSemiMajorAxis * Constants.AuInKm;
+      bodyInfo.SemiMajorAxis = planetSemiMajorAxis * Constants.AuInMetres;
       bodyInfo.AbsoluteMagnitude = -4.4;
       bodyInfo.Epoch = epoch;
 
       bodyInfo = bodyInfos["Earth".ToUpperInvariant()];
       bodyInfo.StateVectors = planets.Earth(epoch, out planetSemiMajorAxis);
       bodyInfo.AbsoluteMagnitude = -3.5;
-      bodyInfo.SemiMajorAxis = planetSemiMajorAxis * Constants.AuInKm;
+      bodyInfo.SemiMajorAxis = planetSemiMajorAxis * Constants.AuInMetres;
       bodyInfo.Epoch = epoch;
 
       if (planets.IsSupported("Moon"))
@@ -165,46 +165,46 @@ namespace OrbToSlf
         bodyInfo = bodyInfos["Moon".ToUpperInvariant()];
         bodyInfo.StateVectors = planets.Moon(epoch, out planetSemiMajorAxis);
         bodyInfo.AbsoluteMagnitude = -3.5;
-        bodyInfo.SemiMajorAxis = planetSemiMajorAxis * Constants.AuInKm;
+        bodyInfo.SemiMajorAxis = planetSemiMajorAxis * Constants.AuInMetres;
         bodyInfo.Epoch = epoch;
       }
 
       bodyInfo = bodyInfos["Mars".ToUpperInvariant()];
       bodyInfo.StateVectors = planets.Mars(epoch, out planetSemiMajorAxis);
       bodyInfo.AbsoluteMagnitude = -1.52;
-      bodyInfo.SemiMajorAxis = planetSemiMajorAxis * Constants.AuInKm;
+      bodyInfo.SemiMajorAxis = planetSemiMajorAxis * Constants.AuInMetres;
       bodyInfo.Epoch = epoch;
 
       bodyInfo = bodyInfos["Jupiter".ToUpperInvariant()];
       bodyInfo.StateVectors = planets.Jupiter(epoch, out planetSemiMajorAxis);
       bodyInfo.AbsoluteMagnitude = -9.3;
-      bodyInfo.SemiMajorAxis = planetSemiMajorAxis * Constants.AuInKm;
+      bodyInfo.SemiMajorAxis = planetSemiMajorAxis * Constants.AuInMetres;
       bodyInfo.Epoch = epoch;
       var jupiterSemiMajorAxis = bodyInfo.SemiMajorAxis;
 
       bodyInfo = bodyInfos["Saturn".ToUpperInvariant()];
       bodyInfo.StateVectors = planets.Saturn(epoch, out planetSemiMajorAxis);
       bodyInfo.AbsoluteMagnitude = -9.3;
-      bodyInfo.SemiMajorAxis = planetSemiMajorAxis * Constants.AuInKm;
+      bodyInfo.SemiMajorAxis = planetSemiMajorAxis * Constants.AuInMetres;
       bodyInfo.Epoch = epoch;
 
       bodyInfo = bodyInfos["Uranus".ToUpperInvariant()];
       bodyInfo.StateVectors = planets.Uranus(epoch, out planetSemiMajorAxis);
       bodyInfo.AbsoluteMagnitude = -7.19;
-      bodyInfo.SemiMajorAxis = planetSemiMajorAxis * Constants.AuInKm;
+      bodyInfo.SemiMajorAxis = planetSemiMajorAxis * Constants.AuInMetres;
       bodyInfo.Epoch = epoch;
 
       bodyInfo = bodyInfos["Neptune".ToUpperInvariant()];
       bodyInfo.StateVectors = planets.Neptune(epoch, out planetSemiMajorAxis);
       bodyInfo.AbsoluteMagnitude = -6.87;
-      bodyInfo.SemiMajorAxis = planetSemiMajorAxis * Constants.AuInKm;
+      bodyInfo.SemiMajorAxis = planetSemiMajorAxis * Constants.AuInMetres;
       bodyInfo.Epoch = epoch;
 
       bodyInfo = bodyInfos["Pluto".ToUpperInvariant()];
       var plutoMass = bodyInfo.Mass;
       ////bodyInfo.StateVectors = planets.Pluto(epoch, out planetSemiMajorAxis);
       ////bodyInfo.AbsoluteMagnitude = -1.0;
-      ////bodyInfo.SemiMajorAxis = planetSemiMajorAxis * AuInKm;
+      ////bodyInfo.SemiMajorAxis = planetSemiMajorAxis * Constants.AuInMetres;
       ////bodyInfo.Epoch = epoch;
 
       bodyInfos = bodyInfos.Where(x => Math.Abs(x.Value.Epoch - epoch) < 0.00001)
@@ -244,7 +244,7 @@ namespace OrbToSlf
             Epoch = epoch,
             RelativisticParam = 0.0,
             MeanAnomaly = utilities.DegreeToRadian(random.NextDouble() * 360),
-            SemiMajorAxis = Constants.AuInKm * distance,
+            SemiMajorAxis = Constants.AuInMetres * distance,
             OrbitalEccentricity = random.NextDouble() * 0.3,
             InclinationToTheEcliptic = utilities.DegreeToRadian((random.NextDouble() * maxInc) - (maxInc / 2)),
             ArgumentOfPerihelion = utilities.DegreeToRadian(random.NextDouble() * 360),

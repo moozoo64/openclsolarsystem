@@ -20,9 +20,9 @@ namespace OrbToSlf
     static class Constants
     {
     /// <summary>
-    ///     One AU in km.
+    ///     One AU in metres (the DE405 value; the IAU 2012 definition is 149597870700 m).
     /// </summary>
-    public const double AuInKm = 149597870691;
+    public const double AuInMetres = 149597870691;
 
     /// <summary>
     ///     The meters in a Giga Meter.
@@ -30,7 +30,11 @@ namespace OrbToSlf
     public const double Gm = 1000000000;
 
     /// <summary>
-    ///     The gravitational constant.
+    ///     The gravitational constant (m^3 kg^-1 s^-2) that the SLF masses are derived with
+    ///     (the Solex convention, GM_sun / M_sun). It is deliberately not the CODATA value.
+    ///     OpenCLSolarSystem multiplies the SLF masses by the same G (G_SLF_SCALED in
+    ///     src/OpenCLSolarSystem/initialstate.cpp, which is this value x 1e3), so the two
+    ///     programs must be changed together. tools/kernel-harness/checks.py --only gm checks this.
     /// </summary>
     public const double GravitationalConstant = 6.6725985e-11;
 

@@ -12,6 +12,64 @@ python -m venv .venv
 .venv/Scripts/pip install -r tools/kernel-harness/requirements.txt   # .venv/bin/pip on Linux
 ```
 
+## Regression checks
+
+`checks.py` runs pass/fail checks and exits with status 1 if any fail, so it can run in CI.
+
+```sh
+python tools/kernel-harness/checks.py                 # all checks, about 40 s on a GPU
+python tools/kernel-harness/checks.py --only gm       # constants only, no OpenCL needed
+python tools/kernel-harness/checks.py --years 100     # the review's full-length Mercury run
+```
+
+| Check | What it verifies | Catches |
+| --- | --- | --- |
+| `gm` | `G_SLF_SCALED` in `initialstate.cpp` matches the harness and OrbToSlf's `Constants.GravitationalConstant` (× 1e3, to 1e-8), and is what `ImportSLF` multiplies by; the Sun's `pos.w` equals GM☉ = 1.32712440018e11 km³/s² to 1e-9, and Earth, Moon and Jupiter match their standard GM to 1e-7; `relativisticC1` in `adamsfma.cl` equals 6 GM☉/c² in Gm | C1 (wrong G), C2 (`relativisticC1` in the wrong unit) |
+| `mercury` | Sun + Mercury with the `relativistic` and `newtonian` kernels. A straight-line fit to the direction of Mercury's eccentricity vector gives each run's perihelion precession. The difference must be 43 ± 1″/century (GR predicts 42.98″), and the Newtonian run must not precess (within ±0.5″) | C2, and anything else that breaks the relativistic term or the integrator |
+| `ephemeris` | The 16 gravitating bodies of `mpcsmall.slf` for 10 years (4 h steps, AB11/AM10, `relativistic`) against JPL Horizons (DE441). First confirms the SLF epoch states match Horizons (Mercury to Uranus, within 1 km and 1 mm/s). Then the heliocentric positions after 1 and 10 years must be within `EPHEMERIS_LIMITS_KM`, about 2–3 × today's errors | Anything that makes the simulation less accurate: constants, force kernels, startup, integrator |
+
+Current results (RTX 4070 Ti SUPER): GR advance 42.980″/century over 20 years and 42.981″ over 100;
+Newtonian drift 0.000″. With the C1 and C2 bugs put back in, the `gm` checks fail and the advance
+comes out at 43,031″/century.
+
+### Comparison with JPL Horizons
+
+Heliocentric position error against Horizons, running `mpcsmall.slf` (epoch JD 2461200.5) as the
+app loads it (RTX 4070 Ti SUPER):
+
+| Body | after 1 year | after 10 years |
+| --- | --- | --- |
+| Mercury | 12.8 km | 147 km |
+| Venus | 0.6 km | 5.7 km |
+| Earth | 2.0 km | 16.1 km |
+| Moon (relative to Earth) | 21.5 km | 257 km |
+| Mars | 4.5 km | 43 km |
+| Jupiter | 0.2 km | 10.7 km |
+| Saturn | 0.0 km | 0.7 km |
+| Uranus | 0.1 km | 3.3 km |
+| Neptune | 0.1 km | 7.3 km |
+| Pluto | 0.1 km | 13.3 km |
+
+With the C2 bug put back in, the Earth is about 109,000 km off after 1 year.
+
+The remaining errors are what the model leaves out rather than integration error: DE441 has
+343 asteroids, the Earth's and Moon's shapes and tides, and full relativity for every body, where
+the simulation has 16 point masses and the Sun-only relativistic term.
+
+The SLF states for Mercury to Neptune match Horizons exactly at the epoch, with the system
+**barycentres** for Mars to Neptune (OrbToSlf's `JPLHorizons.cs` fetches Horizons ids 4 to 8).
+The simulation moves each of those as one point mass with the system's mass, which follows the
+barycentre. The previous `mpcsmall.slf` (epoch 2460800.5) had the planet centres, which move
+around the barycentre with the moons (Jupiter 0.6 m/s, Saturn 1.3 m/s, Neptune 0.9 m/s); that put
+Jupiter 17,000 km and Saturn 42,000 km off after 1 year.
+
+Pluto is the exception. OrbToSlf builds it from its MPC orbital elements like the asteroids, which
+puts it about 2,300 km from Horizons, so the check starts Pluto from its Horizons state.
+
+The reference vectors are in `horizons_reference.json`, so the check needs no network access.
+When `mpcsmall.slf` is regenerated with a new epoch, refresh them with
+`python fetch_horizons.py --epoch <the SLF's first line>`; the check fails if the epochs differ.
+
 ## Example: startup accuracy (H1)
 
 The reference is the same kernels at Δt/16 (15 min). Both runs cover the same simulated time
@@ -33,7 +91,7 @@ Results on an RTX 4070 Ti SUPER (first 64 bodies of `mpcsmall.slf`, 16 gravitati
 AB11/AM10, relativistic):
 
 | Body | old startup, 1 yr | RK4 startup, 1 yr |
-|---|---|---|
+| --- | --- | --- |
 | Mercury | 866,795 km | 1.6 cm |
 | Earth | 42,748 km | 2 cm |
 | Moon (geocentric) | 239,147 km | 2 cm |
@@ -72,7 +130,7 @@ After the H3 fix the two are bit-identical. Before it, the Moon was off by about
 `python harness.py --help` lists them all. The main ones:
 
 | Option | Default | |
-|---|---|---|
+| --- | --- | --- |
 | `--kernel` | `src/OpenCLSolarSystem/adamsfma.cl` | kernel source |
 | `--slf` | `src/OrbToSlf/OrbToSlfConsole/mpcsmall.slf` | initial state |
 | `--dt` | 14400 | step in seconds |

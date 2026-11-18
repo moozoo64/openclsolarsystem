@@ -175,7 +175,7 @@ namespace OrbToSlf
               throw new Exception(string.Format("Bad semiMajorAxis {0}", semiMajorAxisString));
             }
 
-            semiMajorAxis = semiMajorAxis * Constants.AuInKm;
+            semiMajorAxis = semiMajorAxis * Constants.AuInMetres;
 
             var readableDesignation = line.Substring(8 - 1, 18).Trim().Replace(" ", string.Empty);
 
