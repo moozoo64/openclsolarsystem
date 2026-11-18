@@ -4,19 +4,33 @@ on:
   workflow_call:
     inputs:
       create_release:
-        description: 'Create new release'
+        description: "Create new release"
         required: false
         type: boolean
         default: false
   workflow_dispatch:
     inputs:
       create_release:
-        description: 'Create new release'
+        description: "Create new release"
         required: true
         type: boolean
   pull_request:
     types: [opened, synchronize, reopened]
-    paths: ['.github/workflows/build.yaml', '**/CMakeLists.txt', '**/Makefile', '**/*.h', '**/*.hpp', '**/*.c', '**/*.cpp', '**/*.cl', '**/*.cs', '**/*.sln', '**/*.csproj', '**/appsettings.json']
+    paths:
+      [
+        ".github/workflows/build.yaml",
+        "**/CMakeLists.txt",
+        "**/Makefile",
+        "**/*.h",
+        "**/*.hpp",
+        "**/*.c",
+        "**/*.cpp",
+        "**/*.cl",
+        "**/*.cs",
+        "**/*.sln",
+        "**/*.csproj",
+        "**/appsettings.json",
+      ]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref && github.ref || github.run_id }}
@@ -24,7 +38,7 @@ concurrency:
 
 permissions:
   contents: write
-  
+
 env:
   BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
   RELEASE_VERSION: ${{ github.event.inputs.create_release && github.run_number }}
@@ -40,19 +54,19 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { sys: UCRT64,  env: ucrt-x86_64,  build: Release }
+          - { sys: UCRT64, env: ucrt-x86_64, build: Release }
           - { sys: CLANG64, env: clang-x86_64, build: Release }
 
     steps:
       - name: Clone
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
-      - name: Setup dotnet 
-        uses: actions/setup-dotnet@v4
+      - name: Setup dotnet
+        uses: actions/setup-dotnet@v6
         with:
-          dotnet-version: '8.x.x'
+          dotnet-version: "8.x.x"
 
       - name: Setup ${{ matrix.sys }}
         uses: msys2/setup-msys2@v2
@@ -83,7 +97,7 @@ jobs:
           cmake -B build -S src/OpenCLSolarSystem -DCMAKE_BUILD_TYPE=${{ matrix.build }}
           # Build using all available cores
           cmake --build build --config ${{ matrix.build }} -j $(nproc)
-          
+
       - name: Copy OpenCLSolarSystem Dependencies
         shell: msys2 {0}
         run: |
@@ -158,4 +172,3 @@ jobs:
         with:
           path: OpenClSolarSystem-${{ steps.tag.outputs.name }}-${{matrix.env}}-${{ matrix.build }}.sha256
           name: OpenClSolarSystem-${{ steps.tag.outputs.name }}-${{matrix.env}}-${{ matrix.build }}.sha256
-
