@@ -11,6 +11,35 @@ It utilises OpenCL™ to enable the integration of not only the planets but also
 📥 The latest version of this program and its source can be found at:  
 [GitHub Repository](https://github.com/moozoo64/openclsolarsystem)
 
+### How it compares
+
+To my knowledge, this is the only interactive simulator that numerically integrates the full
+Minor Planet Center asteroid catalogue in real time on the GPU, with ephemeris-level accuracy
+checked against JPL DE441.
+
+* **Accuracy:** after 1 year the Earth is within 2 km of JPL Horizons, and after 10 years within
+  16 km. Mercury's relativistic perihelion advance comes out at 42.98″ per century, the value
+  general relativity predicts. See [tools/kernel-harness](tools/kernel-harness/README.md) for the
+  checks, which run in CI.
+* **Interactive simulators** such as Universe Sandbox and Gravity Simulator are built for
+  exploration rather than ephemeris accuracy, and handle far fewer bodies. Visualisers such as
+  Celestia, SpaceEngine and NASA's Eyes on Asteroids show precomputed or analytic orbits and don't
+  integrate them.
+* **Research integrators** are more accurate for a single body but are not interactive.
+  [ASSIST](https://iopscience.iop.org/article/10.3847/PSJ/acc9a9) (Holman et al. 2023) is the
+  reference for asteroid ephemerides, with a fuller force model (Earth's oblateness, relativity for
+  every body, non-gravitational forces). GPU codes such as GENGA and GLISSE target planet formation
+  and long-term stability, not the asteroid catalogue.
+* **The nearest prior work** is Sharp & Newman (2016),
+  ["GPU-enabled N-body simulations of the Solar System using a VOVS Adams integrator"](https://www.sciencedirect.com/science/article/abs/pii/S1877750316300412),
+  which pairs a CUDA force kernel with an Adams integrator for systems of up to a few thousand
+  bodies, without visualisation.
+
+In this simulation the asteroids are massless test particles: they feel the Sun, planets, Moon and
+the largest asteroids (16 by default, up to 512 or more), but not each other.
+
+If you know of software that does the same, please let me know.
+
 ## Getting Started 🚀
 
 ### Prerequisites
@@ -244,6 +273,10 @@ cd ./OrbToSlfConsole/bin/Release/publish
 
 * I got AI advice and assistance from Grok3 and Microsoft CoPilot and GitHub Copilot mostly on code refactoring and GitHub Actions
 * Grok3 produced createIcon.py
+* Later bug fixes and enhancements Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+  * A code review, then fixes to the constants (G and the relativistic term), the integrator startup and the OpenCL kernels
+  * The kernel test harness and the physics regression checks against JPL Horizons, run in CI
+  * OrbToSlf: masses from GM, system barycentres and an updated Info.csv
 
 ### Licensing
 
