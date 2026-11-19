@@ -6,7 +6,7 @@
 ## Overview 📝
 
 This program simulates the Solar System through numerical integration.  
-It utilises OpenCL™ to enable the integration of not only the planets but also 1,400,000+ asteroids.
+It utilises OpenCL™ to enable the integration of not only the planets but also 1,500,000+ asteroids.
 
 📥 The latest version of this program and its source can be found at:  
 [GitHub Repository](https://github.com/moozoo64/openclsolarsystem)

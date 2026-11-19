@@ -19,8 +19,10 @@ API = "https://ssd.jpl.nasa.gov/api/horizons.api"
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "horizons_reference.json")
 
-# Horizons target ids. The SLF bodies OrbToSlf builds use the planet centres (x99), the Moon (301)
-# and Pluto (999); the system barycentres (1-9) are fetched too for comparison.
+# Horizons target ids. OrbToSlf builds Mercury, Venus and Earth from their centres (199-399), the
+# Moon from 301, and Mars to Neptune from their system barycentres (4-8). Pluto comes from its MPC
+# orbital elements; checks.py starts it from the Pluto system barycentre (9). The planet centres
+# (499-999) are fetched too for comparison.
 TARGETS = {
     "Mercury": "199", "Venus": "299", "Earth": "399", "Moon": "301", "Mars": "499",
     "Jupiter": "599", "Saturn": "699", "Uranus": "799", "Neptune": "899", "Pluto": "999",

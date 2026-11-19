@@ -44,8 +44,16 @@ namespace OrbToSlf
     public const double SpeedOfLight = 299792458;
 
     /// <summary>
-    ///     The suns mass.
+    ///     The Sun's GM in m^3/s^2 (DE440, the same value as the Sun row of Info.csv).
+    ///     EllipticMotion turns MPC/astorb orbital elements into state vectors with it, so it must
+    ///     be the GM the simulation uses: a 1.5e-5 error here (the old SunMass) made every asteroid's
+    ///     velocity about 8e-6 too fast.
     /// </summary>
-    public const double SunMass = 1.98894729428839E+30;
+    public const double SunGM = 1.32712440041279E+20;
+
+    /// <summary>
+    ///     The Sun's mass in SLF units: SunGM / GravitationalConstant, so that G x SunMass = SunGM.
+    /// </summary>
+    public const double SunMass = SunGM / GravitationalConstant;
   }
 }

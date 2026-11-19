@@ -116,7 +116,18 @@ def check_gm(r):
         rel = (g_app - g_orb * 1e3) / (g_orb * 1e3)
         r.report(abs(rel) <= 1e-8, "OrbToSlf G matches the app's G",
                  f"OrbToSlf {g_orb!r} x 1e3 vs app {g_app!r}, relative difference {rel:.1e} (limit 1e-8)")
-    uses = len(re.findall(r"\*\s*G_SLF_SCALED", initialstate))
+
+    # OrbToSlf turns the asteroids' orbital elements into state vectors with its SunGM; a wrong value
+    # gives every asteroid the wrong orbital period in the simulation
+    sun_gm, _ = read_define(os.path.join(harness.REPO, "src", "OrbToSlf", "OrbToSlf", "Constants.cs"),
+                            r"public\s+const\s+double\s+SunGM\s*=\s*([0-9.eE+-]+)\s*;")
+    if sun_gm is None:
+        r.report(False, "OrbToSlf SunGM", "SunGM not found in Constants.cs")
+    else:
+        rel = (sun_gm / 1e9 - GM_REFERENCE["Sun"][0]) / GM_REFERENCE["Sun"][0]
+        r.report(abs(rel) <= GM_REFERENCE["Sun"][1], "OrbToSlf SunGM (orbital elements to state vectors)",
+                 f"{sun_gm / 1e9:.12g} km^3/s^2, relative error {rel:.2e} (limit {GM_REFERENCE['Sun'][1]:g})")
+    uses =len(re.findall(r"\*\s*G_SLF_SCALED", initialstate))
     stray = re.findall(r"6\.67\d*E-0?8", initialstate.split("static const double G_SLF_SCALED")[1].split(";", 1)[1], re.I)
     r.report(uses >= 2 and not stray, "ImportSLF multiplies the masses by G_SLF_SCALED",
              f"{uses} uses" + (f", stray G literals {stray}" if stray else ""))

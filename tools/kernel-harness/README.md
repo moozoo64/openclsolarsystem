@@ -24,7 +24,7 @@ python tools/kernel-harness/checks.py --years 100     # the review's full-length
 
 | Check | What it verifies | Catches |
 | --- | --- | --- |
-| `gm` | `G_SLF_SCALED` in `initialstate.cpp` matches the harness and OrbToSlf's `Constants.GravitationalConstant` (× 1e3, to 1e-8), and is what `ImportSLF` multiplies by; the Sun's `pos.w` equals GM☉ = 1.32712440018e11 km³/s² to 1e-9, and Earth, Moon and Jupiter match their standard GM to 1e-7; `relativisticC1` in `adamsfma.cl` equals 6 GM☉/c² in Gm | C1 (wrong G), C2 (`relativisticC1` in the wrong unit) |
+| `gm` | `G_SLF_SCALED` in `initialstate.cpp` matches the harness and OrbToSlf's `Constants.GravitationalConstant` (× 1e3, to 1e-8), and is what `ImportSLF` multiplies by; OrbToSlf's `Constants.SunGM`, which turns the asteroids' orbital elements into state vectors, equals GM☉ to 1e-9; the Sun's `pos.w` equals GM☉ = 1.32712440018e11 km³/s² to 1e-9, and Earth, Moon and Jupiter match their standard GM to 1e-7; `relativisticC1` in `adamsfma.cl` equals 6 GM☉/c² in Gm | C1 (wrong G), C2 (`relativisticC1` in the wrong unit), a wrong `SunGM` in OrbToSlf |
 | `mercury` | Sun + Mercury with the `relativistic` and `newtonian` kernels. A straight-line fit to the direction of Mercury's eccentricity vector gives each run's perihelion precession. The difference must be 43 ± 1″/century (GR predicts 42.98″), and the Newtonian run must not precess (within ±0.5″) | C2, and anything else that breaks the relativistic term or the integrator |
 | `ephemeris` | The 16 gravitating bodies of `mpcsmall.slf` for 10 years (4 h steps, AB11/AM10, `relativistic`) against JPL Horizons (DE441). First confirms the SLF epoch states match Horizons (Mercury to Uranus, within 1 km and 1 mm/s). Then the heliocentric positions after 1 and 10 years must be within `EPHEMERIS_LIMITS_KM`, about 2–3 × today's errors | Anything that makes the simulation less accurate: constants, force kernels, startup, integrator |
 
@@ -39,16 +39,16 @@ app loads it (RTX 4070 Ti SUPER):
 
 | Body | after 1 year | after 10 years |
 | --- | --- | --- |
-| Mercury | 12.8 km | 147 km |
-| Venus | 0.6 km | 5.7 km |
-| Earth | 2.0 km | 16.1 km |
-| Moon (relative to Earth) | 21.5 km | 257 km |
+| Mercury | 12.8 km | 148 km |
+| Venus | 0.5 km | 5.3 km |
+| Earth | 2.0 km | 16.3 km |
+| Moon (relative to Earth) | 21.6 km | 258 km |
 | Mars | 4.5 km | 43 km |
-| Jupiter | 0.2 km | 10.7 km |
-| Saturn | 0.0 km | 0.7 km |
-| Uranus | 0.1 km | 3.3 km |
-| Neptune | 0.1 km | 7.3 km |
-| Pluto | 0.1 km | 13.3 km |
+| Jupiter | 0.2 km | 10.8 km |
+| Saturn | 0.0 km | 0.6 km |
+| Uranus | 0.1 km | 3.4 km |
+| Neptune | 0.1 km | 7.4 km |
+| Pluto | 0.1 km | 13.2 km |
 
 With the C2 bug put back in, the Earth is about 109,000 km off after 1 year.
 
@@ -64,7 +64,13 @@ around the barycentre with the moons (Jupiter 0.6 m/s, Saturn 1.3 m/s, Neptune 0
 Jupiter 17,000 km and Saturn 42,000 km off after 1 year.
 
 Pluto is the exception. OrbToSlf builds it from its MPC orbital elements like the asteroids, which
-puts it about 2,300 km from Horizons, so the check starts Pluto from its Horizons state.
+puts it about 2,600 km from the Horizons barycentre (the elements are only given to 5 decimal places
+of a degree), so the check starts Pluto from its Horizons state.
+
+The asteroids depend on OrbToSlf's `Constants.SunGM`. Until it was set to the DE440 value, its
+GM☉ was 1.5e-5 too large, which made every asteroid's velocity about 0.13 m/s too fast. After 1
+year that put Ceres 5,100 km, Pallas 4,100 km, Vesta 6,800 km and Hygiea 3,800 km from Horizons;
+with the fix they are 66, 165, 138 and 80 km off.
 
 The reference vectors are in `horizons_reference.json`, so the check needs no network access.
 When `mpcsmall.slf` is regenerated with a new epoch, refresh them with
