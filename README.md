@@ -273,7 +273,7 @@ cd ./OrbToSlfConsole/bin/Release/publish
 
 * I got AI advice and assistance from Grok3 and Microsoft CoPilot and GitHub Copilot mostly on code refactoring and GitHub Actions
 * Grok3 produced createIcon.py
-* Later bug fixes and enhancements Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+* Later bug fixes and enhancements Co-Authored-By: Claude Opus 5.5
   * A code review, then fixes to the constants (G and the relativistic term), the integrator startup and the OpenCL kernels
   * The kernel test harness and the physics regression checks against JPL Horizons, run in CI
   * OrbToSlf: masses from GM, system barycentres and an updated Info.csv
