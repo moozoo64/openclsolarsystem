@@ -71,7 +71,7 @@ To fix this:
 
 > 💡 **Tip**: For full 1.4 million objects simulation:
 >
-> 1. Download and install the dotnet 8 runtime if its not already installed. [Dotnet Download](https://dotnet.microsoft.com/en-us/download)
+> 1. Download and install the .NET 10 runtime if its not already installed. [Dotnet Download](https://dotnet.microsoft.com/en-us/download)
 > 2. Run `OrbToSlfConsole.exe` in the OrbToSlf folder
 > 3. Import the generated `Final.slf`
 
@@ -214,7 +214,7 @@ cmake --build build --config Release -j8
 
 ```bash
 cd src/OrbToSlf
-dotnet publish OrbToSlfConsole/OrbToSlfConsole.csproj --configuration Release --framework net8.0 --output ./OrbToSlfConsole/bin/Release/publish
+dotnet publish OrbToSlfConsole/OrbToSlfConsole.csproj --configuration Release --framework net10.0 --output ./OrbToSlfConsole/bin/Release/publish
 ```
 
 ## Tools and Libraries Required to Compile the Source Under Ubuntu 24.04
@@ -225,8 +225,8 @@ See the build configuration at: [Ubuntu Workflow Build Configuration](https://gi
 
 ```bash
 sudo apt-get update
-sudo apt install build-essential git cmake ninja-build libgl1-mesa-dev libglew-dev opencl-headers ocl-icd-opencl-dev libwxgtk3.2-dev dotnet-sdk-8.0
-sudo apt install libglew2.2 libwxgtk-gl3.2-1t64 libwxgtk3.2-1t64 libwxbase3.2-1t64 ocl-icd-libopencl1 dotnet-runtime-8.0
+sudo apt install build-essential git cmake ninja-build libgl1-mesa-dev libglew-dev opencl-headers ocl-icd-opencl-dev libwxgtk3.2-dev dotnet-sdk-10.0
+sudo apt install libglew2.2 libwxgtk-gl3.2-1t64 libwxgtk3.2-1t64 libwxbase3.2-1t64 ocl-icd-libopencl1 dotnet-runtime-10.0
 ```
 
 ### 2. Checkout and build OpenCLSolarSystem and OrbToSlf
@@ -237,7 +237,7 @@ cd openclsolarsystem
 cmake -B build -S src/OpenCLSolarSystem -DCMAKE_BUILD_TYPE=Release
 cmake --build build --config Release -j$(nproc)
 cd src/OrbToSlf
-dotnet publish OrbToSlfConsole/OrbToSlfConsole.csproj --configuration Release --framework net8.0 --self-contained false -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true --output ./OrbToSlfConsole/bin/Release/publish
+dotnet publish OrbToSlfConsole/OrbToSlfConsole.csproj --configuration Release --framework net10.0 --self-contained false -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true --output ./OrbToSlfConsole/bin/Release/publish
 cd ./OrbToSlfConsole/bin/Release/publish
 ./OrbToSlfConsole
 ```

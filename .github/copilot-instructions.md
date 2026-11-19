@@ -3,7 +3,7 @@
 ## Project Scope
 
 - Primary app: `src/OpenCLSolarSystem` (C++/OpenCL, wxWidgets, GLEW)
-- Supporting toolchain: `src/OrbToSlf` (.NET 8 projects and tests)
+- Supporting toolchain: `src/OrbToSlf` (.NET 10 projects and tests)
 - Build system: CMake with Ninja generators
 
 ## Development Expectations
