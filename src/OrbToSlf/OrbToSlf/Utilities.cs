@@ -19,6 +19,7 @@ namespace OrbToSlf
 {
   using System;
   using System.Collections.Generic;
+  using System.Globalization;
   using System.IO;
 
 #if NET48
@@ -72,7 +73,27 @@ namespace OrbToSlf
     }
     
     /// <summary>
+    ///     Converts a GM in km^3/s^2 to the SLF mass in kg, the mass that OpenCLSolarSystem multiplies
+    ///     back by the same G (G_SLF_SCALED) to get exactly this GM. Only GM matters to the simulation,
+    ///     and it is known far more precisely than G, so a source's own G and quoted mass are not used.
+    ///     The result is not the body's true mass, because Constants.GravitationalConstant is not CODATA.
+    /// </summary>
+    /// <param name="gm">GM in km^3/s^2.</param>
+    /// <returns>The SLF mass in kg.</returns>
+    public static double MassFromGM(double gm)
+    {
+      return gm * 1e9 / Constants.GravitationalConstant;
+    }
+
+    /// <summary>
     ///     The read body details like mass etc from a file.
+    ///     Columns: Number, Name, Radius (km), Type, GM (km^3/s^2), Density, Mass (kg), Mass 1e24.
+    ///     When a row has a GM, the mass is computed from it with MassFromGM and the Mass column is
+    ///     ignored. A warning is logged if they disagree by more than 0.1%, which allows for a Mass
+    ///     computed with another G (CODATA differs by 2.6e-4) but catches a wrong value. Rows without a
+    ///     GM use Mass. Spaces are removed from names, as MpcHandler and AstroHandler do with the MPC
+    ///     and astorb designations they are matched against. Only the first 8 columns are read and
+    ///     they must not contain quoted commas; later columns (e.g. notes) may.
     /// </summary>
     /// <param name="detailsPathName">
     ///     The details path name.
@@ -92,7 +113,7 @@ namespace OrbToSlf
           var bodyInfo = new BodyInfo();
 
           var parts = line.Split(',');
-          bodyInfo.Name = parts[1];
+          bodyInfo.Name = parts[1].Trim().Replace(" ", string.Empty);
           double radius;
           if (!double.TryParse(parts[2], out radius))
           {
@@ -105,9 +126,9 @@ namespace OrbToSlf
 
           bodyInfo.Type = string.Empty; // parts[3];
 
-          if (!double.TryParse(parts[4], out _))
-          {
-          }
+          // GM (km^3/s^2) takes precedence over Mass: see MassFromGM.
+          double gm;
+          bool hasGM = double.TryParse(parts[4], NumberStyles.Float, CultureInfo.InvariantCulture, out gm) && gm > 0.0;
 
           double density;
           if (!double.TryParse(parts[5], out density))
@@ -120,13 +141,24 @@ namespace OrbToSlf
           }
 
           double mass;
-          if (!double.TryParse(parts[6], out mass))
+          bool hasMass = double.TryParse(parts[6], NumberStyles.Float, CultureInfo.InvariantCulture, out mass);
+          if (hasGM)
           {
-            bodyInfo.Mass = 0.0;
+            bodyInfo.Mass = MassFromGM(gm);
+            if (hasMass && mass > 0.0 && Math.Abs(bodyInfo.Mass / mass - 1.0) > 1e-3)
+            {
+              this.logger?.LogWarning(
+                "Info.csv: {0} GM {1} km^3/s^2 and Mass {2} kg differ by {3:E2}; using the GM",
+                bodyInfo.Name, gm, mass, bodyInfo.Mass / mass - 1.0);
+            }
+          }
+          else if (hasMass)
+          {
+            bodyInfo.Mass = mass;
           }
           else
           {
-            bodyInfo.Mass = mass;
+            bodyInfo.Mass = 0.0;
           }
 
           bodyInfo.Epoch = 0.0;
