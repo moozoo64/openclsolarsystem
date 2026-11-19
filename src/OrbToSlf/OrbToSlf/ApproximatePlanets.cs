@@ -35,10 +35,6 @@ namespace OrbToSlf
   {
     private IConfiguration config;
     private ILogger<ApproximatePlanets> logger;
-    /// <summary>
-    ///     The au in km.
-    /// </summary>
-    private const double AuInKm = 149597870691;
 
 
     public ApproximatePlanets(IConfiguration config, ILogger<ApproximatePlanets> logger)
@@ -94,7 +90,7 @@ namespace OrbToSlf
       var state = ellipticMotion.ComputeStateVectors(
           massPrimary,
           this.DegreeToRadian(meanAnomaly),
-          semiMajorAxis * AuInKm,
+          semiMajorAxis * Constants.AuInMetres,
           orbitalEccentricity,
           this.DegreeToRadian(inclinationToTheEcliptic),
           this.DegreeToRadian(argumentOfPerihelion),
@@ -138,7 +134,7 @@ namespace OrbToSlf
       var state = ellipticMotion.ComputeStateVectors(
           massPrimary,
           this.DegreeToRadian(meanAnomaly),
-          semiMajorAxis * AuInKm,
+          semiMajorAxis * Constants.AuInMetres,
           orbitalEccentricity,
           this.DegreeToRadian(inclinationToTheEcliptic),
           this.DegreeToRadian(argumentOfPerihelion),
@@ -182,7 +178,7 @@ namespace OrbToSlf
       var state = ellipticMotion.ComputeStateVectors(
           massPrimary,
           this.DegreeToRadian(meanAnomaly),
-          semiMajorAxis * AuInKm,
+          semiMajorAxis * Constants.AuInMetres,
           orbitalEccentricity,
           this.DegreeToRadian(inclinationToTheEcliptic),
           this.DegreeToRadian(argumentOfPerihelion),
@@ -226,7 +222,7 @@ namespace OrbToSlf
       var state = ellipticMotion.ComputeStateVectors(
           massPrimary,
           this.DegreeToRadian(meanAnomaly),
-          semiMajorAxis * AuInKm,
+          semiMajorAxis * Constants.AuInMetres,
           orbitalEccentricity,
           this.DegreeToRadian(inclinationToTheEcliptic),
           this.DegreeToRadian(argumentOfPerihelion),
@@ -271,7 +267,7 @@ namespace OrbToSlf
       var state = ellipticMotion.ComputeStateVectors(
           massPrimary,
           this.DegreeToRadian(meanAnomaly),
-          semiMajorAxis * AuInKm,
+          semiMajorAxis * Constants.AuInMetres,
           orbitalEccentricity,
           this.DegreeToRadian(inclinationToTheEcliptic),
           this.DegreeToRadian(argumentOfPerihelion),
@@ -315,7 +311,7 @@ namespace OrbToSlf
       var state = ellipticMotion.ComputeStateVectors(
           massPrimary,
           this.DegreeToRadian(meanAnomaly),
-          semiMajorAxis * AuInKm,
+          semiMajorAxis * Constants.AuInMetres,
           orbitalEccentricity,
           this.DegreeToRadian(inclinationToTheEcliptic),
           this.DegreeToRadian(argumentOfPerihelion),
@@ -359,7 +355,7 @@ namespace OrbToSlf
       var state = ellipticMotion.ComputeStateVectors(
           massPrimary,
           this.DegreeToRadian(meanAnomaly),
-          semiMajorAxis * AuInKm,
+          semiMajorAxis * Constants.AuInMetres,
           orbitalEccentricity,
           this.DegreeToRadian(inclinationToTheEcliptic),
           this.DegreeToRadian(argumentOfPerihelion),
@@ -403,7 +399,7 @@ namespace OrbToSlf
       var state = ellipticMotion.ComputeStateVectors(
           massPrimary,
           this.DegreeToRadian(meanAnomaly),
-          semiMajorAxis * AuInKm,
+          semiMajorAxis * Constants.AuInMetres,
           orbitalEccentricity,
           this.DegreeToRadian(inclinationToTheEcliptic),
           this.DegreeToRadian(argumentOfPerihelion),
@@ -447,7 +443,7 @@ namespace OrbToSlf
       var state = ellipticMotion.ComputeStateVectors(
           massPrimary,
           this.DegreeToRadian(meanAnomaly),
-          semiMajorAxis * AuInKm,
+          semiMajorAxis * Constants.AuInMetres,
           orbitalEccentricity,
           this.DegreeToRadian(inclinationToTheEcliptic),
           this.DegreeToRadian(argumentOfPerihelion),

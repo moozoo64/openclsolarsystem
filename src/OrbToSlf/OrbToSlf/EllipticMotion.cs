@@ -28,11 +28,6 @@ namespace OrbToSlf
     public class EllipticMotion
     {
         /// <summary>
-        ///     The gravitational constant.
-        /// </summary>
-        private const double GravitationalConstant = 6.6725985e-11;
-
-        /// <summary>
         ///     The compute state vectors.
         /// </summary>
         /// <param name="mass">The mass.</param>
@@ -54,7 +49,7 @@ namespace OrbToSlf
             double argumentOfPerihelion,
             double longitudeOfAscendingNode)
         {
-            var u = GravitationalConstant * mass;
+            var u = Constants.GravitationalConstant * mass;
             var kepler = new Kepler();
             var eccentricAnomaly = kepler.Sinnott(meanAnomaly, eccentricity);
             var radius = semiMajorAxis * (1 - eccentricity * Math.Cos(eccentricAnomaly));

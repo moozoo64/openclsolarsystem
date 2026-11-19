@@ -45,6 +45,15 @@ endif()
 add_compile_options(-Wall -faligned-new)  # Common flags
 add_compile_definitions(CL_TARGET_OPENCL_VERSION=300)  # OpenCL version macro
 
+# Embed the OpenCL kernel source (adamsfma.cl) into the executable.
+# kernels.cpp is generated into the build directory from kernels.cpp.in so that
+# adamsfma.cl is the only copy of the kernels. CMAKE_CONFIGURE_DEPENDS makes the
+# build re-run CMake (and regenerate kernels.cpp) whenever adamsfma.cl changes.
+set(KERNEL_SOURCE_FILE ${CMAKE_CURRENT_SOURCE_DIR}/adamsfma.cl)
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${KERNEL_SOURCE_FILE})
+file(READ ${KERNEL_SOURCE_FILE} ADAMSFMA_SOURCE)
+configure_file(kernels.cpp.in ${CMAKE_CURRENT_BINARY_DIR}/kernels.cpp @ONLY)
+
 # List source files
 set(SOURCES
     application.cpp
@@ -54,7 +63,7 @@ set(SOURCES
     glcanvas.cpp
     clmodel.cpp
     global.cpp
-    kernels.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/kernels.cpp
 )
 
 # Define header files needed for IDEs
@@ -75,6 +84,13 @@ if(WIN32)
 else()
     add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 endif()
+
+# The generated kernels.cpp lives in the build dir but includes kernels.hpp from here
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+# Show the kernel source in IDEs without compiling it
+target_sources(${PROJECT_NAME} PRIVATE ${KERNEL_SOURCE_FILE})
+set_source_files_properties(${KERNEL_SOURCE_FILE} PROPERTIES HEADER_FILE_ONLY TRUE)
 
 # Link libraries to the executable
 target_link_libraries(${PROJECT_NAME} PRIVATE

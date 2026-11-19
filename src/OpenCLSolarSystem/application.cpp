@@ -1,5 +1,5 @@
 /*
-  Copyright 2013-2025 Michael William Simmons
+  Copyright 2013-2026 Michael William Simmons
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 // Parses the arguments passed on the command line
 bool Application::Args(int argc, wxChar **argv)
 {
-  this->numParticles = 2560;
+  this->numParticles = 2048; // one of the "Number of Bodies" menu values, so the menu shows it
   this->numGrav = 16;
   this->useLastDevice = true;
   this->tryForCPUFirst = false;
@@ -78,7 +78,7 @@ Application::Application()
   this->smooth = false;
   this->doubleBuffer = true;
   this->stereo = false;
-  this->numParticles = 2560;
+  this->numParticles = 2048; // one of the "Number of Bodies" menu values, so the menu shows it
   this->numGrav = 16;
   this->useLastDevice = true;
   this->tryForCPUFirst = false;
@@ -107,12 +107,6 @@ bool Application::OnInit()
     wxLog::SetActiveTarget(logWindow);
     wxLogDebug(wxT("Application::OnInit threadId: %ld"), wxThread::GetCurrentId());
     // #endif
-
-#if defined(__WXDEBUG__)
-    wxLogMessage(wxT("__WXDEBUG__ is defined"));
-#else
-    wxLogMessage(wxT("__WXDEBUG__ is not defined"));
-#endif
 
     // Process the command line arguments
     this->Args(argc, argv);

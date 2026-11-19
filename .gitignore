@@ -371,3 +371,6 @@ FodyWeavers.xsd
 /OpenCLSolarSystem/Debug_x64
 /OpenCLSolarSystem/Release_x64
 
+
+# Python virtual environment (tools/kernel-harness)
+.venv/

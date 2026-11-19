@@ -205,7 +205,7 @@ namespace OrbToSlf
               throw new Exception(string.Format("Bad semiMajorAxis {0}", semiMajorAxisString));
             }
 
-            semiMajorAxis = semiMajorAxis * Constants.AuInKm;
+            semiMajorAxis = semiMajorAxis * Constants.AuInMetres;
 
             var uncertaintyParameterString = line.Substring(106 - 1, 1);
             if (!int.TryParse(uncertaintyParameterString, out var uncertaintyParameter))

@@ -1,5 +1,5 @@
 /*
-  Copyright 2013-2025 Michael William Simmons
+  Copyright 2013-2026 Michael William Simmons
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -97,6 +97,7 @@ public:
    * @return true if import successful
    */
   bool ImportSLF(wxString fileName);
+  long CountLines(wxString fileName);
 
   /**
    * @brief Exports current state to Solex SLF format

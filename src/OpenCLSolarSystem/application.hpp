@@ -1,5 +1,5 @@
 /*
-  Copyright 2013-2025 Michael William Simmons
+  Copyright 2013-2026 Michael William Simmons
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ private:
   bool tryForCPUFirst;   /**< Prefer CPU over GPU for computations */
 
   // Simulation parameters
-  int numParticles; /**< Number of particles in the simulation (default: 2560) */
+  int numParticles; /**< Number of particles in the simulation (default: 2048) */
   int numGrav;      /**< Number of gravitational bodies (default: 16) */
 
   // Application components

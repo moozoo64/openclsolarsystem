@@ -1,5 +1,5 @@
 /*
-  Copyright 2013-2025 Michael William Simmons
+  Copyright 2013-2026 Michael William Simmons
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -90,7 +90,6 @@ enum
   ID_SETCENTER13,
   ID_SETCENTER14,
   ID_SETCENTER15,
-  ID_SETCENTER16,
   ID_LOGENCOUNTERS,
 };
 
@@ -158,7 +157,6 @@ EVT_MENU(ID_SETCENTER12, Frame::OnSetCenter)
 EVT_MENU(ID_SETCENTER13, Frame::OnSetCenter)
 EVT_MENU(ID_SETCENTER14, Frame::OnSetCenter)
 EVT_MENU(ID_SETCENTER15, Frame::OnSetCenter)
-EVT_MENU(ID_SETCENTER16, Frame::OnSetCenter)
 EVT_MENU(ID_SETNEWTONIAN, Frame::OnSetAcceleration)
 EVT_MENU(ID_SETRELATIVISTIC, Frame::OnSetAcceleration)
 EVT_MENU(ID_SETRELATIVISTICL, Frame::OnSetAcceleration)
@@ -345,7 +343,6 @@ void Frame::InitFrame(bool doubleBuffer, bool smooth, bool lighting, bool stereo
     menuCenterOn->AppendRadioItem(ID_SETCENTER13, this->initialState->physicalProperties[13].Name);
     menuCenterOn->AppendRadioItem(ID_SETCENTER14, this->initialState->physicalProperties[14].Name);
     menuCenterOn->AppendRadioItem(ID_SETCENTER15, this->initialState->physicalProperties[15].Name);
-    menuCenterOn->AppendRadioItem(ID_SETCENTER16, this->initialState->physicalProperties[16].Name);
 
     // Create a menu that lets the user choose how asteroids are displayed.
     wxMenu *menuOptions = new wxMenu;
@@ -376,32 +373,6 @@ void Frame::InitFrame(bool doubleBuffer, bool smooth, bool lighting, bool stereo
     this->glCanvas->blending = true;
     this->glCanvas->numParticles = this->numParticles;
     this->glCanvas->numGrav = this->numGrav;
-    // this->glCanvas->CreateOpenGlContext(this->numParticles, this->numGrav);
-
-    // // Create an openCL model to run the simulation and initialise it
-    // this->clModel = new CLModel();
-    // this->ChooseDevice(this->config);
-    // this->clModel->CreateBufferObjects(this->glCanvas->getVbo(), this->numParticles, this->numGrav);
-    // this->clModel->CompileProgramAndCreateKernels();
-    // this->glCanvas->SetColours(this->initialState->initialColorData);
-    // this->clModel->SetInitalState(this->initialState->initialPositions, this->initialState->initialVelocities);
-    // this->clModel->julianDate = this->initialState->initialJulianDate;
-    // this->clModel->time = 0.0f;
-    // this->clModel->SetKernelArgumentsAndGroupSize();
-    // this->clModel->UpdateDisplay();
-
-    // // set the keyboard focus to the simmulation display so that the keyboard functions work
-    // this->glCanvas->SetFocus();
-
-    // Update the menu items to reflect the current state
-    // this->UpdateMenuItems();
-
-    // menuBar = this->GetMenuBar();
-    // wxMenuItem *menuItem;
-    // menuItem = menuBar->FindItem(ID_SETADAMS11);
-    // menuItem->Check(true);
-    // menuItem = menuBar->FindItem(ID_SETRELATIVISTIC);
-    // menuItem->Check(true);
 
     wxLogDebug(wxT("Init Frame Succeeded"));
   }
@@ -758,7 +729,8 @@ void Frame::OnSetDeltaTime(wxCommandEvent &event)
     this->clModel->delT = 4 * 60 * 60.0f;
     break;
   }
-  this->clModel->step = 0;
+  // The Adams history was built with the old time step, so restart with the RK4 startup
+  this->clModel->RestartIntegration();
   this->clModel->SetKernelArgumentsAndGroupSize();
 }
 
@@ -816,9 +788,6 @@ void Frame::OnSetCenter(wxCommandEvent &event)
     break;
   case ID_SETCENTER15:
     this->clModel->centerBody = 15;
-    break;
-  case ID_SETCENTER16:
-    this->clModel->centerBody = 16;
     break;
   default:
     this->clModel->centerBody = 0;
@@ -1068,8 +1037,6 @@ void Frame::UpdateMenuItems()
     menuItem->SetItemLabel(this->initialState->physicalProperties[14].Name);
     menuItem = menuBar->FindItem(ID_SETCENTER15);
     menuItem->SetItemLabel(this->initialState->physicalProperties[15].Name);
-    menuItem = menuBar->FindItem(ID_SETCENTER16);
-    menuItem->SetItemLabel(this->initialState->physicalProperties[16].Name);
   }
 }
 
@@ -1224,32 +1191,32 @@ void Frame::OnSetIntegrator(wxCommandEvent &event)
   switch (event.GetId())
   {
   case ID_SETADAMS4:
-    this->clModel->adamsBashforthKernelName = new wxString("adamsBashforth4");
-    this->clModel->adamsMoultonKernelName = new wxString("adamsMoulton3");
+    this->clModel->adamsBashforthKernelName = wxT("adamsBashforth4");
+    this->clModel->adamsMoultonKernelName = wxT("adamsMoulton3");
     break;
   case ID_SETADAMS8:
-    this->clModel->adamsBashforthKernelName = new wxString("adamsBashforth8");
-    this->clModel->adamsMoultonKernelName = new wxString("adamsMoulton7");
+    this->clModel->adamsBashforthKernelName = wxT("adamsBashforth8");
+    this->clModel->adamsMoultonKernelName = wxT("adamsMoulton7");
     break;
   case ID_SETADAMS10:
-    this->clModel->adamsBashforthKernelName = new wxString("adamsBashforth10");
-    this->clModel->adamsMoultonKernelName = new wxString("adamsMoulton9");
+    this->clModel->adamsBashforthKernelName = wxT("adamsBashforth10");
+    this->clModel->adamsMoultonKernelName = wxT("adamsMoulton9");
     break;
   case ID_SETADAMS11:
-    this->clModel->adamsBashforthKernelName = new wxString("adamsBashforth11");
-    this->clModel->adamsMoultonKernelName = new wxString("adamsMoulton10");
+    this->clModel->adamsBashforthKernelName = wxT("adamsBashforth11");
+    this->clModel->adamsMoultonKernelName = wxT("adamsMoulton10");
     break;
   case ID_SETADAMS12:
-    this->clModel->adamsBashforthKernelName = new wxString("adamsBashforth12");
-    this->clModel->adamsMoultonKernelName = new wxString("adamsMoulton11");
+    this->clModel->adamsBashforthKernelName = wxT("adamsBashforth12");
+    this->clModel->adamsMoultonKernelName = wxT("adamsMoulton11");
     break;
   case ID_SETADAMS16:
-    this->clModel->adamsBashforthKernelName = new wxString("adamsBashforth16");
-    this->clModel->adamsMoultonKernelName = new wxString("adamsMoulton15");
+    this->clModel->adamsBashforthKernelName = wxT("adamsBashforth16");
+    this->clModel->adamsMoultonKernelName = wxT("adamsMoulton15");
     break;
   default:
-    this->clModel->adamsBashforthKernelName = new wxString("adamsBashforth11");
-    this->clModel->adamsMoultonKernelName = new wxString("adamsMoulton10");
+    this->clModel->adamsBashforthKernelName = wxT("adamsBashforth11");
+    this->clModel->adamsMoultonKernelName = wxT("adamsMoulton10");
     break;
   }
   this->ResetAll();
@@ -1261,16 +1228,16 @@ void Frame::OnSetAcceleration(wxCommandEvent &event)
   switch (event.GetId())
   {
   case ID_SETNEWTONIAN:
-    this->clModel->accelerationKernelName = new wxString("newtonian");
+    this->clModel->accelerationKernelName = wxT("newtonian");
     break;
   case ID_SETRELATIVISTIC:
-    this->clModel->accelerationKernelName = new wxString("relativistic");
+    this->clModel->accelerationKernelName = wxT("relativistic");
     break;
   case ID_SETRELATIVISTICL:
-    this->clModel->accelerationKernelName = new wxString("relativisticLocal");
+    this->clModel->accelerationKernelName = wxT("relativisticLocal");
     break;
   default:
-    this->clModel->accelerationKernelName = new wxString("relativistic");
+    this->clModel->accelerationKernelName = wxT("relativistic");
     break;
   }
   this->ResetAll();
@@ -1294,8 +1261,8 @@ void Frame::OnClose(wxCloseEvent &event)
 void Frame::OnAbout(wxCommandEvent &WXUNUSED(event))
 {
   wxString message;
-  message.Printf(wxT("Solar System Simulation\n (c) 2013-2025 Michael Simmons\nbody count:%d\nWith Mass:%d\nMax Count Possible:%d\nPredictor %s\nCorrector %s\nPlatform: %s\nDevice: %s\nCL Version: %s\nWeb: https://github.com/moozoo64/openclsolarsystem"),
-                 this->numParticles, this->numGrav, this->clModel->maxNumParticles, this->clModel->adamsBashforthKernelName->c_str(), this->clModel->adamsMoultonKernelName->c_str(), this->clModel->platformName->c_str(), this->clModel->deviceName->c_str(), this->clModel->deviceCLVersion->c_str());
+  message.Printf(wxT("Solar System Simulation\n (c) 2013-2026 Michael Simmons\nbody count:%d\nWith Mass:%d\nMax Count Possible:%d\nPredictor %s\nCorrector %s\nPlatform: %s\nDevice: %s\nCL Version: %s\nWeb: https://github.com/moozoo64/openclsolarsystem"),
+                 this->numParticles, this->numGrav, this->clModel->maxNumParticles, this->clModel->adamsBashforthKernelName.c_str(), this->clModel->adamsMoultonKernelName.c_str(), this->clModel->platformName.c_str(), this->clModel->deviceName.c_str(), this->clModel->deviceCLVersion.c_str());
   wxMessageBox(message, wxT("About NBody"), wxOK | wxICON_INFORMATION);
 }
 void Frame::OnLogEncounters(wxCommandEvent &event)

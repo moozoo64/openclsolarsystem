@@ -6,10 +6,39 @@
 ## Overview 📝
 
 This program simulates the Solar System through numerical integration.  
-It utilises OpenCL™ to enable the integration of not only the planets but also 1,400,000+ asteroids.
+It utilises OpenCL™ to enable the integration of not only the planets but also 1,500,000+ asteroids.
 
 📥 The latest version of this program and its source can be found at:  
 [GitHub Repository](https://github.com/moozoo64/openclsolarsystem)
+
+### How it compares
+
+To my knowledge, this is the only interactive simulator that numerically integrates the full
+Minor Planet Center asteroid catalogue in real time on the GPU, with ephemeris-level accuracy
+checked against JPL DE441.
+
+* **Accuracy:** after 1 year the Earth is within 2 km of JPL Horizons, and after 10 years within
+  16 km. Mercury's relativistic perihelion advance comes out at 42.98″ per century, the value
+  general relativity predicts. See [tools/kernel-harness](tools/kernel-harness/README.md) for the
+  checks, which run in CI.
+* **Interactive simulators** such as Universe Sandbox and Gravity Simulator are built for
+  exploration rather than ephemeris accuracy, and handle far fewer bodies. Visualisers such as
+  Celestia, SpaceEngine and NASA's Eyes on Asteroids show precomputed or analytic orbits and don't
+  integrate them.
+* **Research integrators** are more accurate for a single body but are not interactive.
+  [ASSIST](https://iopscience.iop.org/article/10.3847/PSJ/acc9a9) (Holman et al. 2023) is the
+  reference for asteroid ephemerides, with a fuller force model (Earth's oblateness, relativity for
+  every body, non-gravitational forces). GPU codes such as GENGA and GLISSE target planet formation
+  and long-term stability, not the asteroid catalogue.
+* **The nearest prior work** is Sharp & Newman (2016),
+  ["GPU-enabled N-body simulations of the Solar System using a VOVS Adams integrator"](https://www.sciencedirect.com/science/article/abs/pii/S1877750316300412),
+  which pairs a CUDA force kernel with an Adams integrator for systems of up to a few thousand
+  bodies, without visualisation.
+
+In this simulation the asteroids are massless test particles: they feel the Sun, planets, Moon and
+the largest asteroids (16 by default, up to 512 or more), but not each other.
+
+If you know of software that does the same, please let me know.
 
 ## Getting Started 🚀
 
@@ -41,9 +70,10 @@ To fix this:
 3. Save with `File -> Save Initial` with the file name initial.bin in the programs directory.
 
 > 💡 **Tip**: For full 1.4 million objects simulation:
-
-> 1. Run `OrbToSlfConsole.exe` in the OrbToSlf folder
-> 2. Import the generated `Final.slf`
+>
+> 1. Download and install the .NET 10 runtime if its not already installed. [Dotnet Download](https://dotnet.microsoft.com/en-us/download)
+> 2. Run `OrbToSlfConsole.exe` in the OrbToSlf folder
+> 3. Import the generated `Final.slf`
 
 ### Recommended Settings ⚙️
 
@@ -60,9 +90,6 @@ To fix this:
 1. Center on body Earth
 2. Use the mouse scroll wheel to zoom in
 
-> ⚠️ **Known Issue**: Initial "Number of Bodies" shows maximum but is actually 2560.  
-> **Workaround**: Change the value to another number and back.
-
 ## Command Line Options
 
 | Option    | Description |
@@ -78,7 +105,8 @@ To fix this:
 ## Stability and Accuracy
 
 During the first 16 time steps the program initialises the Adams Bashforth Moulton history.
-Currently this is done in a very inaccurate manner. I plan to implement a runge kutta 7th order method for this in the future.
+Each of these steps is taken with 4th order Runge Kutta, split into 10 sub-steps (e.g. 24 min sub-steps for a 4 hr Time Delta).
+Changing the Time Delta restarts this initialisation.
 
 The Adams Bashforth Moulton integration method is unstable for higher order methods used with large time steps.  
 With "Adams Bashforth Moulton 11" and a Time Delta to 4 hr the integration appears stable.  
@@ -99,8 +127,10 @@ A file `mpcsmall.slf` is included in the source. It was generated from:
 
 * The MPC MPCORB.DAT
 * JPLHorizons API for the planets and moon
-* Both sources use the same epoch
-* Generated using the program found in the OrbToSlf directory
+* Both sources use the same epoch (currently JD 2461200.5, the MPCORB.DAT epoch when it was made)
+* Generated using the program found in the OrbToSlf directory, with `OrbToSlfConsole MaxBodies=32768`
+  (OrbToSlf writes `FINAL.SLF`; rename it to `mpcsmall.slf`). After regenerating it, refresh the
+  harness's Horizons reference with `python tools/kernel-harness/fetch_horizons.py --epoch <new epoch>`
 
 The OrbToSlf program generates a .slf file from either:
 
@@ -184,12 +214,10 @@ cmake --build build --config Release -j8
 
 ```bash
 cd src/OrbToSlf
-dotnet publish OrbToSlfConsole/OrbToSlfConsole.csproj --configuration Release --framework net8.0 --output ./OrbToSlfConsole/bin/Release/publish
+dotnet publish OrbToSlfConsole/OrbToSlfConsole.csproj --configuration Release --framework net10.0 --output ./OrbToSlfConsole/bin/Release/publish
 ```
 
 ## Tools and Libraries Required to Compile the Source Under Ubuntu 24.04
-
-> ⚠️ **Important**: Builds but not running yet.
 
 See the build configuration at: [Ubuntu Workflow Build Configuration](https://github.com/moozoo64/openclsolarsystem/blob/master/.github/workflows/ubuntu.yaml)
 
@@ -197,8 +225,8 @@ See the build configuration at: [Ubuntu Workflow Build Configuration](https://gi
 
 ```bash
 sudo apt-get update
-sudo apt install build-essential git cmake ninja-build libgl1-mesa-dev libglew-dev opencl-headers ocl-icd-opencl-dev libwxgtk3.2-dev dotnet-sdk-8.0
-sudo apt install libglew2.2 libwxgtk-gl3.2-1t64 libwxgtk3.2-1t64 libwxbase3.2-1t64 ocl-icd-libopencl1 dotnet-runtime-8.0
+sudo apt install build-essential git cmake ninja-build libgl1-mesa-dev libglew-dev opencl-headers ocl-icd-opencl-dev libwxgtk3.2-dev dotnet-sdk-10.0
+sudo apt install libglew2.2 libwxgtk-gl3.2-1t64 libwxgtk3.2-1t64 libwxbase3.2-1t64 ocl-icd-libopencl1 dotnet-runtime-10.0
 ```
 
 ### 2. Checkout and build OpenCLSolarSystem and OrbToSlf
@@ -209,7 +237,7 @@ cd openclsolarsystem
 cmake -B build -S src/OpenCLSolarSystem -DCMAKE_BUILD_TYPE=Release
 cmake --build build --config Release -j$(nproc)
 cd src/OrbToSlf
-dotnet publish OrbToSlfConsole/OrbToSlfConsole.csproj --configuration Release --framework net8.0 --self-contained false -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true --output ./OrbToSlfConsole/bin/Release/publish
+dotnet publish OrbToSlfConsole/OrbToSlfConsole.csproj --configuration Release --framework net10.0 --self-contained false -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true --output ./OrbToSlfConsole/bin/Release/publish
 cd ./OrbToSlfConsole/bin/Release/publish
 ./OrbToSlfConsole
 ```
@@ -245,6 +273,10 @@ cd ./OrbToSlfConsole/bin/Release/publish
 
 * I got AI advice and assistance from Grok3 and Microsoft CoPilot and GitHub Copilot mostly on code refactoring and GitHub Actions
 * Grok3 produced createIcon.py
+* Later bug fixes and enhancements Co-Authored-By: Claude Opus 5.5
+  * A code review, then fixes to the constants (G and the relativistic term), the integrator startup and the OpenCL kernels
+  * The kernel test harness and the physics regression checks against JPL Horizons, run in CI
+  * OrbToSlf: masses from GM, system barycentres and an updated Info.csv
 
 ### Licensing
 
