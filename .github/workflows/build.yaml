@@ -118,7 +118,7 @@ jobs:
 
       - name: Upload test results
         if: always() # This ensures the step runs even if tests fail
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: test-results-${{matrix.env}}-${{ matrix.build }}
           path: src/OrbToSlf/OrbToSlfConsole/bin/Release/TestResults
@@ -177,14 +177,14 @@ jobs:
 
       - name: Upload artifacts
         if: ${{ env.SHOULD_RELEASE == 'true' || env.SHOULD_UPLOAD_ARTIFACT == 'true' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           path: OpenClSolarSystem-${{ steps.tag.outputs.name }}-${{matrix.env}}-${{ matrix.build }}.zip
           name: OpenClSolarSystem-${{ steps.tag.outputs.name }}-${{matrix.env}}-${{ matrix.build }}.zip
 
       - name: Upload artifacts Checksum
         if: ${{ env.SHOULD_RELEASE == 'true' || env.SHOULD_UPLOAD_ARTIFACT == 'true' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           path: OpenClSolarSystem-${{ steps.tag.outputs.name }}-${{matrix.env}}-${{ matrix.build }}.sha256
           name: OpenClSolarSystem-${{ steps.tag.outputs.name }}-${{matrix.env}}-${{ matrix.build }}.sha256

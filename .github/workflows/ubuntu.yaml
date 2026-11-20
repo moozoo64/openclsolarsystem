@@ -173,14 +173,14 @@ jobs:
 
       - name: Upload .deb artifact
         if: ${{ env.SHOULD_RELEASE == 'true' || env.SHOULD_UPLOAD_ARTIFACT == 'true' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: OpenClSolarSystem-${{ steps.tag.outputs.name }}-ubuntu2404-Release.deb
           path: artifacts/OpenClSolarSystem-${{ steps.tag.outputs.name }}-ubuntu2404-Release.deb
 
       - name: Upload SHA256 checksum
         if: ${{ env.SHOULD_RELEASE == 'true' || env.SHOULD_UPLOAD_ARTIFACT == 'true' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: OpenClSolarSystem-${{ steps.tag.outputs.name }}-ubuntu2404-Release.sha256
           path: artifacts/OpenClSolarSystem-${{ steps.tag.outputs.name }}-ubuntu2404-Release.sha256
