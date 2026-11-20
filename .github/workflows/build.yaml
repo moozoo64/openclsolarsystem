@@ -159,6 +159,22 @@ jobs:
           $hash = Get-FileHash -Algorithm SHA256 OpenClSolarSystem-${{ steps.tag.outputs.name }}-${{matrix.env}}-${{ matrix.build }}.zip
           $hash.Hash | Out-File -FilePath OpenClSolarSystem-${{ steps.tag.outputs.name }}-${{matrix.env}}-${{ matrix.build }}.sha256
 
+      - name: VirusTotal scan
+        id: vt
+        if: ${{ env.SHOULD_RELEASE == 'true' || env.SHOULD_UPLOAD_ARTIFACT == 'true' }}
+        continue-on-error: true
+        uses: crazy-max/ghaction-virustotal@v5
+        with:
+          vt_api_key: ${{ secrets.VT_API_KEY }}
+          request_rate: 4
+          files: |
+            OpenClSolarSystem-${{ steps.tag.outputs.name }}-${{ matrix.env }}-${{ matrix.build }}.zip
+
+      - name: Show VirusTotal link
+        if: ${{ steps.vt.outputs.analysis != '' }}
+        run: |
+          Add-Content $env:GITHUB_STEP_SUMMARY "VirusTotal: ${{ steps.vt.outputs.analysis }}"
+
       - name: Upload artifacts
         if: ${{ env.SHOULD_RELEASE == 'true' || env.SHOULD_UPLOAD_ARTIFACT == 'true' }}
         uses: actions/upload-artifact@v4
