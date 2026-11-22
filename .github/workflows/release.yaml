@@ -48,8 +48,14 @@ jobs:
       create_release: ${{ github.event_name == 'push' || github.event.inputs.create_release == true }}
     secrets: inherit
 
+  build-fedora:
+    uses: ./.github/workflows/fedora.yaml
+    with:
+      create_release: ${{ github.event_name == 'push' || github.event.inputs.create_release == true }}
+    secrets: inherit
+
   create-release:
-    needs: [build-windows, build-ubuntu]
+    needs: [build-windows, build-ubuntu, build-fedora]
     if: success()
     runs-on: windows-latest
     steps:
@@ -87,6 +93,7 @@ jobs:
             artifacts/**/OpenClSolarSystem-*.zip
             artifacts/**/OpenClSolarSystem-*.sha256
             artifacts/**/OpenClSolarSystem-*.deb
+            artifacts/**/OpenClSolarSystem-*.rpm
           tag_name: ${{ steps.tag.outputs.name || 'v1.0.0' }}
           name: Release ${{ steps.tag.outputs.name }}
           body: |
@@ -101,6 +108,7 @@ jobs:
             - Windows: UCRT64 (x86_64)
             - Windows: CLANG64 (x86_64)
             - Ubuntu 24.04 Package (.deb)
+            - Fedora / CentOS Stream / RHEL 9+ Package (.rpm)
 
             ### Installation
             #### Windows:
@@ -113,6 +121,12 @@ jobs:
             2. Verify the SHA256 checksum
             3. Install with `sudo dpkg -i OpenClSolarSystem-*.deb`
 
+            #### Fedora / CentOS Stream / RHEL / Rocky / Alma (9 or later):
+            1. Download the .rpm package
+            2. Verify the SHA256 checksum
+            3. On EL (CentOS/RHEL/Rocky/Alma) enable EPEL first: `sudo dnf install epel-release && sudo dnf config-manager --set-enabled crb`
+            4. Install with `sudo dnf install ./OpenClSolarSystem-*.rpm`
+
             ### SHA256 Verification for Windows builds
             ```powershell
             Get-FileHash OpenClSolarSystem-*.zip -Algorithm SHA256
@@ -121,4 +135,9 @@ jobs:
             ### SHA256 Verification for Ubuntu builds
             ```bash
             sha256sum OpenClSolarSystem-*.deb
+            ```
+
+            ### SHA256 Verification for Fedora / CentOS builds
+            ```bash
+            sha256sum OpenClSolarSystem-*.rpm
             ```
